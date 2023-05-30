@@ -1,0 +1,29 @@
+name: DiscordChatMonitor
+main: valorless.discordchatmonitor.DiscordChatMonitor
+version: 1.2.0.58
+author: Valorless
+api-version: 1.18
+depend: [ValorlessUtils]
+softdepend: [LuckPerms]
+commands:
+  dcm:
+    description: Main command.
+    usage:
+  dcm reload:
+    description: Reloads the configuration file.
+    usage: /db reload
+    permission: discordchatmonitor.reload
+    permission-message: You don't have discordchatmonitor.reload.
+  server:
+    description: /say replacement.
+    permission: discordchatmonitor.server
+    permission-message: Only usable by the console.
+permissions:
+  discordchatmonitor.*:
+    description: Gives access to all discordchatmonitor commands.
+    children:
+        discordchatmonitor.reload: true
+  discordchatmonitor.reload:
+    description: Allows you to reload the configuration.
+    default: op
+  

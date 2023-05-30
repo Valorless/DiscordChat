@@ -1,0 +1,40 @@
+############################################################
+# +------------------------------------------------------+ #
+# |                      Messages                        | #
+# +------------------------------------------------------+ #
+############################################################
+
+### NOTE: You cannot change %s. %s is used when formatting messages.
+# You may move %s around, but cannot rename it.
+
+# Prefix in front of all plugin messages sent with /server. '' for blank.
+console-prefix: '[§4Console§r]'
+
+# All messages can include Discord Markdown Highlighting.
+# https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-
+
+# All player messages.
+# %s = player's message.
+message: '%s'
+
+server-start: '**Chat Enabled**'
+
+server-stop: '**Chat Disabled**'
+
+# Player joined the server.
+# %s = player's username.
+join: '**%s** has joined the server.'
+
+# Player joined the server for the first time.
+# %s = player's username.
+join-first-time: '**%s** has joined the server for the first time!.'
+
+# Player left the server.
+# %s = player's username.
+leave: '**%s** has left the server.'
+
+# Join/Leave with Player counter.
+# 1. %s - Original message.
+# 2. %s - Online players.
+# 3. %s - Max players.
+with-player-count: '%s (%s/%s)'

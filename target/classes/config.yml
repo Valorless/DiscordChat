@@ -1,0 +1,44 @@
+############################################################
+# +------------------------------------------------------+ #
+# |                       Config                         | #
+# +------------------------------------------------------+ #
+############################################################
+
+# Webhook URL from your Discord server.
+webhook-url: ''
+
+# Bot picture for events.
+server-icon-url: '' # You must provide one for yourself.
+server-username: 'Server'
+
+# Replacement for the /say command. /server
+console-icon-url: 'https://haven.netherrain.net/media/images/console-icon.png'
+console-username: 'Console'
+
+# Should messages have timestamps.
+timestamp: true
+
+############################################################
+# +------------------------------------------------------+ #
+# |                       Events                         | #
+# +------------------------------------------------------+ #
+############################################################
+
+server-start: true
+server-stop: true
+join: true
+quit: true
+death: true
+join-quit-player-count: true
+
+############################################################
+# +------------------------------------------------------+ #
+# |                  LuckPerms Prefix                    | #
+# +------------------------------------------------------+ #
+############################################################
+
+# Prefix shown on Discord for the group 'default'.
+default-prefix: '[Traveler] '
+
+# Prefix shown on Discord for the group 'staff'.
+staff-prefix: '[★] '
