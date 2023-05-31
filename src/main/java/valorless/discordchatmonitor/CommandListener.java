@@ -64,7 +64,7 @@ public class CommandListener implements Listener { // Primary objective of Comma
 	    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
 	    	
 	    	webhook.setUsername(config.GetString("console-username"));
-	        webhook.setContent(message);
+	        webhook.setContent(Lang.RemoveColorCodesAndFormatting(message));
 	        for(Player player:Bukkit.getServer().getOnlinePlayers())
 			{
 				player.sendMessage(Lang.Get("console-prefix") + message);

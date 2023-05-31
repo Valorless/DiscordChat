@@ -6,9 +6,12 @@ valorless\discordchatmonitor\CommandListener.class
 valorless\discordchatmonitor\Lang$Placeholders.class
 valorless\discordchatmonitor\DiscordWebhook$EmbedObject.class
 valorless\discordchatmonitor\DiscordWebhook$EmbedObject$Author.class
+valorless\discordchatmonitor\uuid\UUIDTypeAdapter.class
 valorless\discordchatmonitor\DiscordWebhook.class
+valorless\discordchatmonitor\uuid\UUIDFetcher.class
 valorless\discordchatmonitor\DiscordWebhook$1.class
 valorless\discordchatmonitor\ChatListener.class
 valorless\discordchatmonitor\Lang.class
 valorless\discordchatmonitor\DiscordWebhook$EmbedObject$Footer.class
 valorless\discordchatmonitor\DiscordWebhook$JSONObject.class
+valorless\discordchatmonitor\HTTPRequest.class

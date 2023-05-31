@@ -52,4 +52,33 @@ public class Lang {
 		}
 		return Parse(String.format(lang.GetString(key), arg1.toString(), arg2.toString(), arg3.toString()));
 	}
+	
+	public static String RemoveColorCodesAndFormatting(String text) {
+		if(!Utils.IsStringNullOrEmpty(text)) {
+			text = text.replace("§1", "");
+			text = text.replace("§2", "");
+			text = text.replace("§3", "");
+			text = text.replace("§4", "");
+			text = text.replace("§5", "");
+			text = text.replace("§6", "");
+			text = text.replace("§7", "");
+			text = text.replace("§8", "");
+			text = text.replace("§9", "");
+			text = text.replace("§0", "");
+			text = text.replace("§a", "");
+			text = text.replace("§b", "");
+			text = text.replace("§c", "");
+			text = text.replace("§d", "");
+			text = text.replace("§e", "");
+			text = text.replace("§f", "");
+			text = text.replace("§o", "");
+			text = text.replace("§l", "");
+			text = text.replace("§k", "");
+			text = text.replace("§m", "");
+			text = text.replace("§n", "");
+			text = text.replace("§r", "");
+			text = text.replace("§x", "");
+		}
+		return text;
+	}
 }

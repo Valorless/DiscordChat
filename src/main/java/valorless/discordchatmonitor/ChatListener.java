@@ -1,5 +1,6 @@
 package valorless.discordchatmonitor;
 
+import valorless.discordchatmonitor.uuid.UUIDFetcher;
 import valorless.valorlessutils.ValorlessUtils.*;
 import valorless.valorlessutils.config.Config;
 
@@ -11,7 +12,11 @@ import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.NodeType;
 import net.luckperms.api.node.types.InheritanceNode;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +26,6 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -159,8 +163,19 @@ public class ChatListener implements Listener { // Primary objective of BanListe
     		webhook.setUsername(player.getName());
     	}
         webhook.setContent(FormatMessage(message));
-        //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
-        webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId() + ".png");
+        webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
+        if(Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
+        	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
+        }else {
+        	Log.Warning(plugin, "Failed to get UUID of player " + player.getName() + ", attempting another way.");
+        	
+        	if(!Utils.IsStringNullOrEmpty(UUIDFetcher.getUUID(player.getName()).toString())) {
+            	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + UUIDFetcher.getUUID(player.getName()).toString() + ".png"); // Attempt to fetch player UUID from Mojang API.
+        	}else {
+            	Log.Error(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
+            	Log.Error(plugin, "Cannot set the bot's picture.");
+        	}
+       }
         
         try {
         	//Log.Info(plugin, "Executing webhook.");
@@ -174,9 +189,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	String FormatMessage(String message) {
 		if(config.GetBool("timestamp")) {
 			Date now = new Date();
-			return String.format("[<t:%s:T>] %s", now.getTime() / 1000, encodeStringToUnicodeSequence(message));
+			return String.format("[<t:%s:T>] %s", now.getTime() / 1000, encodeStringToUnicodeSequence(Lang.RemoveColorCodesAndFormatting(message)));
 		} else {
-			return encodeStringToUnicodeSequence(message);
+			return encodeStringToUnicodeSequence(Lang.RemoveColorCodesAndFormatting(message));
 		}
 	}
 	
