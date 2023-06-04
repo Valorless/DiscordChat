@@ -39,6 +39,7 @@ public class CommandListener implements Listener { // Primary objective of Comma
 					sender.sendMessage(Name +" §aReloaded.");
 					Log.Info(plugin, "Reloaded!");
 					DiscordChatMonitor.enabled = true;
+					DiscordChatMonitor.error = false;
 					DiscordChatMonitor.username = config.GetString("server-username");
 					if(config.GetString("webhook-url") == "") {
 						Log.Info(plugin, "Disabled!");

@@ -1,6 +1,6 @@
 name: DiscordChatMonitor
 main: valorless.discordchatmonitor.DiscordChatMonitor
-version: 1.2.2.67
+version: 1.2.3.72
 author: Valorless
 api-version: 1.18
 depend: [ValorlessUtils]

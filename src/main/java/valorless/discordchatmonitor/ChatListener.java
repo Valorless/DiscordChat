@@ -12,11 +12,7 @@ import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.NodeType;
 import net.luckperms.api.node.types.InheritanceNode;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -71,6 +67,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.Error(plugin, "§cConnection failed.");
+        	DiscordChatMonitor.error = true;
+        	Log.Error(plugin, "Plugin disabled to avoid further failed connections.");
+        	Log.Error(plugin, "Please reload the plugin to re-enable");
 		}
     }
 	
@@ -102,6 +101,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.Error(plugin, "§cConnection failed.");
+        	DiscordChatMonitor.error = true;
+        	Log.Error(plugin, "Plugin disabled to avoid further failed connections.");
+        	Log.Error(plugin, "Please reload the plugin to re-enable");
 		}
     }
 	
@@ -129,6 +131,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.Error(plugin, "§cConnection failed.");
+        	DiscordChatMonitor.error = true;
+        	Log.Error(plugin, "Plugin disabled to avoid further failed connections.");
+        	Log.Error(plugin, "Please reload the plugin to re-enable");
 		}
     }
 	
@@ -164,16 +169,16 @@ public class ChatListener implements Listener { // Primary objective of BanListe
     	}
         webhook.setContent(FormatMessage(message));
         webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
-        if(Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
+        if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
         	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
         }else {
-        	Log.Warning(plugin, "Failed to get UUID of player " + player.getName() + ", attempting another way.");
+        	Log.Debug(plugin, "Failed to get UUID of player " + player.getName() + ", attempting another way.");
         	
         	if(!Utils.IsStringNullOrEmpty(UUIDFetcher.getUUID(player.getName()).toString())) {
             	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + UUIDFetcher.getUUID(player.getName()).toString() + ".png"); // Attempt to fetch player UUID from Mojang API.
         	}else {
-            	Log.Error(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
-            	Log.Error(plugin, "Cannot set the bot's picture.");
+            	Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
+            	Log.Debug(plugin, "Cannot set the bot's picture.");
         	}
        }
         
@@ -183,6 +188,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.Error(plugin, "§cConnection failed.");
+        	DiscordChatMonitor.error = true;
+        	Log.Error(plugin, "Plugin disabled to avoid further failed connections.");
+        	Log.Error(plugin, "Please reload the plugin to re-enable");
 		}
     }
 	

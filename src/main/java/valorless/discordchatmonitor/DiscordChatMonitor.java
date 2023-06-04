@@ -23,6 +23,7 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
 	public static Boolean enabled = true;
 	public Config config;
 	public static String username = "";
+	public static boolean error = false;
 	
 	public void onLoad() {
 		plugin = this;
@@ -119,6 +120,9 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.Error(plugin, "Connection failed.");
+        	DiscordChatMonitor.error = true;
+        	Log.Error(plugin, "Plugin disabled to avoid further failed connections.");
+        	Log.Error(plugin, "Please reload the plugin to re-enable");
 		}
     }
     
@@ -138,6 +142,9 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.Error(plugin, "Connection failed.");
+        	DiscordChatMonitor.error = true;
+        	Log.Error(plugin, "Plugin disabled to avoid further failed connections.");
+        	Log.Error(plugin, "Please reload the plugin to re-enable");
 		}
     }
 
