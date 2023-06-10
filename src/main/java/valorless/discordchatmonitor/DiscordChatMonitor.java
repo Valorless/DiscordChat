@@ -1,18 +1,13 @@
 package valorless.discordchatmonitor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.luckperms.api.LuckPerms;
+import valorless.discordchatmonitor.hooks.*;
 import valorless.valorlessutils.ValorlessUtils.*;
 import valorless.valorlessutils.config.Config;
 
@@ -21,9 +16,13 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
 	public static JavaPlugin plugin;
 	String Name = "§7[§4DiscordChatMonitor§7]§r";
 	public static Boolean enabled = true;
-	public Config config;
+	public static Config config;
 	public static String username = "";
 	public static boolean error = false;
+    
+    public String[] commands = {
+    		"discordchatmonitor", "dcm", "server"
+    };
 	
 	public void onLoad() {
 		plugin = this;
@@ -38,28 +37,17 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
 	}
 	
 	@Override
-    public void onEnable() {
-		//Config.Load(plugin);
-		
-		Log.Info(plugin, "Attempting to hook LuckPerms.");
-		if (Bukkit.getPluginManager().getPlugin("LuckPerms") != null) {
-			RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
-	    	if (provider != null) {
-	    		Log.Info(plugin, "LuckPerms integrated!");
-	    	}else {
-	    		Log.Info(plugin, "LuckPerms not detected.");
-	    	}
-		}else {
-			Log.Info(plugin, "LuckPerms not detected.");
-		}
+    public void onEnable() {		
+		Hooks();
 		
 		//Config
+		config.AddValidationEntry("debug", false);
 		config.AddValidationEntry("webhook-url", "");
 		config.AddValidationEntry("server-icon-url", "");
 		config.AddValidationEntry("server-username", "Server");
-		config.AddValidationEntry("console-icon-url", "");
+		config.AddValidationEntry("console-icon-url", "https://haven.netherrain.net/media/images/console-icon.png");
 		config.AddValidationEntry("console-username", "Console");
-		config.AddValidationEntry("timestamp", true);
+		config.AddValidationEntry("player-username", "%player%");
 
 		config.AddValidationEntry("server-start", true);
 		config.AddValidationEntry("server-stop", true);
@@ -71,17 +59,18 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
 		
 		//Lang
 		Lang.lang.AddValidationEntry("console-prefix", "[§4Console§r]");
-		Lang.lang.AddValidationEntry("server-start", "**Chat Enabled**");
-		Lang.lang.AddValidationEntry("server-stop", "**Chat Disabled**");
-		Lang.lang.AddValidationEntry("message", "%s");
-		Lang.lang.AddValidationEntry("join", "**%s** has joined the server.");
-		Lang.lang.AddValidationEntry("join-first-time", "**%s** has joined the server for the first time!.");
-		Lang.lang.AddValidationEntry("left", "**%s** has left the server.");
-		Lang.lang.AddValidationEntry("with-player-count", "%s (%s/%s)");
+		Lang.lang.AddValidationEntry("message", "%timestamp% %message%");
+		Lang.lang.AddValidationEntry("server-start", "%timestamp% **Chat Enabled**");
+		Lang.lang.AddValidationEntry("server-stop", "%timestamp% **Chat Disabled**");
+		Lang.lang.AddValidationEntry("server-reconnect", "%timestamp% **Chat Reconnected**");
+		Lang.lang.AddValidationEntry("join", "%timestamp% **%player%** has joined the server.");
+		Lang.lang.AddValidationEntry("join-first-time", "%timestamp% **%player%** has joined the server for the first time!.");
+		Lang.lang.AddValidationEntry("leave", "%timestamp% **%player%** has left the server.");
+		Lang.lang.AddValidationEntry("with-player-count", "%message% (%player-count%/%player-count-max%)");
 		Lang.lang.Validate();
 		
 		getServer().getPluginManager().registerEvents(new ChatListener(), this);
-		getServer().getPluginManager().registerEvents(new CommandListener(), this);
+		//getServer().getPluginManager().registerEvents(new CommandListenerOld(), this);
 		
 		if(config.GetString("webhook-url") == "") {
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
@@ -89,9 +78,7 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
 			enabled = false;
 		}
 		
-		getCommand("dcm").setExecutor(this);
-		getCommand("dcm reload").setExecutor(this);
-		getCommand("server").setExecutor(this);
+		RegisterCommands();
 		
 		if(!enabled) {
 			for(Player player:Bukkit.getServer().getOnlinePlayers()) //Message OPs on reload or start.
@@ -111,7 +98,6 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
     	
     	webhook.setUsername(username);
         webhook.setContent(Lang.Get("server-start"));
-        //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
         webhook.setAvatarUrl(config.GetString("server-icon-url"));
         
         try {
@@ -133,7 +119,6 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
     	
     	webhook.setUsername(username);
         webhook.setContent(Lang.Get("server-stop"));
-        //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
         webhook.setAvatarUrl(config.GetString("server-icon-url"));
         
         try {
@@ -146,6 +131,18 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
         	Log.Error(plugin, "Plugin disabled to avoid further failed connections.");
         	Log.Error(plugin, "Please reload the plugin to re-enable");
 		}
+    }
+    
+    void Hooks() {
+    	LuckPermsHook.Hook();
+    	PlaceholderAPIHook.Hook();
+    }
+    
+    public void RegisterCommands() {
+    	 for (int i = 0; i < commands.length; i++) {
+    		Log.Debug(plugin, "Registering Command: " + commands[i]);
+    		getCommand(commands[i]).setExecutor(new CommandListener());
+    	}
     }
 
     
