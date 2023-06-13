@@ -52,7 +52,7 @@ public final class DiscordChatMonitor extends JavaPlugin implements Listener {
 		config.AddValidationEntry("server-start", true);
 		config.AddValidationEntry("server-stop", true);
 		config.AddValidationEntry("join", true);
-		config.AddValidationEntry("leave", true);
+		config.AddValidationEntry("quit", true);
 		config.AddValidationEntry("death", true);
 		config.AddValidationEntry("join-quit-player-count", true);
 		config.Validate();

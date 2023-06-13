@@ -41,7 +41,7 @@ join: '%timestamp% **%player%** has joined the server.'
 # Player joined the server for the first time.
 # %player% = player's username.
 # %timestamp% = server time.
-join-first-time: '%timestamp% **%player%** has joined the server for the first time!.'
+join-first-time: '%timestamp% **%player%** has joined the server for the first time!'
 
 # Player left the server.
 # 1. %player% = player's username.

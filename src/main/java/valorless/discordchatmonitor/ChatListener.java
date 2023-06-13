@@ -1,28 +1,16 @@
 package valorless.discordchatmonitor;
 
-import valorless.discordchatmonitor.hooks.*;
 import valorless.discordchatmonitor.uuid.UUIDFetcher;
 import valorless.valorlessutils.ValorlessUtils.*;
 import valorless.valorlessutils.config.Config;
 
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.model.user.User;
-import net.luckperms.api.node.NodeType;
-import net.luckperms.api.node.types.InheritanceNode;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -51,7 +39,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		SendWebhook(event.getPlayer(), Lang.Get("message"));
     }
 	
-	@EventHandler
+	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent event) {
 		if(DiscordChatMonitor.enabled == false) {
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
@@ -79,7 +67,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
     }
 	
-	@EventHandler
+	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
 		if(DiscordChatMonitor.enabled == false) {
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
@@ -121,7 +109,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
     }
 	
-	@EventHandler
+	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerQuit(PlayerQuitEvent event) {
 		if(DiscordChatMonitor.enabled == false) {
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");

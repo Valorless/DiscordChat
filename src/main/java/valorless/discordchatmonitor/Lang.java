@@ -3,7 +3,10 @@ package valorless.discordchatmonitor;
 import valorless.valorlessutils.config.Config;
 
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -29,6 +32,7 @@ public class Lang {
 				text = text.replace("%player-count%", String.valueOf(placeholders.playerCount));
 				text = text.replace("%player-count-max%", String.valueOf(placeholders.playerCountMax));
 			}
+			text = hex(text);
 			text = text.replace("&", "§");
 			text = text.replace("\\n", "\n");
 			
@@ -72,6 +76,25 @@ public class Lang {
 	}
 	*/
 	
+	public static String hex(String message) {
+        Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
+        Matcher matcher = pattern.matcher(message);
+        while (matcher.find()) {
+            String hexCode = message.substring(matcher.start(), matcher.end());
+            String replaceSharp = hexCode.replace('#', 'x');
+           
+            char[] ch = replaceSharp.toCharArray();
+            StringBuilder builder = new StringBuilder("");
+            for (char c : ch) {
+                builder.append("&" + c);
+            }
+           
+            message = message.replace(hexCode, builder.toString());
+            matcher = pattern.matcher(message);
+        }
+        return ChatColor.translateAlternateColorCodes('&', message);
+    }
+	
 	public static String RemoveColorCodesAndFormatting(String text) {
 		if(!Utils.IsStringNullOrEmpty(text)) {
 			text = text.replace("§1", "");
@@ -96,7 +119,14 @@ public class Lang {
 			text = text.replace("§m", "");
 			text = text.replace("§n", "");
 			text = text.replace("§r", "");
+			text = text.replace("§A", "");
+			text = text.replace("§B", "");
+			text = text.replace("§C", "");
+			text = text.replace("§D", "");
+			text = text.replace("§E", "");
+			text = text.replace("§F", "");
 			text = text.replace("§x", "");
+			text = text.replace("§", "");
 		}
 		return text;
 	}
