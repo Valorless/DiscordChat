@@ -388,6 +388,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onAfkStatusChange(AfkStatusChangeEvent event) {
 		boolean afk = event.getValue();
+		@SuppressWarnings("deprecation")
 		Player player = event.getAffected().getBase();
 		String yesAfk = "**%s** is now AFK.";
 		String noAfk = "**%s** is no longer AFK.";
