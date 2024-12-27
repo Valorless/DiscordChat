@@ -4,18 +4,12 @@ version: version-number
 author: Valorless
 api-version: 1.18
 depend: [ValorlessUtils]
-softdepend: [LuckPerms, PlaceholderAPI]
+softdepend: [InteractiveChat, Essentials, PlaceholderAPI]
 commands:
   discordchat:
     description: Main command.
     usage:
     aliases: [dcm, dc]
-  discordchat reload:
-    description: Reloads the configuration file.
-    usage: /dcm reload
-    permission: discordchat.reload
-    permission-message: You don't have discordchat.reload.
-    aliases: dcm reload
   server:
     description: /say replacement.
     permission: discordchat.server

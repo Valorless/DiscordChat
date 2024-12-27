@@ -32,12 +32,11 @@ public class CommandListener implements CommandExecutor {
 
 		if(sender instanceof Player) {
 			if(args.length == 0) {
-				sender.sendMessage(Name + " DiscordChatMonitor by Valorless. Send events and messages to Discord.");
-				return true;
+				return false;
 			}
 			else 
 				if (args.length >= 1){
-					if(args[0].equalsIgnoreCase("reload") && sender.hasPermission("discordchatmonitor.reload")) {
+					if(args[0].equalsIgnoreCase("reload") && sender.hasPermission("discordchat.reload")) {
 						config.Reload();
 						Main.filter.Reload();
 						Lang.lang.Reload();

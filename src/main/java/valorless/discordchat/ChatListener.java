@@ -118,7 +118,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				String msg = "§c[BLOCKED] " + event.getPlayer().getName() + ": " + event.getMessage();
 				Log.Error(plugin, msg);
 				for(Player player : Bukkit.getOnlinePlayers()) {
-					if(player.hasPermission("discordchatmonitor.reload") || player.isOp()) {
+					if(player.hasPermission("discordchat.reload") || player.isOp()) {
 						player.sendMessage(msg);
 					}
 				}
@@ -130,7 +130,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				String msg = "§c[BLOCKED] " + event.getPlayer().getName() + ": " + event.getMessage();
 				Log.Error(plugin, msg);
 				for(Player player : Bukkit.getOnlinePlayers()) {
-					if(player.hasPermission("discordchatmonitor.reload") || player.isOp()) {
+					if(player.hasPermission("discordchat.reload") || player.isOp()) {
 						player.sendMessage(msg);
 					}
 				}
@@ -427,6 +427,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				ph.player = player;
 				Lang.SetPlaceholders(ph);
 		    	webhook.setUsername(FormatUsername(player, config.GetString("player-username")));
+		    	if(Bukkit.getPluginManager().getPlugin("InteractiveChat") != null) {
 		    	try {
 		    		//Log.Info(plugin, message);
 		    		ItemStack item = (ItemStack)args[0];
@@ -456,7 +457,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    	}catch(Exception E){
 		    		E.printStackTrace();
 		    	}
+		    	}
 		    	
+		    	if(Bukkit.getPluginManager().getPlugin("InteractiveChat") != null) {
 		    	if(message.contains("[ping]") || message.contains(String.format("<chat=%s:[ping]:>", player.getUniqueId().toString().toLowerCase()))) {
 		    		Log.Warning(plugin, message);
 		    		message.replace("[ping]", player.getPing() + "ms");
@@ -499,6 +502,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 					}
 		    		message.replace("[ender]", "[Enderchest]");
 		    		message.replace(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
+		    	}
 		    	}
 		    		
 		        webhook.setContent(FormatMessage(player, message));

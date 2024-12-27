@@ -193,7 +193,6 @@ public final class Main extends JavaPlugin implements Listener {
     }
     
     void Hooks() {
-    	LuckPermsHook.Hook();
     	PlaceholderAPIHook.Hook();
     }
     
