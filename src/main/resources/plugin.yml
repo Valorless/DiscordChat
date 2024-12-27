@@ -1,31 +1,31 @@
-name: DiscordChatMonitor
-main: valorless.discordchatmonitor.DiscordChatMonitor
+name: DiscordChat
+main: valorless.discordchat.Main
 version: version-number
 author: Valorless
 api-version: 1.18
 depend: [ValorlessUtils]
 softdepend: [LuckPerms, PlaceholderAPI]
 commands:
-  discordchatmonitor:
+  discordchat:
     description: Main command.
     usage:
-    aliases: dcm
-  discordchatmonitor reload:
+    aliases: [dcm, dc]
+  discordchat reload:
     description: Reloads the configuration file.
     usage: /dcm reload
-    permission: discordchatmonitor.reload
-    permission-message: You don't have discordchatmonitor.reload.
+    permission: discordchat.reload
+    permission-message: You don't have discordchat.reload.
     aliases: dcm reload
   server:
     description: /say replacement.
-    permission: discordchatmonitor.server
+    permission: discordchat.server
     permission-message: Only usable by the console.
 permissions:
-  discordchatmonitor.*:
-    description: Gives access to all discordchatmonitor commands.
+  discordchat.*:
+    description: Gives access to all discordchat commands.
     children:
-        discordchatmonitor.reload: true
-  discordchatmonitor.reload:
+        discordchat.reload: true
+  discordchat.reload:
     description: Allows you to reload the configuration.
     default: op
   

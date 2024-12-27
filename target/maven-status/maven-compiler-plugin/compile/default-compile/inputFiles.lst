@@ -1,12 +1,32 @@
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\ChatListener.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\uuid\UUIDFetcher.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\DiscordChatMonitor.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\Lang.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\DiscordWebhook.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\Metrics.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\hooks\PlaceholderAPIHook.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\uuid\UUIDTypeAdapter.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\CommandListenerOld.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\hooks\LuckPermsHook.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\Placeholders.java
-X:\Programs\eclipse-workspace\DiscordChatMonitor\src\main\java\valorless\discordchatmonitor\CommandListener.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\CommandListener.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\TaskChainTasks.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\AbortChainException.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\utils\InventoryImageGenerator.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\Bot.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\ChatListener.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\utils\ItemStackToPng.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\TaskChain.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\TaskChainUtil.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\hooks\LuckPermsHook.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\Main.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\DiscordUtils.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\TaskChainAsyncQueue.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\BukkitTaskChainFactory.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\hooks\PlaceholderAPIHook.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\utils\Metrics.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\utils\ImageLoader.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\utils\ImageSender.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\Lang.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\SharedTaskChain.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\utils\Placeholders.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\DiscordWebhook.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\uuid\UUIDFetcher.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\TaskChainAbortAction.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\TaskChainDataWrappers.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\TaskChainNullAction.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\MessageListener.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\utils\FileCleanup.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\GameInterface.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\TaskChainFactory.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\discord\taskchain\AsyncQueue.java
+E:\Projects\Minecraft Plugins\DiscordChatMonitor\src\main\java\valorless\discordchat\uuid\UUIDTypeAdapter.java
