@@ -39,16 +39,18 @@ server-icon-url: '' # You must provide one for yourself.
 server-username: 'Server'
 
 # Replacement for the /say command. /server
-console-icon-url: 'https://haven.netherrain.net/media/images/console-icon.png'
+console-icon-url: ''
 console-username: 'Console'
 
 # Player name formatting.
 # Supports PlaceholderAPI if installed.
-# DCM Placeholder: %player% - Player's username.
+# DiscordChat Placeholder: %player% - Player's username.
 player-username: '%player%'
 
+# Custom join message
 custom-join: '&7[&a+&7] %username%'
 
+# Custom leave message
 custom-leave: '&7[&c-&7] %username% (%cause%)'
 custom-leave-causes:
  another-location:
@@ -66,7 +68,6 @@ custom-leave-causes:
  anti-cheat:
   keyword: 'Unfair Advantage'
   value: 'Cheating?'
-
 
 ############################################################
 # +------------------------------------------------------+ #
