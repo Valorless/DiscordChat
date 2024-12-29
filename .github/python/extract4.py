@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image
 
 # Define paths
-RESOURCE_PACK_PATH = "C:/folder-containing-this-file"  # Default path to your resource pack
+RESOURCE_PACK_PATH = os.path.dirname(os.path.abspath(__file__))
 TEXTURES_PATH = os.path.join(RESOURCE_PACK_PATH, "pack/assets")  # Base path for textures (now more flexible)
 MODELS_PATH = os.path.join(RESOURCE_PACK_PATH, "pack/assets/minecraft/models/item")  # Corrected models path
 OUTPUT_PATH = os.path.join(RESOURCE_PACK_PATH, "extracted_textures")  # Corrected output folder name

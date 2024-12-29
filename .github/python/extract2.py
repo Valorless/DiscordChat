@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 # Define paths
-RESOURCE_PACK_PATH = "C:/folder-containing-this-file"  # Default path to your resource pack
+RESOURCE_PACK_PATH = os.path.dirname(os.path.abspath(__file__))
 TEXTURES_PATH = os.path.join(RESOURCE_PACK_PATH, "pack/assets/minecraft/textures")
 MODELS_PATH = os.path.join(RESOURCE_PACK_PATH, "pack/assets/minecraft/models/item")
 OUTPUT_PATH = os.path.join(RESOURCE_PACK_PATH, "extracted_textures")  # Destination folder for renamed textures
