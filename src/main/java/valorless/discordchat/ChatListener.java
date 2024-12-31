@@ -2,7 +2,6 @@ package valorless.discordchat;
 
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.ItemStackToPng;
-import valorless.discordchat.utils.Placeholders;
 import valorless.discordchat.uuid.UUIDFetcher;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
@@ -169,7 +168,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				.replace("%message%", event.getAdvancement().getDisplay().getTitle());
 		
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	webhook.setUsername(FormatUsername(player, config.GetString("player-username")));
+    	webhook.setUsername(FormatUsername(player, config.GetString("player-username").replace("%player%", event.getPlayer().getName())));
         //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
     	webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
         if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
@@ -526,6 +525,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
     }
 	
 	String FormatUsername(Player player, String message) {
+		message = message.replace("%player%", player.getName());
 		message = Lang.ParsePlaceholders(message, player);
 		message = Lang.Parse(message);
 		return encodeStringToUnicodeSequence(Lang.RemoveColorCodesAndFormatting(message));

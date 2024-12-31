@@ -2,10 +2,6 @@ package valorless.discordchat;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import org.bukkit.Bukkit;
-
-import valorless.discordchat.utils.InventoryImageGenerator;
-
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 public class DiscordWebhook {
 
