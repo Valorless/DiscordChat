@@ -47,6 +47,17 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}, 0L, 6000L);
 	}
 	
+	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = false)
+    public void onAsyncPlayerChatEventMonitor(AsyncPlayerChatEvent event) {
+		if(event.isCancelled()) {
+			return;
+		}
+		
+		if(EventPriority.valueOf(config.GetString("chat-event-priority")) == EventPriority.MONITOR) {
+			ProccessMessage(event);
+		}
+    }
+	
 	@EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onAsyncPlayerChatEventHighest(AsyncPlayerChatEvent event) {
 		if(event.isCancelled()) {
@@ -102,13 +113,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
     }
 	
-	void ProccessMessage(AsyncPlayerChatEvent event) {
-		Placeholders ph = new Placeholders();
-		ph.player = event.getPlayer();
-		ph.message = event.getMessage();
-		
-		Lang.SetPlaceholders(ph);
-		
+	void ProccessMessage(AsyncPlayerChatEvent event) {		
     	List<String> list = Main.filter.GetStringList("chat-filter");
     	String filtermsg = event.getMessage().toLowerCase();
 		for(String entry : list) {
@@ -138,7 +143,11 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			}
 		}
 		
-		SendWebhook(event.getPlayer(), Lang.Get("message"), event.getPlayer().getInventory().getItemInMainHand());
+		String message = Lang.Get("message")
+				.replace("%player%", event.getPlayer().getName())
+				.replace("%message%", event.getMessage());
+		
+		SendWebhook(event.getPlayer(), message, event.getPlayer().getInventory().getItemInMainHand());
 	}
 	
 	
@@ -155,12 +164,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		if(IsAchievementIgnored(event.getAdvancement().getDisplay().getTitle())) return;
 		
 		Player player = event.getPlayer();
-		
-		Placeholders ph = new Placeholders();
-		ph.player = event.getPlayer();
-		ph.message = event.getAdvancement().getDisplay().getTitle();
-		Lang.SetPlaceholders(ph);
-		
+		String title = "**%player%** has unlocked **%message%**."
+				.replace("%player%", event.getPlayer().getName())
+				.replace("%message%", event.getAdvancement().getDisplay().getTitle());
 		
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
     	webhook.setUsername(FormatUsername(player, config.GetString("player-username")));
@@ -179,7 +185,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
         	}
        }
         	webhook.addEmbed(new DiscordWebhook.EmbedObject()
-                .setTitle(FormatMessage(player, "**%player%** has unlocked **%message%**."))
+                .setTitle(FormatMessage(player, title))
                 .setDescription(FormatMessage(player, event.getAdvancement().getDisplay().getDescription() + "."))
                 .setColor(Color.decode("#2afa4d"))
         	);
@@ -208,13 +214,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
 		
 		Player player = event.getEntity();
-		Placeholders ph = new Placeholders();
-		ph.player = player;
-		
-		Lang.SetPlaceholders(ph);
 		
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	webhook.setUsername(FormatUsername(player, config.GetString("player-username")));
+    	webhook.setUsername(FormatUsername(player, config.GetString("player-username").replace("%player%", player.getName())));
     	String message = event.getDeathMessage().replace(event.getEntity().getName(), "**" + event.getEntity().getName() + "**");
         //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
         webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
@@ -260,21 +262,15 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
 		if(!config.GetBool("join")) return;
 		
-		Placeholders ph = new Placeholders();
-		ph.player = event.getPlayer();
-		ph.playerCount = Bukkit.getOnlinePlayers().size();
-		ph.playerCountMax = Bukkit.getMaxPlayers();
-		Lang.SetPlaceholders(ph);
-		
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
     	
     	webhook.setUsername(config.GetString("server-username"));
     	if(config.GetBool("join-quit-player-count")) {
-    		ph.message = Lang.Get("join");
-    		Lang.SetPlaceholders(ph); //Re-set placeholders to use the join message. We don't want this otherwise.
-    		webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("with-player-count")));
+    		String msg = Lang.Get("with-player-count")
+    				.replace("%message%", Lang.Get("join"));
+    		webhook.setContent(FormatMessage(event.getPlayer(), msg.replace("%player%", event.getPlayer().getName())));
     	}else {
-    		webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("join")));
+    		webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("join").replace("%player%", event.getPlayer().getName())));
     	}
         //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
         webhook.setAvatarUrl(config.GetString("server-icon-url"));
@@ -313,22 +309,16 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
 		if(!config.GetBool("quit")) return;
-
-		Placeholders ph = new Placeholders();
-		ph.player = event.getPlayer();
-		ph.playerCount = Bukkit.getOnlinePlayers().size()-1;
-		ph.playerCountMax = Bukkit.getMaxPlayers();
-		Lang.SetPlaceholders(ph);
 		
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
     	
     	webhook.setUsername(config.GetString("server-username"));
     	if(config.GetBool("join-quit-player-count")) {
-    		ph.message = Lang.Get("leave");
-    		Lang.SetPlaceholders(ph); //Re-set placeholders to use the join message. We don't want this otherwise.
-    		webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("with-player-count")));
+    		String msg = Lang.Get("with-player-count")
+    				.replace("%message%", Lang.Get("leave"));
+    		webhook.setContent(FormatMessage(event.getPlayer(), msg.replace("%player%", event.getPlayer().getName())));
     	}else {
-    		webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("leave")));
+    		webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("leave").replace("%player%", event.getPlayer().getName())));
     	}
         //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
         webhook.setAvatarUrl(config.GetString("server-icon-url"));
@@ -423,11 +413,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    public void run() {
 		    	String message = msg;
 		    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-
-				Placeholders ph = new Placeholders();
-				ph.player = player;
-				Lang.SetPlaceholders(ph);
-		    	webhook.setUsername(FormatUsername(player, config.GetString("player-username")));
+		    	webhook.setUsername(
+		    			FormatUsername(player, config.GetString("player-username").replace("%player%", player.getName()))
+		    			);
 		    	if(Bukkit.getPluginManager().getPlugin("InteractiveChat") != null) {
 		    	try {
 		    		//Log.Info(plugin, message);

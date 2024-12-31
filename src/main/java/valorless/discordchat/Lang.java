@@ -1,38 +1,28 @@
 package valorless.discordchat;
 
 import valorless.valorlessutils.config.Config;
+import valorless.valorlessutils.utils.Utils;
 
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import valorless.discordchat.hooks.PlaceholderAPIHook;
-import valorless.discordchat.utils.Placeholders;
 import valorless.valorlessutils.ValorlessUtils.Log;
-import valorless.valorlessutils.ValorlessUtils.Utils;
 
 public class Lang {
 	
 	public static Config lang;
-	public static Placeholders placeholders;
-	
-	public static void SetPlaceholders(Placeholders p) {
-		placeholders = p;
-	}
 	
 	public static String Parse(String text) {
 		if(!Utils.IsStringNullOrEmpty(text)) {
-			if(placeholders != null) {
-				text = text.replace("%plugin%", placeholders.plugin);
-				text = text.replace("%message%", placeholders.message);
-				if(placeholders.player != null) text = text.replace("%player%", placeholders.player.getName());
-				text = text.replace("%player-count%", String.valueOf(placeholders.playerCount));
-				text = text.replace("%player-count-max%", String.valueOf(placeholders.playerCountMax));
-			}
+			text = text.replace("%player-count%", String.valueOf(Bukkit.getOnlinePlayers().size()));
+			text = text.replace("%player-count-max%", String.valueOf(Bukkit.getMaxPlayers()));
 			text = hex(text);
 			text = text.replace("&", "§");
 			text = text.replace("\\n", "\n");

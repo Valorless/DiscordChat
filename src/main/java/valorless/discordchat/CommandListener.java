@@ -156,12 +156,8 @@ public class CommandListener implements CommandExecutor {
 
 			webhook.setUsername(config.GetString("console-username"));
 
-
-			Placeholders ph = new Placeholders();
-			ph.message = Lang.RemoveColorCodesAndFormatting(message);
-			Lang.SetPlaceholders(ph);
-
-			webhook.setContent(ChatListener.FormatMessage(null, Lang.Get("console-message")));
+			webhook.setContent(ChatListener.FormatMessage(null, Lang.Get("console-message")
+					.replace("%message%", Lang.RemoveColorCodesAndFormatting(message))));
 			for(Player player:Bukkit.getServer().getOnlinePlayers())
 			{
 				player.sendMessage(Lang.Get("console-prefix") + message);
