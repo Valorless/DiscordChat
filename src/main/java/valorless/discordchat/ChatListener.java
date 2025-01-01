@@ -168,7 +168,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				.replace("%message%", event.getAdvancement().getDisplay().getTitle());
 		
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	webhook.setUsername(FormatUsername(player, config.GetString("player-username").replace("%player%", event.getPlayer().getName())));
+    	webhook.setUsername(FormatUsername(player, config.GetString("player-username")));
         //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
     	webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
         if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
@@ -264,18 +264,17 @@ public class ChatListener implements Listener { // Primary objective of BanListe
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
     	
     	webhook.setUsername(config.GetString("server-username"));
-    	if(config.GetBool("join-quit-player-count")) {
-    		String msg = Lang.Get("with-player-count")
-    				.replace("%message%", Lang.Get("join"));
-    		webhook.setContent(FormatMessage(event.getPlayer(), msg.replace("%player%", event.getPlayer().getName())));
-    	}else {
-    		webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("join").replace("%player%", event.getPlayer().getName())));
-    	}
         //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
         webhook.setAvatarUrl(config.GetString("server-icon-url"));
         
         if(!event.getPlayer().hasPlayedBefore()) {
-            webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("join-first-time")));
+            webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("join-first-time")
+            		.replace("%player%", event.getPlayer().getName())
+            		));
+        }else {
+        	String msg = Lang.Get("join")
+    				.replace("%player%", event.getPlayer().getName());
+        	webhook.setContent(FormatMessage(event.getPlayer(), msg));
         }
         
         try {
@@ -312,13 +311,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
     	
     	webhook.setUsername(config.GetString("server-username"));
-    	if(config.GetBool("join-quit-player-count")) {
-    		String msg = Lang.Get("with-player-count")
-    				.replace("%message%", Lang.Get("leave"));
-    		webhook.setContent(FormatMessage(event.getPlayer(), msg.replace("%player%", event.getPlayer().getName())));
-    	}else {
-    		webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("leave").replace("%player%", event.getPlayer().getName())));
-    	}
+    	String msg = Lang.Get("leave")
+    				.replace("%player%", event.getPlayer().getName());
+    	webhook.setContent(FormatMessage(event.getPlayer(), msg));
         //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
         webhook.setAvatarUrl(config.GetString("server-icon-url"));
         

@@ -81,7 +81,6 @@ join: true
 quit: true
 death: true
 achievement: true
-join-quit-player-count: true
 
 ### Chat Event Priority (CaPs)
 # HIGH - Event call is of high importance

@@ -87,7 +87,6 @@ public final class Main extends JavaPlugin implements Listener {
 		config.AddValidationEntry("join", true);
 		config.AddValidationEntry("quit", true);
 		config.AddValidationEntry("death", true);
-		config.AddValidationEntry("join-quit-player-count", true);
 		
 		config.AddValidationEntry("chat-event-priority", "NORMAL");
 		config.AddValidationEntry("hide-achievements", new ArrayList<String>() {

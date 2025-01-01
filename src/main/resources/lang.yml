@@ -41,20 +41,20 @@ server-reconnect: '%timestamp% **Chat Reconnected**'
 # Player joined the server.
 # 1. %player% = player's username.
 # 2. %timestamp% = server time.
-join: '%timestamp% **%player%** has joined the server.'
+# 3. %player-count% - Online players.
+# 4. %player-count-max% - Max players.
+join: '%timestamp% **%player%** has joined the server. (%player-count%/%player-count-max%)'
 
 # Player joined the server for the first time.
-# %player% = player's username.
-# %timestamp% = server time.
-join-first-time: '%timestamp% **%player%** has joined the server for the first time!'
+# 1. player% = player's username.
+# 2. %timestamp% = server time.
+# 3. %player-count% - Online players.
+# 4. %player-count-max% - Max players.
+join-first-time: '%timestamp% **%player%** has joined the server for the first time! (%player-count%/%player-count-max%)'
 
 # Player left the server.
 # 1. %player% = player's username.
 # 2. %timestamp% = server time.
-leave: '%timestamp% **%player%** has left the server.'
-
-# Join/Leave with Player counter.
-# 1. %message% - Original message.
-# 2. %player-count% - Online players.
-# 3. %player-count-max% - Max players.
-with-player-count: '%message% (%player-count%/%player-count-max%)'
+# 3. %player-count% - Online players.
+# 4. %player-count-max% - Max players.
+leave: '%timestamp% **%player%** has left the server. (%player-count%/%player-count-max%)'
