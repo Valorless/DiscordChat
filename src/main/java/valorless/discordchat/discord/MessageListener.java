@@ -34,7 +34,7 @@ public class MessageListener extends ListenerAdapter {
 		if (!this.monitoredChannels.contains(event.getChannel().getId())) return; 
 		if (event.getAuthor().isBot() && !Bot.config.GetBool("bot-messages")) return; 
 		boolean reply = event.getMessage().getType() == MessageType.INLINE_REPLY;
-		Log.Info(Main.plugin, event.getMessage().getType().toString());
+		//Log.Info(Main.plugin, event.getMessage().getType().toString());
 		
 		Bot.newChain().async(() -> {
 			String message = event.getMessage().getContentStripped();
