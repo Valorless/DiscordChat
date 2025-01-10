@@ -34,6 +34,7 @@ public class MessageListener extends ListenerAdapter {
 		if (!this.monitoredChannels.contains(event.getChannel().getId())) return; 
 		if (event.getAuthor().isBot() && !Bot.config.GetBool("bot-messages")) return; 
 		boolean reply = event.getMessage().getType() == MessageType.INLINE_REPLY;
+		Log.Info(Main.plugin, event.getMessage().getType().toString());
 		
 		Bot.newChain().async(() -> {
 			String message = event.getMessage().getContentStripped();
@@ -48,18 +49,18 @@ public class MessageListener extends ListenerAdapter {
 			String role = (mainRole != null) ? mainRole.getName() : "";
 			String chatMessage = Bot.config.GetString("message-format");
 			
-			char c = message.charAt(0);
-			char prefix = Bot.config.GetString("command-prefix").charAt(0);
-			//Log.Info(Main.plugin, c + "");
-			//Log.Info(Main.plugin, prefix + "");
-			if(c == prefix) {
-				Log.Info(Main.plugin, "Command");
-				message = ProccessCommand(member, event.getAuthor(), message);
-				if(message == null) return;
-				Log.Info(Main.plugin, "Command failed");
-			}
-			
-			
+			try {
+				char c = message.charAt(0);
+				char prefix = Bot.config.GetString("command-prefix").charAt(0);
+				//Log.Info(Main.plugin, c + "");
+				//Log.Info(Main.plugin, prefix + "");
+				if(c == prefix) {
+					Log.Info(Main.plugin, "Command");
+					message = ProccessCommand(member, event.getAuthor(), message);
+					if(message == null) return;
+					Log.Info(Main.plugin, "Command failed");
+				}
+			}catch(Exception e) {}
 
 			chatMessage = Lang.hex(chatMessage);
 			chatMessage = chatMessage.replace("&", "§");
@@ -113,6 +114,7 @@ public class MessageListener extends ListenerAdapter {
 	String ProccessCommand(Member member, User user, String command) {
 		//Log.Info(Main.plugin, "staff?");
 		Log.Info(Main.plugin, "User: " + user.getName());
+		Log.Info(Main.plugin, "Command: " + command);
 		if(!isStaff(member)) {
 			DiscordWebhook webhook = new DiscordWebhook(Main.config.GetString("webhook-url"));
 			

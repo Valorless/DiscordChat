@@ -70,6 +70,10 @@ public class ItemStackToPng {
 
         gTemp.dispose();
 
+        if(height > width) width = height;
+        else
+        if(width > height) height = width;
+        
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
         g.setFont(minecraftFont);
@@ -105,6 +109,7 @@ public class ItemStackToPng {
                 }
             }
         }
+        
 
         g.dispose();
         

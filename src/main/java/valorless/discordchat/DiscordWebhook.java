@@ -139,6 +139,8 @@ public class DiscordWebhook {
         connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
 
         OutputStream stream = connection.getOutputStream();
         stream.write(json.toString().getBytes());
