@@ -55,6 +55,6 @@ join-first-time: '%timestamp% **%player%** has joined the server for the first t
 # Player left the server.
 # 1. %player% = player's username.
 # 2. %timestamp% = server time.
-# 3. %player-count% - Online players.
+# 3. %player-count-1% - Online remaining.
 # 4. %player-count-max% - Max players.
-leave: '%timestamp% **%player%** has left the server. (%player-count%/%player-count-max%)'
+leave: '%timestamp% **%player%** has left the server. (%player-count-1%/%player-count-max%)'

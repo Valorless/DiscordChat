@@ -14,6 +14,7 @@ import net.ess3.api.events.AfkStatusChangeEvent;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -115,6 +116,29 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	void ProccessMessage(AsyncPlayerChatEvent event) {		
     	List<String> list = Main.filter.GetStringList("chat-filter");
     	String filtermsg = event.getMessage().toLowerCase();
+    	
+    	// Loop through each blocked word
+    	for (String entry : list) {
+    	    // Create a regex pattern for whole word matching
+    	    String regex = "\\b" + Pattern.quote(entry.toLowerCase()) + "\\b";
+    	    if (filtermsg.matches(".*" + regex + ".*")) {
+    	        // If a match is found, block the message
+    	        event.getPlayer().sendMessage(String.format(Main.filter.GetString("chat-filter-message"), entry));
+    	        event.setCancelled(true);
+
+    	        String msg = "§c[BLOCKED] " + event.getPlayer().getName() + ": " + event.getMessage();
+    	        Log.Error(plugin, msg);
+
+    	        // Notify staff about the blocked message
+    	        for (Player player : Bukkit.getOnlinePlayers()) {
+    	            if (player.hasPermission("discordchat.reload") || player.isOp()) {
+    	                player.sendMessage(msg);
+    	            }
+    	        }
+    	        return; // Stop further processing once a word is blocked
+    	    }
+    	}
+    	/*
 		for(String entry : list) {
 			if(filtermsg.contains(entry.toLowerCase())) {
 				event.getPlayer().sendMessage(String.format(Main.filter.GetString("chat-filter-message"), entry));
@@ -141,6 +165,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				return;
 			}
 		}
+		*/
 		
 		String message = Lang.Get("message")
 				.replace("%player%", event.getPlayer().getName())
@@ -405,7 +430,8 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 
 		    @Override
 		    public void run() {
-		    	String message = msg;
+		    	String _message = msg;
+		    	String message = new String(_message);
 		    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
 		    	webhook.setUsername(
 		    			FormatUsername(player, config.GetString("player-username").replace("%player%", player.getName()))

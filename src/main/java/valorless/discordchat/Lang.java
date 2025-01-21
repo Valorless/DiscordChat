@@ -22,6 +22,7 @@ public class Lang {
 	public static String Parse(String text) {
 		if(!Utils.IsStringNullOrEmpty(text)) {
 			text = text.replace("%player-count%", String.valueOf(Bukkit.getOnlinePlayers().size()));
+			text = text.replace("%player-count-1%", String.valueOf(Bukkit.getOnlinePlayers().size()-1));
 			text = text.replace("%player-count-max%", String.valueOf(Bukkit.getMaxPlayers()));
 			text = hex(text);
 			text = text.replace("&", "§");

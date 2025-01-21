@@ -10,6 +10,10 @@ commands:
     description: Main command.
     usage:
     aliases: [dcm, dc]
+  discordchat mute:
+    description: Mute discord messages.
+    usage:
+    aliases: [dcm mute, dc mute]
   server:
     description: /say replacement.
     permission: discordchat.server

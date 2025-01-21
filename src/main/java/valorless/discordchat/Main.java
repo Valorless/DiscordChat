@@ -22,6 +22,7 @@ public final class Main extends JavaPlugin implements Listener {
 	public static Boolean enabled = true;
 	public static Config config;
 	public static Config filter;
+	public static Config muted;
 	public static String username = "";
 	public static boolean error = false;
 	public static Bot bot;
@@ -36,8 +37,8 @@ public final class Main extends JavaPlugin implements Listener {
 		CommandListener.plugin = this;
 		config = new Config(this, "config.yml");
 		filter = new Config(this, "blocked-words.yml");
+		filter = new Config(this, "muted.yml");
 		ChatListener.config = config;
-		CommandListener.config = config;
 		
 		Lang.lang = new Config(this, "lang.yml");
 	

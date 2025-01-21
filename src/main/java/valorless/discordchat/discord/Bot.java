@@ -1,5 +1,7 @@
 package valorless.discordchat.discord;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 
@@ -15,6 +17,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import okhttp3.OkHttpClient;
 import valorless.discordchat.Main;
 import valorless.discordchat.discord.taskchain.BukkitTaskChainFactory;
 import valorless.discordchat.discord.taskchain.TaskChain;
@@ -52,8 +55,15 @@ public class Bot implements Listener {
 				Log.Info(Main.plugin, "Initiating Bot");
 				Bukkit.getPluginManager().registerEvents(bot, Main.plugin);
 				taskChainFactory = BukkitTaskChainFactory.create(Main.plugin);
+				
+				OkHttpClient httpClient = new OkHttpClient.Builder()
+		                .connectTimeout(5, TimeUnit.SECONDS)  // Connection timeout
+		                .writeTimeout(5, TimeUnit.SECONDS)   // Write timeout
+		                .readTimeout(8, TimeUnit.SECONDS)    // Read timeout
+		                .build();
 
 				JDABuilder builder = JDABuilder.createDefault(config.GetString("token"));
+				builder.setHttpClient(httpClient);
 				builder.setRequestTimeoutRetry(false);
 				builder.disableCache(CacheFlag.MEMBER_OVERRIDES, new CacheFlag[] { CacheFlag.VOICE_STATE });
 				builder.setBulkDeleteSplittingEnabled(false);

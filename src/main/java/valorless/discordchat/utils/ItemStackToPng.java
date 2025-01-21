@@ -1,9 +1,15 @@
 package valorless.discordchat.utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import com.google.common.collect.Multimap;
 
 import valorless.discordchat.ChatListener;
 import valorless.discordchat.Lang;
@@ -18,6 +24,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 public class ItemStackToPng {
@@ -59,10 +66,26 @@ public class ItemStackToPng {
 
             // Handle enchantments
             Map<Enchantment, Integer> enchants = meta.getEnchants();
-            if (!enchants.isEmpty()) {
+            if (!enchants.isEmpty() && !meta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
                 for (Map.Entry<Enchantment, Integer> enchant : enchants.entrySet()) {
                     String enchantText = enchant.getKey().getKey().getKey() + " " + EnchantValue(enchant.getValue());
                     width = Math.max(width, metrics.stringWidth(Lang.RemoveColorCodesAndFormatting(enchantText)) + 20);
+                    height += metrics.getHeight() + lineSpacing;
+                }
+            }
+
+            // Handle attributes
+            Multimap<Attribute, AttributeModifier> attributes = meta.getAttributeModifiers();
+            if (!attributes.isEmpty() && !meta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES)) {
+                for (Entry<Attribute, AttributeModifier> attribute : attributes.entries()) {
+                	String attributeText = "";
+                	if(attribute.getValue().getOperation() == Operation.ADD_NUMBER) {
+                		attributeText = String.format("%s %s", attribute.getValue().getAmount(), attribute.getKey().name());
+                	}
+                	if(attribute.getValue().getOperation() == Operation.ADD_SCALAR) {
+                		attributeText = String.format("%s %s", (attribute.getValue().getAmount()*100) + "%", attribute.getKey().name());
+                	}
+                    width = Math.max(width, metrics.stringWidth(Lang.RemoveColorCodesAndFormatting(attributeText)) + 20);
                     height += metrics.getHeight() + lineSpacing;
                 }
             }
@@ -94,17 +117,36 @@ public class ItemStackToPng {
         if (meta != null) {
 
             // Draw enchantments
-            Map<Enchantment, Integer> enchants = meta.getEnchants();
-            for (Map.Entry<Enchantment, Integer> enchant : enchants.entrySet()) {
-                String enchantText = FixEnchantName(enchant.getKey().getKey().getKey().toUpperCase()) + " " + EnchantValue(enchant.getValue());
-                drawStringWithColors(g ,RemoveFormatting(enchantText), 10, yPos);
-                yPos += metrics.getHeight() + lineSpacing;
-            }
-            
+        	Map<Enchantment, Integer> enchants = meta.getEnchants();
+        	if (!enchants.isEmpty() && !meta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
+        		for (Map.Entry<Enchantment, Integer> enchant : enchants.entrySet()) {
+        			String enchantText = FixEnchantName(enchant.getKey().getKey().getKey().toUpperCase()) + " " + EnchantValue(enchant.getValue());
+        			drawStringWithColors(g ,RemoveFormatting(enchantText), 10, yPos);
+        			yPos += metrics.getHeight() + lineSpacing;
+        		}
+        	}
+
             if (meta.hasLore()) {
                 List<String> lore = meta.getLore();
                 for (String line : lore) {
                     drawStringWithColors(g, RemoveFormatting(line), 10, yPos);
+                    yPos += metrics.getHeight() + lineSpacing;
+                }
+            }
+
+            // Handle attributes
+            Multimap<Attribute, AttributeModifier> attributes = meta.getAttributeModifiers();
+            if (!attributes.isEmpty() && !meta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES)) {
+                for (Entry<Attribute, AttributeModifier> attribute : attributes.entries()) {
+                	String attributeText = "";
+                	if(attribute.getValue().getOperation() == Operation.ADD_NUMBER) {
+                		attributeText = String.format("%s %s", attribute.getValue().getAmount(), attribute.getKey().name());
+                	}
+                	if(attribute.getValue().getOperation() == Operation.ADD_SCALAR) {
+                		attributeText = String.format("%s %s", (attribute.getValue().getAmount()*100) + "%", attribute.getKey().name());
+                	}
+
+                    drawStringWithColors(g, RemoveFormatting(attributeText), 10, yPos);
                     yPos += metrics.getHeight() + lineSpacing;
                 }
             }
