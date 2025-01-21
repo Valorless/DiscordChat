@@ -75,6 +75,7 @@ public class ItemStackToPng {
             }
 
             // Handle attributes
+            if(meta.hasAttributeModifiers()) {
             Multimap<Attribute, AttributeModifier> attributes = meta.getAttributeModifiers();
             if (!attributes.isEmpty() && !meta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES)) {
                 for (Entry<Attribute, AttributeModifier> attribute : attributes.entries()) {
@@ -88,6 +89,7 @@ public class ItemStackToPng {
                     width = Math.max(width, metrics.stringWidth(Lang.RemoveColorCodesAndFormatting(attributeText)) + 20);
                     height += metrics.getHeight() + lineSpacing;
                 }
+            }
             }
         }
 
@@ -135,6 +137,7 @@ public class ItemStackToPng {
             }
 
             // Handle attributes
+            if(meta.hasAttributeModifiers()) {
             Multimap<Attribute, AttributeModifier> attributes = meta.getAttributeModifiers();
             if (!attributes.isEmpty() && !meta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES)) {
                 for (Entry<Attribute, AttributeModifier> attribute : attributes.entries()) {
@@ -149,6 +152,7 @@ public class ItemStackToPng {
                     drawStringWithColors(g, RemoveFormatting(attributeText), 10, yPos);
                     yPos += metrics.getHeight() + lineSpacing;
                 }
+            }
             }
         }
         

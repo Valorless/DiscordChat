@@ -37,7 +37,7 @@ public final class Main extends JavaPlugin implements Listener {
 		CommandListener.plugin = this;
 		config = new Config(this, "config.yml");
 		filter = new Config(this, "blocked-words.yml");
-		filter = new Config(this, "muted.yml");
+		muted = new Config(this, "muted.yml");
 		ChatListener.config = config;
 		
 		Lang.lang = new Config(this, "lang.yml");

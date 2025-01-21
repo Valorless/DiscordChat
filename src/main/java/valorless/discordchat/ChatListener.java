@@ -361,8 +361,6 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			String pl = event.getPlayer().getName();
 			leave = leave.replace("%username%", pl);
 			
-			
-			
 			if (reason != null && reason.contains("You logged in from another location")) {
 				leave = leave.replace("%cause%", "Disconnect");
 			}
@@ -430,108 +428,120 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 
 		    @Override
 		    public void run() {
-		    	String _message = msg;
-		    	String message = new String(_message);
+		    	final String _message = msg;
+		    	String message = new String(_message.replace(String.format("<chat=%s:[i]:>", player.getUniqueId().toString()), "[i]")
+		    			.replace(String.format("<chat=%s:[item]:>", player.getUniqueId().toString()), "[item]")
+		    			.replace(String.format("<chat=%s:[inv]:>", player.getUniqueId().toString()), "[inv]")
+		    			.replace(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString()), "[ender]")
+		    			.replace(String.format("<chat=%s:[ping]:>", player.getUniqueId().toString()), "[ping]")
+		    			.replace(String.format("<chat=%s:[pos]:>", player.getUniqueId().toString()), "[pos]").toCharArray());
+				//Log.Warning(plugin, message);
 		    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
 		    	webhook.setUsername(
 		    			FormatUsername(player, config.GetString("player-username").replace("%player%", player.getName()))
 		    			);
 		    	if(Bukkit.getPluginManager().getPlugin("InteractiveChat") != null) {
-		    	try {
-		    		//Log.Info(plugin, message);
-		    		ItemStack item = (ItemStack)args[0];
-		    		if(message.contains("[item]") && args.length != 0 && item.hasItemMeta() || message.contains("[i]") && args.length != 0 && item.hasItemMeta()) {
-		        		Log.Warning(plugin, message);
-		    			String id = ItemStackToPng.createItemStackImage(item);
-		    			try {
-		        	   		webhook.addEmbed(new DiscordWebhook.EmbedObject()
-		        	   			   .setTitle(FormatMessage(player, "Click image to view better."))
-		        	               .setImage(url + id + ".png")
-		        	       	);
-		        	   		Log.Debug(Main.plugin, url + id + ".png");
-		    			}catch(Exception e) {}
-		        	}
-		    		if(item.hasItemMeta()) {
-		    			if(item.getItemMeta().hasDisplayName()) {
-		    				message = message.replace("[item]", "[" + item.getItemMeta().getDisplayName() + "]");
-		    				message = message.replace("[i]", "[" + item.getItemMeta().getDisplayName() + "]");
+		    		try {
+		    			//Log.Info(plugin, message);
+		    			ItemStack item = (ItemStack)args[0];
+		    			if(message.contains("[item]") && args.length != 0 && item.hasItemMeta() || message.contains("[i]") && args.length != 0 && item.hasItemMeta()) {
+		    				//Log.Warning(plugin, message);
+		    				String id = ItemStackToPng.createItemStackImage(item);
+		    				try {
+		    					webhook.addEmbed(new DiscordWebhook.EmbedObject()
+		    							.setTitle(FormatMessage(player, "Click image to view better."))
+		    							.setImage(url + id + ".png")
+		    							);
+		    					Log.Debug(Main.plugin, url + id + ".png");
+		    				}catch(Exception e) {}
+		    			}
+		    			if(item.hasItemMeta()) {
+		    				if(item.getItemMeta().hasDisplayName()) {
+		    					message = message.replace("[item]", "[" + item.getItemMeta().getDisplayName() + "]");
+		    					message = message.replace("[i]", "[" + item.getItemMeta().getDisplayName() + "]");
+		    					//message = message.replace("<%s:[item]:>", "[" + item.getItemMeta().getDisplayName() + "]");
+		    					//message = message.replace("<%s:[i]:>", "[" + item.getItemMeta().getDisplayName() + "]");
+		    				}else {
+		    					message = message.replace("[item]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    					message = message.replace("[i]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    					//message = message.replace("<%s:[item]:>", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    					//message = message.replace("<%s:[i]:>", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    				}
 		    			}else {
-		        			message = message.replace("[item]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
-		        			message = message.replace("[i]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
-		        		}
-		    		}else {
-		    			message = message.replace("[item]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
-		    			message = message.replace("[i]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    				message = message.replace("[item]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    				message = message.replace("[i]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+	    					//message = message.replace("<%s:[item]:>", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+	    					//message = message.replace("<%s:[i]:>", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    			}
+		    		}catch(Exception E){
+		    			E.printStackTrace();
 		    		}
-		    	}catch(Exception E){
-		    		E.printStackTrace();
-		    	}
 		    	}
 		    	
 		    	if(Bukkit.getPluginManager().getPlugin("InteractiveChat") != null) {
-		    	if(message.contains("[ping]") || message.contains(String.format("<chat=%s:[ping]:>", player.getUniqueId().toString().toLowerCase()))) {
-		    		Log.Warning(plugin, message);
-		    		message.replace("[ping]", player.getPing() + "ms");
-		    		message.replace(String.format("<chat=%s:[ping]:>", player.getUniqueId().toString().toLowerCase()), player.getPing() + "ms");
+		    		if(message.contains("[ping]")) {
+		    			//Log.Warning(plugin, message);
+		    			message = message.replace("[ping]", player.getPing() + "ms");
+		    			//message = message.replace(String.format("<%s:[ping]:>", player.getUniqueId().toString().toLowerCase()), player.getPing() + "ms");
+		    		}
+
+		    		if(message.contains("[pos]")) {
+		    			//Log.Warning(plugin, message);
+		    			Location loc = player.getLocation();
+		    			message = message.replace("[pos]", String.format("%s: %s, %s, %s", player.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()));
+		    			//message = message.replace(String.format("<%s:[pos]:>", player.getUniqueId().toString().toLowerCase()), String.format("%s, %s, %s", loc.getX(), loc.getY(), loc.getZ()));
+		    		}
+
+		    		if(message.contains("[inv]")) {
+		    			//Log.Warning(plugin, message);
+		    			String id = InventoryImageGenerator.generate(player.getInventory().getContents(), 5, true);
+		    			if(id != null) {
+		    				try {
+		    					webhook.addEmbed(new DiscordWebhook.EmbedObject()
+		    							.setTitle(FormatMessage(player, String.format("%s's Inventory", player.getName())))
+		    							.setImage(url + id + ".png")
+		    							);
+		    					Log.Debug(Main.plugin, url + id + ".png");
+		    				}catch(Exception e) {}
+		    			}
+		    			message = message.replace("[inv]", "[Inventory]");
+		    			//message = message.replace(String.format("<%s:[inv]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
+		    		}
+
+		    		if(message.contains("[ender]")) {
+		    			String id = InventoryImageGenerator.generate(player.getEnderChest().getContents(), 3, false);
+		    			if(id != null) {
+		    				try {
+		    					webhook.addEmbed(new DiscordWebhook.EmbedObject()
+		    							.setTitle(FormatMessage(player, String.format("%s's Enderchest", player.getName())))
+		    							.setImage(url + id + ".png")
+		    							);
+		    					Log.Debug(Main.plugin, url + id + ".png");
+		    				}catch(Exception e) {}
+		    			}
+		    			message = message.replace("[ender]", "[Enderchest]");
+		    			//message = message.replace(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
+		    		}
 		    	}
-		    	
-		    	if(message.contains("[pos]") || message.contains(String.format("<chat=%s:[pos]:>", player.getUniqueId().toString().toLowerCase()))) {
-		    		Log.Warning(plugin, message);
-		    		Location loc = player.getLocation();
-		    		message.replace("[pos]", String.format("%s, %s, %s", loc.getX(), loc.getY(), loc.getZ()));
-		    		message.replace(String.format("<chat=%s:[pos]:>", player.getUniqueId().toString().toLowerCase()), String.format("%s, %s, %s", loc.getX(), loc.getY(), loc.getZ()));
+
+		    	webhook.setContent(FormatMessage(player, message));
+		    	webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
+		    	if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
+		    		webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
+		    	}else {
+		    		Log.Debug(plugin, "Failed to get UUID of player " + player.getName() + ", attempting another way.");
+
+		    		if(!Utils.IsStringNullOrEmpty(UUIDFetcher.getUUID(player.getName()).toString())) {
+		    			webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + UUIDFetcher.getUUID(player.getName()).toString() + ".png"); // Attempt to fetch player UUID from Mojang API.
+		    		}else {
+		    			Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
+		    			Log.Debug(plugin, "Cannot set the bot's picture.");
+		    		}
 		    	}
-		    	
-		    	if(message.contains("[inv]") || message.contains(String.format("<chat=%s:[inv]:>", player.getUniqueId().toString().toLowerCase()))) {
-		    		Log.Warning(plugin, message);
-		    		String id = InventoryImageGenerator.generate(player.getInventory().getContents(), 5, true);
-					if(id != null) {
-						try {
-							webhook.addEmbed(new DiscordWebhook.EmbedObject()
-				    	   			   .setTitle(FormatMessage(player, String.format("%s's Inventory", player.getName())))
-		    	               .setImage(url + id + ".png")
-									);
-							Log.Debug(Main.plugin, url + id + ".png");
-						}catch(Exception e) {}
-					}
-		    		message.replace("[inv]", "[Inventory]");
-		    		message.replace(String.format("<chat=%s:[inv]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
-		    	}
-		    	
-		    	if(message.contains("[ender]") || message.contains(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString().toLowerCase()))) {
-		    		String id = InventoryImageGenerator.generate(player.getEnderChest().getContents(), 3, false);
-					if(id != null) {
-						try {
-							webhook.addEmbed(new DiscordWebhook.EmbedObject()
-		    	   			   .setTitle(FormatMessage(player, String.format("%s's Enderchest", player.getName())))
-		    	               .setImage(url + id + ".png")
-									);
-							Log.Debug(Main.plugin, url + id + ".png");
-						}catch(Exception e) {}
-					}
-		    		message.replace("[ender]", "[Enderchest]");
-		    		message.replace(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
-		    	}
-		    	}
-		    		
-		        webhook.setContent(FormatMessage(player, message));
-		        webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
-		        if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
-		        	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
-		        }else {
-		        	Log.Debug(plugin, "Failed to get UUID of player " + player.getName() + ", attempting another way.");
-		        	
-		        	if(!Utils.IsStringNullOrEmpty(UUIDFetcher.getUUID(player.getName()).toString())) {
-		            	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + UUIDFetcher.getUUID(player.getName()).toString() + ".png"); // Attempt to fetch player UUID from Mojang API.
-		        	}else {
-		            	Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
-		            	Log.Debug(plugin, "Cannot set the bot's picture.");
-		        	}
-		       }
-		        
-		        
-		        
-		        try {
+
+
+
+		    	try {
 		        	//Log.Info(plugin, "Executing webhook.");
 					webhook.execute();
 				} catch (IOException e) {
