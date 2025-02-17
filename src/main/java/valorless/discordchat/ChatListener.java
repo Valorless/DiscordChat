@@ -1,8 +1,9 @@
 package valorless.discordchat;
 
+import valorless.discordchat.discord.Bot;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.ItemStackToPng;
-import valorless.discordchat.uuid.UUIDFetcher;
+import valorless.discordchat.utils.MapToImage;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
 import valorless.valorlessutils.utils.Utils;
@@ -17,7 +18,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -181,6 +184,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
 		if(!config.GetBool("achievement")) return;
+		if(event.getPlayer().getWorld().getGameRuleValue(GameRule.ANNOUNCE_ADVANCEMENTS) == false) return;
 		if(event.getAdvancement() == null) return;
 		if(event.getAdvancement().getDisplay() == null) return;
 		if(event.getAdvancement().getDisplay().getTitle() == null) return;
@@ -199,15 +203,10 @@ public class ChatListener implements Listener { // Primary objective of BanListe
         if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
         	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
         }else {
-        	Log.Debug(plugin, "Failed to get UUID of player " + player.getName() + ", attempting another way.");
-        	
-        	if(!Utils.IsStringNullOrEmpty(UUIDFetcher.getUUID(player.getName()).toString())) {
-            	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + UUIDFetcher.getUUID(player.getName()).toString() + ".png"); // Attempt to fetch player UUID from Mojang API.
-        	}else {
             	Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
             	Log.Debug(plugin, "Cannot set the bot's picture.");
         	}
-       }
+       
         	webhook.addEmbed(new DiscordWebhook.EmbedObject()
                 .setTitle(FormatMessage(player, title))
                 .setDescription(FormatMessage(player, event.getAdvancement().getDisplay().getDescription() + "."))
@@ -247,15 +246,10 @@ public class ChatListener implements Listener { // Primary objective of BanListe
         if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
         	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
         }else {
-        	Log.Debug(plugin, "Failed to get UUID of player " + player.getName() + ", attempting another way.");
-        	
-        	if(!Utils.IsStringNullOrEmpty(UUIDFetcher.getUUID(player.getName()).toString())) {
-            	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + UUIDFetcher.getUUID(player.getName()).toString() + ".png"); // Attempt to fetch player UUID from Mojang API.
-        	}else {
             	Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
             	Log.Debug(plugin, "Cannot set the bot's picture.");
         	}
-       }
+       
         	webhook.addEmbed(new DiscordWebhook.EmbedObject()
                 .setTitle(FormatMessage(event.getEntity(), message + "."))
                 .setColor(Color.decode("#ff2b2b"))
@@ -320,7 +314,12 @@ public class ChatListener implements Listener { // Primary objective of BanListe
         			String leave = Main.config.GetString("custom-leave");
         			String pl = event.getPlayer().getName();
         			leave = leave.replace("%username%", pl);
-        			leave = leave.replace("%cause%", "Disconnect");
+        			Log.Warning(plugin, event.getQuitMessage());
+        			if(event.getQuitMessage() != null && event.getQuitMessage().contains("Timed out")) { // <-- not working
+        				leave = leave.replace("%cause%", "Timed out");
+        			}else {
+        				leave = leave.replace("%cause%", "Disconnect");
+        			}
         			for(Player player : Bukkit.getOnlinePlayers()) {
         				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave, event.getPlayer())));
         			}
@@ -361,6 +360,15 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			String pl = event.getPlayer().getName();
 			leave = leave.replace("%username%", pl);
 			
+			if(reason != null) {
+				String sect = "custom-leave-causes";
+				for(Object entry : Main.config.GetConfigurationSection("sect").getKeys(false)) {
+					if(reason.contains(Main.config.GetString(String.format("%s.%s.keyword", sect, entry.toString())))) {
+						leave = leave.replace("%cause%", Main.config.GetString(String.format("%s.%s.value", sect, entry.toString())));
+					}
+				}
+			}
+			
 			if (reason != null && reason.contains("You logged in from another location")) {
 				leave = leave.replace("%cause%", "Disconnect");
 			}
@@ -379,6 +387,16 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			else {
 				leave = leave.replace("%cause%", "Kicked");
 			}
+			
+			if(reason != null) {
+				String sect = "custom-leave-causes";
+				for(Object entry : Main.config.GetStringList("sect")) {
+					if(reason.contains(Main.config.GetString(String.format("%s.%s.keyword", sect, entry.toString())))) {
+						leave = leave.replace("%cause%", Main.config.GetString(String.format("%s.%s.value", sect, entry.toString())));
+					}
+				}
+			}
+			
 			for(Player player : Bukkit.getOnlinePlayers()) {
 				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave, event.getPlayer())));
 			}
@@ -391,18 +409,19 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	        }, 3L);
 		}
 	}
-	
+
+	@SuppressWarnings("deprecation")
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onAfkStatusChange(AfkStatusChangeEvent event) {
-		boolean afk = event.getValue();
-		@SuppressWarnings("deprecation")
-		Player player = event.getAffected().getBase();
-		String yesAfk = "**%s** is now AFK.";
-		String noAfk = "**%s** is no longer AFK.";
-		
 		if(Main.enabled == false) {
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
+		
+		boolean afk = event.getValue();
+		Player player = event.getAffected().getBase();
+		if(event.getAffected().isVanished()) return;
+		String yesAfk = "**%s** is now AFK.";
+		String noAfk = "**%s** is no longer AFK.";
 		
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
     	
@@ -424,10 +443,11 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
 		
-		Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
+		/*Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
 
 		    @Override
-		    public void run() {
+		    public void run() {*/
+		Bot.newChain().async(() -> {
 		    	final String _message = msg;
 		    	String message = new String(_message.replace(String.format("<chat=%s:[i]:>", player.getUniqueId().toString()), "[i]")
 		    			.replace(String.format("<chat=%s:[item]:>", player.getUniqueId().toString()), "[item]")
@@ -446,7 +466,15 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    			ItemStack item = (ItemStack)args[0];
 		    			if(message.contains("[item]") && args.length != 0 && item.hasItemMeta() || message.contains("[i]") && args.length != 0 && item.hasItemMeta()) {
 		    				//Log.Warning(plugin, message);
-		    				String id = ItemStackToPng.createItemStackImage(item);
+		    				String id = "";
+		    				if(item.getType() == Material.FILLED_MAP) {
+		    					id = MapToImage.getMapAsImage(item);
+		    					if(id == null) {
+		    						id = ItemStackToPng.createItemStackImage(item);
+		    					}
+		    				}else {
+		    					id = ItemStackToPng.createItemStackImage(item);
+		    				}
 		    				try {
 		    					webhook.addEmbed(new DiscordWebhook.EmbedObject()
 		    							.setTitle(FormatMessage(player, "Click image to view better."))
@@ -529,18 +557,10 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    	if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
 		    		webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
 		    	}else {
-		    		Log.Debug(plugin, "Failed to get UUID of player " + player.getName() + ", attempting another way.");
-
-		    		if(!Utils.IsStringNullOrEmpty(UUIDFetcher.getUUID(player.getName()).toString())) {
-		    			webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + UUIDFetcher.getUUID(player.getName()).toString() + ".png"); // Attempt to fetch player UUID from Mojang API.
-		    		}else {
 		    			Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
 		    			Log.Debug(plugin, "Cannot set the bot's picture.");
 		    		}
-		    	}
-
-
-
+		    	
 		    	try {
 		        	//Log.Info(plugin, "Executing webhook.");
 					webhook.execute();
@@ -548,9 +568,10 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 					e.printStackTrace();
 					ConnectionFailed();
 				}
-		    }
+		}).execute();
+		
 		           
-		});
+		//});
 		
     	
     }
@@ -647,6 +668,8 @@ public class ChatListener implements Listener { // Primary objective of BanListe
         Log.Error(plugin, "Attempting to reconnect soon.");
         Log.Error(plugin, "Plugin disabled regular connections to avoid further failed connections.");
         Log.Error(plugin, "Please reload the plugin to manually re-enable");
+        
+        Main.bot.SendMessage(null, "Chat Disconnected");
 		
 	}
 }

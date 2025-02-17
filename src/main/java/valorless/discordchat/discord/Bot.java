@@ -2,9 +2,6 @@ package valorless.discordchat.discord;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nullable;
-import javax.security.auth.login.LoginException;
-
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,7 +10,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -32,7 +33,6 @@ public class Bot implements Listener {
 	private int taskId;
 	protected boolean error = false;
 
-	@Nullable
 	private JDA client;
 
 	private MessageListener messageListener;
@@ -61,7 +61,7 @@ public class Bot implements Listener {
 		                .writeTimeout(5, TimeUnit.SECONDS)   // Write timeout
 		                .readTimeout(8, TimeUnit.SECONDS)    // Read timeout
 		                .build();
-
+				
 				JDABuilder builder = JDABuilder.createDefault(config.GetString("token"));
 				builder.setHttpClient(httpClient);
 				builder.setRequestTimeoutRetry(false);
@@ -86,6 +86,7 @@ public class Bot implements Listener {
 					}
 
 					builder.setActivity(act);
+					builder.setAutoReconnect(true);
 				}
 
 				try {
@@ -96,7 +97,7 @@ public class Bot implements Listener {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}*/
-				} catch (LoginException excpetion) {
+				} catch (Exception excpetion) {
 					client = null;
 					Log.Error(Main.plugin, "FAILED TO LOGIN TO DISCORD USING TOKEN PROVIDED!");
 					return;
@@ -111,7 +112,11 @@ public class Bot implements Listener {
 					setActivity(Activity.playing("MC Bridge Issues"));
 					if(!error) {
 						error = true;
-						SendMessage("**Chat Disconnected**");
+						for(TextChannel channel : client.getTextChannels()) {
+							if (messageListener.monitoredChannels.contains(channel.getId())) {
+								channel.sendMessage("**Chat Disconnected**");
+							}
+						}
 					}
 				}else {
 					resetActivity();
@@ -151,12 +156,42 @@ public class Bot implements Listener {
 		this.client.shutdownNow();
 	}
 
-	public void SendMessage(String text) {
-		for(TextChannel channel : this.client.getTextChannels()) {
-			if (messageListener.monitoredChannels.contains(channel.getId())) {
-				CharSequence message = text;
-				channel.sendMessage(message);
+	/**
+	 * Sends a message to a specified Discord channel. If the provided channel is null,  
+	 * it attempts to send the message to all configured channels in the bot's settings.  
+	 * Logs an error if the bot lacks permission to send messages in a channel.
+	 *
+	 * @param channel The target {@link MessageChannel} to send the message to.  
+	 *                If null, the message is sent to all configured channels.  
+	 * @param text The message content to be sent.  
+	 */
+	public void SendMessage(MessageChannel channel, String text) {
+		if(channel == null) {
+			try {
+				for(String ch : Bot.config.GetStringList("channels")) {
+					int id = Integer.valueOf(ch);
+					Guild guild = Main.bot.client.getGuildChannelById(id).getGuild();
+					GuildChannel gchannel = guild.getGuildChannelById(id);
+					if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_WRITE)) {
+						guild.getTextChannelById(id).sendMessage(text).queue();
+					}else {
+						Log.Error(Main.plugin, String.format("I don't have permission to write in #%s", gchannel.getName()));
+					}
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
+		}
+		try {
+			Guild guild = channel.getJDA().getGuildChannelById(channel.getIdLong()).getGuild();
+			GuildChannel gchannel = guild.getGuildChannelById(channel.getIdLong());
+			if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_WRITE)) {
+				channel.sendMessage(text).queue();
+			}else {
+				Log.Error(Main.plugin, String.format("I don't have permission to write in #%s", gchannel.getName()));
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 

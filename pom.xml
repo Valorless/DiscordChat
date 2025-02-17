@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>valorless.discordchat</groupId>
   <artifactId>DiscordChat</artifactId>
-  <version>2.2.4</version>
+  <version>2.2.7</version>
   <scm>
     <connection>scm:svn:http://127.0.0.1/dummy</connection>
     <developerConnection>scm:svn:https://127.0.0.1/dummy</developerConnection>
@@ -150,10 +150,6 @@
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
         <repository>
-            <id>aikar</id>
-            <url>https://repo.aikar.co/content/groups/aikar/</url>
-        </repository>
-        <repository>
             <id>bintray-jcenter</id>
             <url>https://jcenter.bintray.com</url>
         </repository>
@@ -164,6 +160,10 @@
     <repository>
         <id>paper-repo</id>
         <url>https://papermc.io/repo/repository/maven-public/</url>
+    </repository>
+    <repository>
+        <id>cs-arcane-arts</id>
+        <url>https://dl.cloudsmith.io/public/arcane/archive/maven/</url>
     </repository>
    </repositories>
   <dependencies>
@@ -200,14 +200,7 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpmime</artifactId>
         <version>4.5.13</version> <!-- Or the latest version -->
-    </dependency>
-    <dependency>
-            <groupId>co.aikar</groupId>
-            <artifactId>taskchain-bukkit</artifactId>
-            <version>3.7.1</version>
-            <scope>compile</scope>
-        </dependency>
-        
+    </dependency>        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -224,6 +217,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
+            <!--<version>4.3.0_334</version>-->
             <version>4.2.0_222</version>
             <exclusions>
                 <exclusion>

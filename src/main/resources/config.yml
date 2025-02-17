@@ -47,10 +47,10 @@ console-username: 'Console'
 # DiscordChat Placeholder: %player% - Player's username.
 player-username: '%player%'
 
-# Custom join message in-game
+# Custom join message in-game, leave empty to disable.
 custom-join: '&7[&a+&7] %username%'
 
-# Custom leave message in-game
+# Custom leave message in-game, leave empty to disable.
 custom-leave: '&7[&c-&7] %username% (%cause%)'
 custom-leave-causes:
  another-location:
@@ -60,8 +60,8 @@ custom-leave-causes:
   keyword: 'Timed out'
   value: 'Timed out'
  afk-kick:
-  keyword: 'Timed out'
-  value: 'Timed out'
+  keyword: 'You have been kicked for idling more than'
+  value: 'AFK Kicked'
  KeepAliveTimeout:
   keyword: 'Internal Exception: io.netty.handler.timeout.ReadTimeoutException'
   value: 'Timed out'

@@ -158,12 +158,10 @@ public final class Main extends JavaPlugin implements Listener {
 		bot = new Bot();
 		
 		InventoryImageGenerator.cche = Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
-
 		    @Override
 		    public void run() {
 		        InventoryImageGenerator.LoadCache();  
 		    }
-		           
 		});
         
     }

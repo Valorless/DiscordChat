@@ -11,9 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import valorless.discordchat.discord.Bot;
 import valorless.discordchat.utils.InventoryImageGenerator;
-import valorless.discordchat.utils.Placeholders;
 import valorless.valorlessutils.ValorlessUtils.Log;
-import valorless.valorlessutils.config.Config;
 
 public class CommandListener implements CommandExecutor {
 

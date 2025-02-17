@@ -1,21 +1,21 @@
 package valorless.discordchat.discord;
 
-import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import valorless.discordchat.ChatListener;
-import valorless.discordchat.DiscordWebhook;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.valorlessutils.ValorlessUtils.Log;
@@ -54,25 +54,7 @@ public class MessageListener extends ListenerAdapter {
 
 			if(containsUrl(message)) {
 				event.getMessage().delete();
-				DiscordWebhook webhook = new DiscordWebhook(Main.config.GetString("webhook-url"));
-
-				webhook.setUsername(Main.config.GetString("server-username"));
-				webhook.setContent(ChatListener.FormatMessage(null, 
-						String.format("<@%s> " , event.getAuthor().getId()) +
-						String.format("Links and media links do not work in this channel.")
-						));
-				webhook.setAvatarUrl(Main.config.GetString("server-icon-url"));
-
-				try {
-					webhook.execute();
-				} catch (IOException e) {
-					e.printStackTrace();
-					Log.Error(Main.plugin, "Connection failed.");
-					Main.error = true;
-					Log.Error(Main.plugin, "Attempting to reconnect soon.");
-					Log.Error(Main.plugin, "Plugin disabled regular connections to avoid further failed connections.");
-					Log.Error(Main.plugin, "Please reload the plugin to manually re-enable");
-				}
+				Main.bot.SendMessage(event.getChannel(), String.format("<@%s> Links and media links do not work in this channel." , event.getAuthor().getId()));
 				return;
 			}
 
@@ -83,11 +65,20 @@ public class MessageListener extends ListenerAdapter {
 				//Log.Info(Main.plugin, prefix + "");
 				if(c == prefix) {
 					Log.Info(Main.plugin, "Command");
-					message = ProccessCommand(member, event.getAuthor(), message);
-					if(message == null) return;
-					Log.Info(Main.plugin, "Command failed");
+					message = ProccessCommand(event.getChannel(), member, event.getAuthor(), message);
+					if(message == null) {
+						return;
+					}
+				}else if(c == '!') {
+					Log.Info(Main.plugin, "D-Command");
+					ProccessDiscordCommand(event.getChannel(), member, event.getAuthor(), message);
+					return;
 				}
-			}catch(Exception e) {}
+			}catch(Exception e) {
+				Main.bot.SendMessage(event.getChannel(), e.getMessage());
+				e.printStackTrace();
+				return;
+			}
 
 			chatMessage = Lang.hex(chatMessage);
 			chatMessage = chatMessage.replace("&", "§");
@@ -129,51 +120,18 @@ public class MessageListener extends ListenerAdapter {
 				}
 			}
 			else {
-				DiscordWebhook webhook = new DiscordWebhook(Main.config.GetString("webhook-url"));
-
-				webhook.setUsername(Main.config.GetString("server-username"));
-				webhook.setContent(ChatListener.FormatMessage(null, 
-						String.format("<@%s> " , event.getAuthor().getId()) +
-						String.format(Main.filter.GetString("chat-filter-message"), blockedWord(chatMessage))
-						));
-				webhook.setAvatarUrl(Main.config.GetString("server-icon-url"));
-
-				try {
-					webhook.execute();
-				} catch (IOException e) {
-					e.printStackTrace();
-					Log.Error(Main.plugin, "Connection failed.");
-					Main.error = true;
-					Log.Error(Main.plugin, "Attempting to reconnect soon.");
-					Log.Error(Main.plugin, "Plugin disabled regular connections to avoid further failed connections.");
-					Log.Error(Main.plugin, "Please reload the plugin to manually re-enable");
-				}
+				Main.bot.SendMessage(event.getChannel(), String.format("<@%s> " , event.getAuthor().getId()) +
+						String.format(Main.filter.GetString("chat-filter-message"), blockedWord(chatMessage)));
 			}
 		}).execute();
 	}
 
-	String ProccessCommand(Member member, User user, String command) {
+	String ProccessCommand(MessageChannel channel, Member member, User user, String command) {
 		//Log.Info(Main.plugin, "staff?");
 		Log.Info(Main.plugin, "User: " + user.getName());
 		Log.Info(Main.plugin, "Command: " + command);
 		if(!isStaff(member)) {
-			DiscordWebhook webhook = new DiscordWebhook(Main.config.GetString("webhook-url"));
-			
-			webhook.setUsername(Main.config.GetString("server-username"));
-			webhook.setContent(ChatListener.FormatMessage(null, String.format("<@%s> only staff may use commands.", user.getId())));
-			webhook.setAvatarUrl(Main.config.GetString("server-icon-url"));
-				
-			try {
-				webhook.execute();
-			} catch (IOException e) {
-				e.printStackTrace();
-				Log.Error(Main.plugin, "Connection failed.");
-				Main.error = true;
-				Log.Error(Main.plugin, "Attempting to reconnect soon.");
-				Log.Error(Main.plugin, "Plugin disabled regular connections to avoid further failed connections.");
-				Log.Error(Main.plugin, "Please reload the plugin to manually re-enable");
-			}
-			//Log.Info(Main.plugin, "not staff");
+			Main.bot.SendMessage(channel, String.format("<@%s> only staff may use commands.", user.getId()));
 			return null;
 		}
 		
@@ -186,25 +144,8 @@ public class MessageListener extends ListenerAdapter {
 			return null;
 		}
 		else {
-			DiscordWebhook webhook = new DiscordWebhook(Main.config.GetString("webhook-url"));
-			
-			webhook.setUsername(Main.config.GetString("server-username"));
-			webhook.setContent(ChatListener.FormatMessage(null, 
-					String.format("<@%s> " , user.getId()) +
-					String.format(Bot.config.GetString("blocked-commands-message"), blockedCommand(command.substring(1)))
-					));
-			webhook.setAvatarUrl(Main.config.GetString("server-icon-url"));
-				
-			try {
-				webhook.execute();
-			} catch (IOException e) {
-				e.printStackTrace();
-				Log.Error(Main.plugin, "Connection failed.");
-				Main.error = true;
-				Log.Error(Main.plugin, "Attempting to reconnect soon.");
-				Log.Error(Main.plugin, "Plugin disabled regular connections to avoid further failed connections.");
-				Log.Error(Main.plugin, "Please reload the plugin to manually re-enable");
-			}
+			Main.bot.SendMessage(channel, String.format("<@%s> " , user.getId()) +
+					String.format(Bot.config.GetString("blocked-commands-message"), blockedCommand(command.substring(1))));
 			return null;
 		}
 	}
@@ -323,4 +264,44 @@ public class MessageListener extends ListenerAdapter {
         // Return true if a URL is found, otherwise false
         return matcher.find();
     }
+    
+    void ProccessDiscordCommand(MessageChannel channel, Member member, User user, String command) {
+		//Log.Info(Main.plugin, "staff?");
+		Log.Info(Main.plugin, "User: " + user.getName());
+		Log.Info(Main.plugin, "Command: " + command);
+		String message = "";
+		String cmd = command.substring(1).toLowerCase().trim(); // Convert to lowercase and remove spaces
+
+	    switch (cmd) {
+	        case "help":
+	            message = String.format("<@%s> Here's a list of my commands:\n", user.getId());
+	            message += "\n`!help` - You are here";
+	            message += "\n`!online` - Lists all online players";
+	            message += "\n`!uptime` - How long the server's been up.";
+	            Main.bot.SendMessage(channel, message);
+	            break;
+
+	        case "online":
+	            message = String.format("<@%s> Here's a list of online players:\n", user.getId());
+	            String text = Bukkit.getOnlinePlayers().stream()
+	                    .map(player -> "`" + player.getName() + "`")
+	                    .collect(Collectors.joining("\n"));
+	            Main.bot.SendMessage(channel, message + text);
+	            break;
+
+	        case "uptime":
+	        	long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
+	            long uptimeSeconds = uptimeMillis / 1000;
+	            long uptimeMinutes = uptimeSeconds / 60;
+	            long uptimeHours = uptimeMinutes / 60;
+
+	            message = String.format("<@%s> Server Uptime: %d hours, %d minutes, %d seconds", user.getId(), uptimeHours, uptimeMinutes % 60, uptimeSeconds % 60);
+	            Main.bot.SendMessage(channel, message);
+	            break;
+
+	        default:
+	            Main.bot.SendMessage(channel, String.format("<@%s> Sorry, I don't know this command.\nTry `!help`", user.getId()));
+	            break;
+	    }
+	}
 }
