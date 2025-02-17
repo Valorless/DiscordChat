@@ -7,7 +7,8 @@
 # Switch this to true to use the Discord -> Minecraft functionality
 enabled: true
 
-# This is the API token for your discord bot please see https://www.writebots.com/discord-bot-token/ for more information.
+# This is the API token for your discord bot please see here for more information:
+# https://github.com/Valorless/DiscordChat/wiki/Creating-and-using-a-Discord-Bot-&-Token
 # Do NOT share this.
 
 # In order for your bot to see the messages in your server, you will need to invite it to your server
