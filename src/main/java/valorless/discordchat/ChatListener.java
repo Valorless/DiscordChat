@@ -1,6 +1,7 @@
 package valorless.discordchat;
 
 import valorless.discordchat.discord.Bot;
+import valorless.discordchat.hooks.EssentialsAfkStatusChange;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.ItemStackToPng;
 import valorless.discordchat.utils.MapToImage;
@@ -42,6 +43,10 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	static boolean kick = false;
 	
 	public static void onEnable() {
+		
+		if(Bukkit.getPluginManager().getPlugin("Essentials") != null)
+			Bukkit.getServer().getPluginManager().registerEvents(new EssentialsAfkStatusChange(), Main.plugin);
+		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 		    @Override
 		    public void run() {
@@ -408,34 +413,6 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	            }
 	        }, 3L);
 		}
-	}
-
-	@SuppressWarnings("deprecation")
-	@EventHandler (priority = EventPriority.HIGHEST)
-    public void onAfkStatusChange(AfkStatusChangeEvent event) {
-		if(Main.enabled == false) {
-			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
-		}
-		
-		boolean afk = event.getValue();
-		Player player = event.getAffected().getBase();
-		if(event.getAffected().isVanished()) return;
-		String yesAfk = "**%s** is now AFK.";
-		String noAfk = "**%s** is no longer AFK.";
-		
-    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	
-    	webhook.setUsername(config.GetString("server-username"));
-    	webhook.setContent(FormatMessage(player, "%timestamp% " + String.format(afk ? yesAfk : noAfk, player.getName())));
-        webhook.setAvatarUrl(config.GetString("server-icon-url"));
-        
-        try {
-			webhook.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-			ConnectionFailed();
-		}
-		
 	}
 	
 	public void SendWebhook(Player player, String msg, Object... args) {	

@@ -25,6 +25,7 @@ import valorless.discordchat.discord.taskchain.TaskChain;
 import valorless.discordchat.discord.taskchain.TaskChainFactory;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
+import valorless.valorlessutils.utils.Utils;
 
 public class Bot implements Listener {
 	protected static Config config = new Config(Main.plugin, "discord.yml");
@@ -39,7 +40,7 @@ public class Bot implements Listener {
 
 	public Bot() {
 		this.bot = this;
-		if (config.GetString("token") == null) {
+		if (Utils.IsStringNullOrEmpty(config.GetString("token"))) {
 			Log.Error(Main.plugin, "Token Required!");
 			return;
 		} 

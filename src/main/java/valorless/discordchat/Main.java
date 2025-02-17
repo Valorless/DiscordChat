@@ -12,7 +12,8 @@ import valorless.discordchat.discord.Bot;
 import valorless.discordchat.hooks.*;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.Metrics;
-import valorless.valorlessutils.ValorlessUtils.*;
+import valorless.valorlessutils.utils.Utils;
+import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
 
 
@@ -119,8 +120,9 @@ public final class Main extends JavaPlugin implements Listener {
 		ChatListener.onEnable();
 		//getServer().getPluginManager().registerEvents(new CommandListenerOld(), this);
 		
-		if(config.GetString("webhook-url") == "") {
-			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
+		if(Utils.IsStringNullOrEmpty(config.GetString("webhook-url"))) {
+			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload."
+					+ "\nThough I highly recommend restarting.");
 			Log.Info(plugin, "§cDisabled!");
 			enabled = false;
 		}
@@ -140,19 +142,20 @@ public final class Main extends JavaPlugin implements Listener {
 			username = config.GetString("server-username");
 		}
 		
-		if(!config.GetBool("server-start")) return;
-    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	
-    	webhook.setUsername(username);
-        webhook.setContent(Lang.Get("server-start"));
-        webhook.setAvatarUrl(config.GetString("server-icon-url"));
-        
-        try {
-        	//Log.Info(plugin, "Executing webhook.");
-			webhook.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-			ChatListener.ConnectionFailed();
+		if(config.GetBool("server-start") && enabled) {
+			DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+
+			webhook.setUsername(username);
+			webhook.setContent(Lang.Get("server-start"));
+			webhook.setAvatarUrl(config.GetString("server-icon-url"));
+
+			try {
+				//Log.Info(plugin, "Executing webhook.");
+				webhook.execute();
+			} catch (IOException e) {
+				e.printStackTrace();
+				ChatListener.ConnectionFailed();
+			}
 		}
         
 		bot = new Bot();
@@ -171,21 +174,22 @@ public final class Main extends JavaPlugin implements Listener {
         InventoryImageGenerator.cche.cancel();	
     	for(Player player : Bukkit.getOnlinePlayers()) {
 			player.sendMessage("§7[§9Discord§7]§r §cChat Disconnected!");
-		}
-    	if(!config.GetBool("server-stop")) return;
-    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	
-    	webhook.setUsername(username);
-        webhook.setContent(Lang.Get("server-stop"));
-        webhook.setAvatarUrl(config.GetString("server-icon-url"));
-        
-        try {
-        	//Log.Info(plugin, "Executing webhook.");
-			webhook.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-			ChatListener.ConnectionFailed();
-		}
+    	}
+    	if(!config.GetBool("server-stop") && enabled) {
+    		DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+
+    		webhook.setUsername(username);
+    		webhook.setContent(Lang.Get("server-stop"));
+    		webhook.setAvatarUrl(config.GetString("server-icon-url"));
+
+    		try {
+    			//Log.Info(plugin, "Executing webhook.");
+    			webhook.execute();
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    			ChatListener.ConnectionFailed();
+    		}
+    	}
         
         bot.Shutdown();
     }
