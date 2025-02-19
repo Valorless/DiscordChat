@@ -275,8 +275,13 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-join"))) {
 			String join = Main.config.GetString("custom-join");
 			join = join.replace("%username%", event.getPlayer().getName());
-			for(Player player : Bukkit.getOnlinePlayers()) {
-				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(join, event.getPlayer())));
+			if(Utils.IsStringNullOrEmpty(event.getJoinMessage())) {
+				for(Player player : Bukkit.getOnlinePlayers()) {
+					player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(join, event.getPlayer())));
+				}
+			}
+			else {
+				event.setJoinMessage(join);
 			}
 		}
 		
@@ -325,8 +330,13 @@ public class ChatListener implements Listener { // Primary objective of BanListe
         			}else {
         				leave = leave.replace("%cause%", "Disconnect");
         			}
-        			for(Player player : Bukkit.getOnlinePlayers()) {
-        				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave, event.getPlayer())));
+        			if(Utils.IsStringNullOrEmpty(event.getQuitMessage())) {
+        				for(Player player : Bukkit.getOnlinePlayers()) {
+            				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave, event.getPlayer())));
+        				}
+        			}
+        			else {
+        				event.setQuitMessage(leave);
         			}
         		}
             }
