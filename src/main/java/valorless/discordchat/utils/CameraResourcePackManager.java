@@ -8,11 +8,8 @@ import valorless.discordchat.Main;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 
 public class CameraResourcePackManager {
@@ -102,7 +99,7 @@ public class CameraResourcePackManager {
             }
         }
 
-        Bukkit.getLogger().info("Loaded " + this.imageHashMap.size() + " textures from resource pack "
+        Bukkit.getLogger().info("Loaded " + CameraResourcePackManager.imageHashMap.size() + " textures from resource pack "
                 + this.resourcePackFile.getName());
         this.isLoaded = true;
     }

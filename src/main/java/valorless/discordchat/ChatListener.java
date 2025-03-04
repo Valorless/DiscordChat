@@ -1,7 +1,7 @@
 package valorless.discordchat;
 
 import valorless.discordchat.discord.Bot;
-import valorless.discordchat.hooks.EssentialsAfkStatusChange;
+import valorless.discordchat.hooks.EssentialsHook;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.ItemStackToPng;
 import valorless.discordchat.utils.MapToImage;
@@ -11,7 +11,7 @@ import valorless.valorlessutils.utils.Utils;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.ess3.api.events.AfkStatusChangeEvent;
+import net.ess3.api.IUser;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -43,10 +43,6 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	static boolean kick = false;
 	
 	public static void onEnable() {
-		
-		if(Bukkit.getPluginManager().getPlugin("Essentials") != null)
-			Bukkit.getServer().getPluginManager().registerEvents(new EssentialsAfkStatusChange(), Main.plugin);
-		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 		    @Override
 		    public void run() {
@@ -346,6 +342,10 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
 		if(!config.GetBool("quit")) return;
+		if(EssentialsHook.isHooked()) {
+    		IUser pl = EssentialsHook.getInstance().getUser(event.getPlayer());
+    		if(pl.isVanished()) return;
+    	}
 		
     	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
     	

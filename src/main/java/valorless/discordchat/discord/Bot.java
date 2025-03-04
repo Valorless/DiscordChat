@@ -23,6 +23,7 @@ import valorless.discordchat.Main;
 import valorless.discordchat.discord.taskchain.BukkitTaskChainFactory;
 import valorless.discordchat.discord.taskchain.TaskChain;
 import valorless.discordchat.discord.taskchain.TaskChainFactory;
+import valorless.discordchat.hooks.EssentialsHook;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
 import valorless.valorlessutils.utils.Utils;
@@ -153,6 +154,7 @@ public class Bot implements Listener {
 	}
 
 	public void Shutdown() {
+		Log.Info(Main.plugin, "Bot shutting down.");
 		Bukkit.getScheduler().cancelTask(taskId);
 		this.client.shutdownNow();
 	}
@@ -223,8 +225,9 @@ public class Bot implements Listener {
 	}
 
 	private String activityMessage() {
+		int online = (EssentialsHook.isHooked()) ? EssentialsHook.visiblePlayers().size() : Bukkit.getOnlinePlayers().size();
 		return config.GetString("bot-activity.message")
-				.replace("%players%", "" + Bukkit.getOnlinePlayers().size())
+				.replace("%players%", "" + online)
 				.replace("%max-players%", "" + Bukkit.getMaxPlayers());
 	}
 }

@@ -387,7 +387,8 @@ public class InventoryImageGenerator {
      *         if the download or processing fails, the placeholder "missing" icon
      * 		   is returned.
      */
-    private static BufferedImage downloadImage(String imageUrl) {
+    @SuppressWarnings("unused")
+	private static BufferedImage downloadImage(String imageUrl) {
         try {
             // Parse the URL to ensure it is valid
             URL url = new URL(imageUrl);

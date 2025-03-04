@@ -13,7 +13,8 @@ import java.util.UUID;
 
 public class MapToImage {
     
-    public static String getMapAsImage(ItemStack mapItem) {
+    @SuppressWarnings("deprecation")
+	public static String getMapAsImage(ItemStack mapItem) {
         // Ensure it's a filled map
         if (mapItem.getType() != Material.FILLED_MAP) {
         	return null;

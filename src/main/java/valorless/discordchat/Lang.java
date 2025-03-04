@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import valorless.discordchat.hooks.EssentialsHook;
 import valorless.discordchat.hooks.PlaceholderAPIHook;
 import valorless.valorlessutils.ValorlessUtils.Log;
 
@@ -21,8 +22,9 @@ public class Lang {
 	
 	public static String Parse(String text) {
 		if(!Utils.IsStringNullOrEmpty(text)) {
-			text = text.replace("%player-count%", String.valueOf(Bukkit.getOnlinePlayers().size()));
-			text = text.replace("%player-count-1%", String.valueOf(Bukkit.getOnlinePlayers().size()-1));
+			int online = (EssentialsHook.isHooked()) ? EssentialsHook.visiblePlayers().size() : Bukkit.getOnlinePlayers().size();
+			text = text.replace("%player-count%", String.valueOf(online));
+			text = text.replace("%player-count-1%", String.valueOf(online-1));
 			text = text.replace("%player-count-max%", String.valueOf(Bukkit.getMaxPlayers()));
 			text = hex(text);
 			text = text.replace("&", "§");

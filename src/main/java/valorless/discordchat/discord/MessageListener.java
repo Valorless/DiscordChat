@@ -1,14 +1,11 @@
 package valorless.discordchat.discord;
 
-import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageType;
@@ -16,8 +13,11 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.ess3.api.IUser;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
+import valorless.discordchat.hooks.EssentialsHook;
+import valorless.discordchat.utils.ServerStats;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -265,7 +265,8 @@ public class MessageListener extends ListenerAdapter {
         return matcher.find();
     }
     
-    void ProccessDiscordCommand(MessageChannel channel, Member member, User user, String command) {
+    @SuppressWarnings("deprecation")
+	void ProccessDiscordCommand(MessageChannel channel, Member member, User user, String command) {
 		//Log.Info(Main.plugin, "staff?");
 		Log.Info(Main.plugin, "User: " + user.getName());
 		Log.Info(Main.plugin, "Command: " + command);
@@ -282,20 +283,30 @@ public class MessageListener extends ListenerAdapter {
 	            break;
 
 	        case "online":
-	            message = String.format("<@%s> Here's a list of online players:\n", user.getId());
-	            String text = Bukkit.getOnlinePlayers().stream()
+	        	int online = (EssentialsHook.isHooked()) ? EssentialsHook.visiblePlayers().size() : Bukkit.getOnlinePlayers().size();
+	            message = String.format("<@%s> Here's a list of %s online players:\n", user.getId(), online);
+	            for(Player player : Bukkit.getOnlinePlayers()) {
+	            	if(EssentialsHook.isHooked()) {
+	            		IUser pl = EssentialsHook.getInstance().getUser(player);
+	            		if(pl.isVanished()) continue;
+	            		else message += "`" + player.getName() + "`";
+	            	}else {
+	            		message += "`" + player.getName() + "`";
+	            	}
+	            }
+	            /*String text = Bukkit.getOnlinePlayers().stream()
 	                    .map(player -> "`" + player.getName() + "`")
-	                    .collect(Collectors.joining("\n"));
-	            Main.bot.SendMessage(channel, message + text);
+	                    .collect(Collectors.joining("\n"));*/
+	            Main.bot.SendMessage(channel, message);
 	            break;
 
 	        case "uptime":
-	        	long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
-	            long uptimeSeconds = uptimeMillis / 1000;
-	            long uptimeMinutes = uptimeSeconds / 60;
-	            long uptimeHours = uptimeMinutes / 60;
+	            message = String.format("<@%s> Server Uptime: %s", user.getId(), ServerStats.getUptime());
+	            Main.bot.SendMessage(channel, message);
+	            break;
 
-	            message = String.format("<@%s> Server Uptime: %d hours, %d minutes, %d seconds", user.getId(), uptimeHours, uptimeMinutes % 60, uptimeSeconds % 60);
+	        case "mem":
+	            message = String.format("<@%s> %s", user.getId(), ServerStats.slashMem());
 	            Main.bot.SendMessage(channel, message);
 	            break;
 
