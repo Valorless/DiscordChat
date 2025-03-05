@@ -311,6 +311,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
     }
 	
+	@SuppressWarnings("deprecation")
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerQuit(PlayerQuitEvent event) {
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
@@ -377,7 +378,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			
 			if(reason != null) {
 				String sect = "custom-leave-causes";
-				for(Object entry : Main.config.GetConfigurationSection("sect").getKeys(false)) {
+				for(Object entry : Main.config.GetConfigurationSection(sect).getKeys(false)) {
 					if(reason.contains(Main.config.GetString(String.format("%s.%s.keyword", sect, entry.toString())))) {
 						leave = leave.replace("%cause%", Main.config.GetString(String.format("%s.%s.value", sect, entry.toString())));
 					}
