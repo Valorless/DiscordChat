@@ -15,7 +15,10 @@ import net.ess3.api.IUser;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
@@ -23,6 +26,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -31,6 +35,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -141,6 +146,28 @@ public class ChatListener implements Listener { // Primary objective of BanListe
     	        }
     	        return; // Stop further processing once a word is blocked
     	    }
+    	}
+    	if(filtermsg.contains("@")) {
+    		for (String entry : list) {
+    		    String lowerEntry = entry.toLowerCase(); // Normalize case
+
+    		    if (filtermsg.contains(lowerEntry)) { // Use contains() instead of regex
+    		        // If a match is found, block the message
+    		        event.getPlayer().sendMessage(String.format(Main.filter.GetString("chat-filter-message"), entry));
+    		        event.setCancelled(true);
+
+    		        String msg = "§c[BLOCKED] " + event.getPlayer().getName() + ": " + event.getMessage();
+    		        Log.Error(plugin, msg);
+
+    		        // Notify staff about the blocked message
+    		        for (Player player : Bukkit.getOnlinePlayers()) {
+    		            if (player.hasPermission("discordchat.reload") || player.isOp()) {
+    		                player.sendMessage(msg);
+    		            }
+    		        }
+    		        return; // Stop further processing once a word is blocked
+    		    }
+    		}
     	}
     	/*
 		for(String entry : list) {
@@ -309,24 +336,18 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			e.printStackTrace();
 			ConnectionFailed();
 		}
-    }
-	
+    }	
 	@SuppressWarnings("deprecation")
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerQuit(PlayerQuitEvent event) {
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
             @Override
             public void run(){
-            	if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-leave")) && !kick) {
+            	if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-leave")) && !kick) {            	    
         			String leave = Main.config.GetString("custom-leave");
         			String pl = event.getPlayer().getName();
         			leave = leave.replace("%username%", pl);
-        			Log.Warning(plugin, event.getQuitMessage());
-        			if(event.getQuitMessage() != null && event.getQuitMessage().contains("Timed out")) { // <-- not working
-        				leave = leave.replace("%cause%", "Timed out");
-        			}else {
-        				leave = leave.replace("%cause%", "Disconnect");
-        			}
+        			leave = leave.replace("%cause%", "Disconnect");
         			if(Utils.IsStringNullOrEmpty(event.getQuitMessage())) {
         				for(Player player : Bukkit.getOnlinePlayers()) {
             				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave, event.getPlayer())));
@@ -366,7 +387,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
     }
 	
-	@EventHandler (priority = EventPriority.HIGHEST)
+	//@EventHandler //(priority = EventPriority.LOWEST)
     public void onPlayerKick(PlayerKickEvent event) {
 		kick = true;
 		if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-leave"))) {

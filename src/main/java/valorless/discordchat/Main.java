@@ -175,7 +175,7 @@ public final class Main extends JavaPlugin implements Listener {
     	for(Player player : Bukkit.getOnlinePlayers()) {
 			player.sendMessage("§7[§9Discord§7]§r §cChat Disconnected!");
     	}
-    	if(!config.GetBool("server-stop") && enabled) {
+    	if(config.GetBool("server-stop") && enabled) {
     		DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
 
     		webhook.setUsername(username);

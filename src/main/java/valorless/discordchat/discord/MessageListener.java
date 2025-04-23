@@ -40,7 +40,7 @@ public class MessageListener extends ListenerAdapter {
 		boolean reply = event.getMessage().getType() == MessageType.INLINE_REPLY;
 
 		Bot.newChain().async(() -> {
-			String message = event.getMessage().getContentStripped();
+			String message = event.getMessage().getContentDisplay();
 			if (member == null) return; 
 			String username = event.getAuthor().getName();
 			String guildName = event.getGuild().getName();
@@ -78,6 +78,10 @@ public class MessageListener extends ListenerAdapter {
 				Main.bot.SendMessage(event.getChannel(), e.getMessage());
 				e.printStackTrace();
 				return;
+			}
+			
+			if(!isStaff(member)) {
+				message = Lang.RemoveColorCodesAndFormatting(message);
 			}
 
 			chatMessage = Lang.hex(chatMessage);
@@ -275,7 +279,7 @@ public class MessageListener extends ListenerAdapter {
 
 	    switch (cmd) {
 	        case "help":
-	            message = String.format("<@%s> Here's a list of my commands:\n", user.getId());
+	            message = String.format("<@%s> Here's a list of my commands:", user.getId());
 	            message += "\n`!help` - You are here";
 	            message += "\n`!online` - Lists all online players";
 	            message += "\n`!uptime` - How long the server's been up.";
@@ -284,14 +288,14 @@ public class MessageListener extends ListenerAdapter {
 
 	        case "online":
 	        	int online = (EssentialsHook.isHooked()) ? EssentialsHook.visiblePlayers().size() : Bukkit.getOnlinePlayers().size();
-	            message = String.format("<@%s> Here's a list of %s online players:\n", user.getId(), online);
+	            message = String.format("<@%s> Here's a list of %s online players:", user.getId(), online);
 	            for(Player player : Bukkit.getOnlinePlayers()) {
 	            	if(EssentialsHook.isHooked()) {
 	            		IUser pl = EssentialsHook.getInstance().getUser(player);
 	            		if(pl.isVanished()) continue;
-	            		else message += "`" + player.getName() + "`";
+	            		else message += "\n`" + player.getName() + "`";
 	            	}else {
-	            		message += "`" + player.getName() + "`";
+	            		message += "\n`" + player.getName() + "`";
 	            	}
 	            }
 	            /*String text = Bukkit.getOnlinePlayers().stream()
