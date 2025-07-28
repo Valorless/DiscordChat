@@ -74,5 +74,5 @@ blocked-commands:
  - server
  - kill
  
-blocked-commands-message: '&cSorry, but the command "%s" cannot be used.'
+blocked-commands-message: 'Sorry, but the command "%s" cannot be used.'
 

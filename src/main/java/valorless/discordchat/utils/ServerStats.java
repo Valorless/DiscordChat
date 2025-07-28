@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 
 import org.bukkit.Bukkit;
 
+import valorless.discordchat.Main;
 import valorless.discordchat.hooks.EssentialsHook;
 
 public class ServerStats {
@@ -21,11 +22,10 @@ public class ServerStats {
 	    
 	    long maxMemory = runtime.maxMemory() / (1024 * 1024); // MB
 	    long allocatedMemory = runtime.totalMemory() / (1024 * 1024); // MB
-	    long freeMemory = runtime.freeMemory() / (1024 * 1024); // MB
-	    long usedMemory = allocatedMemory - freeMemory; // MB
-
+	    String usedMemory = MemoryTracker.formatBytes(Main.memoryTracker.getAveragePeak());
+	    
 	    return String.format(
-	    		"Memory Usage: %dMB/%dMB (Max: %dMB)",
+	    		"Memory Usage: %sMB/%dMB (Max: %dMB)",
 	    		usedMemory, allocatedMemory, maxMemory
 	    		);
 	}

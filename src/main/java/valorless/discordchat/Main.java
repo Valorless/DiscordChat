@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import valorless.discordchat.discord.Bot;
 import valorless.discordchat.hooks.*;
 import valorless.discordchat.utils.InventoryImageGenerator;
+import valorless.discordchat.utils.MemoryTracker;
 import valorless.discordchat.utils.Metrics;
 import valorless.valorlessutils.utils.Utils;
 import valorless.valorlessutils.ValorlessUtils.Log;
@@ -24,9 +25,11 @@ public final class Main extends JavaPlugin implements Listener {
 	public static Config config;
 	public static Config filter;
 	public static Config muted;
+	public static Config bans;
 	public static String username = "";
 	public static boolean error = false;
 	public static Bot bot;
+	public static MemoryTracker memoryTracker;
     
     public String[] commands = {
     		"discordchat", "dcm", "dc", "server"
@@ -39,6 +42,7 @@ public final class Main extends JavaPlugin implements Listener {
 		config = new Config(this, "config.yml");
 		filter = new Config(this, "blocked-words.yml");
 		muted = new Config(this, "muted.yml");
+		bans = new Config(this, "bans.yml");
 		ChatListener.config = config;
 		
 		Lang.lang = new Config(this, "lang.yml");
@@ -83,6 +87,7 @@ public final class Main extends JavaPlugin implements Listener {
 		config.AddValidationEntry("custom-leave", "&7[&c-&7] %username% (%cause%)");
 		config.AddValidationEntry("custom-leave-causes.timed-out.keyword", "Timed out");
 		config.AddValidationEntry("custom-leave-causes.timed-out.value", "Timed out");
+		config.AddValidationEntry("error-message", true);
 
 		config.AddValidationEntry("server-start", true);
 		config.AddValidationEntry("server-stop", true);
@@ -116,6 +121,39 @@ public final class Main extends JavaPlugin implements Listener {
 		Lang.lang.AddValidationEntry("with-player-count", "%message% (%player-count%/%player-count-max%)");
 		Lang.lang.Validate();
 		
+
+		//Config
+		bans.AddValidationEntry("webhook-url", "");
+		bans.AddValidationEntry("bot-name", "George");
+		bans.AddValidationEntry("bot-picture", "https://i.pinimg.com/originals/bf/23/ca/bf23ca87c2a867e2b3b991e76d982abd.jpg");
+		bans.AddValidationEntry("ban-color", "#ff2b2b");
+		bans.AddValidationEntry("tempban-color", "#ff992b");
+		bans.AddValidationEntry("unban-color", "#2afa4d");
+		bans.AddValidationEntry("banip-color", "#5b09ad");
+		bans.AddValidationEntry("unbanip-color", "#0ce6fa");
+		bans.AddValidationEntry("bans", true);
+		bans.AddValidationEntry("tempbans", true);
+		bans.AddValidationEntry("unbans", true);
+		bans.AddValidationEntry("banips", true);
+		bans.AddValidationEntry("unbanips", true);
+		bans.AddValidationEntry("bot-message", "");
+		bans.AddValidationEntry("banned-title", "%target% has been banned!");
+		bans.AddValidationEntry("tempbanned-title", "%target% has been temp banned!");
+		bans.AddValidationEntry("unbanned-title", "%target% has been unbanned!");
+		bans.AddValidationEntry("ip-banned-title", "IP: %target% has been banned!");
+		bans.AddValidationEntry("ip-unbanned-title", "IP: %target% has been unbanned!");
+		bans.AddValidationEntry("description", "");
+		bans.AddValidationEntry("reason-line1", "Reason: ");
+		bans.AddValidationEntry("reason-line2", "%reason%");
+		bans.AddValidationEntry("banned-by-line1", "Banned by: ");
+		bans.AddValidationEntry("banned-by-line2", "%sender%");
+		bans.AddValidationEntry("unbanned-by-line1", "Unbanned by: ");
+		bans.AddValidationEntry("unbanned-by-line2", "%sender%");
+		bans.AddValidationEntry("duration-line1", "Duration: ");
+		bans.AddValidationEntry("duration-line2", "%duration%");
+		bans.AddValidationEntry("banned-on", "Banned on %date%");
+		
+		getServer().getPluginManager().registerEvents(new BanListener(), this);
 		getServer().getPluginManager().registerEvents(new ChatListener(), this);
 		ChatListener.onEnable();
 		//getServer().getPluginManager().registerEvents(new CommandListenerOld(), this);
@@ -167,6 +205,7 @@ public final class Main extends JavaPlugin implements Listener {
 		    }
 		});
         
+		memoryTracker = new MemoryTracker(5);
     }
     
     @Override

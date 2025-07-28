@@ -15,10 +15,7 @@ import net.ess3.api.IUser;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
@@ -26,7 +23,6 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -35,13 +31,11 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class ChatListener implements Listener { // Primary objective of BanListener is to listen for Ban commands.
 	public static JavaPlugin plugin;
-	String Name = "§7[§4Main§7]§r";
 	public static Config config;
 	public static String url;
 	static int strikes = 0;
@@ -219,36 +213,37 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		if(event.getAdvancement().getDisplay().getDescription() == null) return;
 		if(IsAchievementIgnored(event.getAdvancement().getDisplay().getTitle())) return;
 		
-		Player player = event.getPlayer();
-		String title = "**%player%** has unlocked **%message%**."
+		Bot.newChain().async(() -> {
+			Player player = event.getPlayer();
+			String title = "**%player%** has unlocked **%message%**."
 				.replace("%player%", event.getPlayer().getName())
 				.replace("%message%", event.getAdvancement().getDisplay().getTitle());
 		
-    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	webhook.setUsername(FormatUsername(player, config.GetString("player-username")));
-        //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
-    	webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
-        if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
-        	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
-        }else {
-            	Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
-            	Log.Debug(plugin, "Cannot set the bot's picture.");
-        	}
-       
-        	webhook.addEmbed(new DiscordWebhook.EmbedObject()
-                .setTitle(FormatMessage(player, title))
-                .setDescription(FormatMessage(player, event.getAdvancement().getDisplay().getDescription() + "."))
-                .setColor(Color.decode("#2afa4d"))
-        	);
-        
-        try {
-        	//Log.Info(plugin, "Executing webhook.");
-			webhook.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-			ConnectionFailed();
-		}
-		
+			DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+			webhook.setUsername(FormatUsername(player, config.GetString("player-username")));
+			//webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
+			webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
+			if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
+				webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
+			}else {
+				Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
+				Log.Debug(plugin, "Cannot set the bot's picture.");
+			}
+
+			webhook.addEmbed(new DiscordWebhook.EmbedObject()
+					.setTitle(FormatMessage(player, title))
+					.setDescription(FormatMessage(player, event.getAdvancement().getDisplay().getDescription() + "."))
+					.setColor(Color.decode("#2afa4d"))
+					);
+
+			try {
+				//Log.Info(plugin, "Executing webhook.");
+				webhook.execute();
+			} catch (IOException e) {
+				e.printStackTrace();
+				ConnectionFailed();
+			}
+		}).execute();
 	}
 	
 	@EventHandler (priority = EventPriority.LOWEST)
@@ -260,48 +255,51 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
 		if(!config.GetBool("death")) return;
 		if(event.getDeathMessage() == null) return;
+		
 		if(Utils.IsStringNullOrEmpty(event.getDeathMessage())) {
 			event.setDeathMessage(String.format("%s died.", event.getEntity().getName()));
 		}
 		
-		Player player = event.getEntity();
+		Bot.newChain().async(() -> {
+			Player player = event.getEntity();
 		
-    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	webhook.setUsername(FormatUsername(player, config.GetString("player-username").replace("%player%", player.getName())));
-    	String message = event.getDeathMessage().replace(event.getEntity().getName(), "**" + event.getEntity().getName() + "**");
-        //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
-        webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
-        if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
-        	webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
-        }else {
-            	Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
-            	Log.Debug(plugin, "Cannot set the bot's picture.");
-        	}
-       
-        	webhook.addEmbed(new DiscordWebhook.EmbedObject()
-                .setTitle(FormatMessage(event.getEntity(), message + "."))
-                .setColor(Color.decode("#ff2b2b"))
-        	);
-        
-        try {
-        	//Log.Info(plugin, "Executing webhook.");
-			webhook.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-			ConnectionFailed();
-		}
+			DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+			webhook.setUsername(FormatUsername(player, config.GetString("player-username").replace("%player%", player.getName())));
+			String message = event.getDeathMessage().replace(event.getEntity().getName(), "**" + event.getEntity().getName() + "**");
+			//webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
+			webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
+			if(!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
+				webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
+			}else {
+				Log.Debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
+				Log.Debug(plugin, "Cannot set the bot's picture.");
+			}
+
+			webhook.addEmbed(new DiscordWebhook.EmbedObject()
+					.setTitle(FormatMessage(event.getEntity(), message + "."))
+					.setColor(Color.decode("#ff2b2b"))
+					);
+
+			try {
+				//Log.Info(plugin, "Executing webhook.");
+				webhook.execute();
+			} catch (IOException e) {
+				e.printStackTrace();
+				ConnectionFailed();
+			}
+		}).execute();
     }
 	
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-		
 		if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-join"))) {
 			String join = Main.config.GetString("custom-join");
 			join = join.replace("%username%", event.getPlayer().getName());
+			for(Player player : Bukkit.getOnlinePlayers()) {
+				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(join, event.getPlayer())));
+			}
 			if(Utils.IsStringNullOrEmpty(event.getJoinMessage())) {
-				for(Player player : Bukkit.getOnlinePlayers()) {
-					player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(join, event.getPlayer())));
-				}
+				
 			}
 			else {
 				event.setJoinMessage(join);
@@ -313,29 +311,32 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}
 		if(!config.GetBool("join")) return;
 		
-    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	
-    	webhook.setUsername(config.GetString("server-username"));
-        //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
-        webhook.setAvatarUrl(config.GetString("server-icon-url"));
-        
-        if(!event.getPlayer().hasPlayedBefore()) {
-            webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("join-first-time")
-            		.replace("%player%", event.getPlayer().getName())
-            		));
-        }else {
-        	String msg = Lang.Get("join")
-    				.replace("%player%", event.getPlayer().getName());
-        	webhook.setContent(FormatMessage(event.getPlayer(), msg));
-        }
-        
-        try {
-        	//Log.Info(plugin, "Executing webhook.");
-			webhook.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-			ConnectionFailed();
-		}
+
+		Bot.newChain().async(() -> {
+			DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+
+			webhook.setUsername(config.GetString("server-username"));
+			//webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
+			webhook.setAvatarUrl(config.GetString("server-icon-url"));
+
+			if(!event.getPlayer().hasPlayedBefore()) {
+				webhook.setContent(FormatMessage(event.getPlayer(), Lang.Get("join-first-time")
+						.replace("%player%", event.getPlayer().getName())
+						));
+			}else {
+				String msg = Lang.Get("join")
+						.replace("%player%", event.getPlayer().getName());
+				webhook.setContent(FormatMessage(event.getPlayer(), msg));
+			}
+
+			try {
+				//Log.Info(plugin, "Executing webhook.");
+				webhook.execute();
+			} catch (IOException e) {
+				e.printStackTrace();
+				ConnectionFailed();
+			}
+		}).execute();
     }	
 	@SuppressWarnings("deprecation")
 	@EventHandler (priority = EventPriority.HIGHEST)
@@ -369,22 +370,24 @@ public class ChatListener implements Listener { // Primary objective of BanListe
     		if(pl.isVanished()) return;
     	}
 		
-    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-    	
-    	webhook.setUsername(config.GetString("server-username"));
-    	String msg = Lang.Get("leave")
-    				.replace("%player%", event.getPlayer().getName());
-    	webhook.setContent(FormatMessage(event.getPlayer(), msg));
-        //webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
-        webhook.setAvatarUrl(config.GetString("server-icon-url"));
-        
-        try {
-        	//Log.Info(plugin, "Executing webhook.");
-			webhook.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-			ConnectionFailed();
-		}
+		Bot.newChain().async(() -> {
+			DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+
+			webhook.setUsername(config.GetString("server-username"));
+			String msg = Lang.Get("leave")
+					.replace("%player%", event.getPlayer().getName());
+			webhook.setContent(FormatMessage(event.getPlayer(), msg));
+			//webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
+			webhook.setAvatarUrl(config.GetString("server-icon-url"));
+
+			try {
+				//Log.Info(plugin, "Executing webhook.");
+				webhook.execute();
+			} catch (IOException e) {
+				e.printStackTrace();
+				ConnectionFailed();
+			}
+		}).execute();
     }
 	
 	//@EventHandler //(priority = EventPriority.LOWEST)
@@ -459,10 +462,16 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		Bot.newChain().async(() -> {
 		    	final String _message = msg;
 		    	String message = new String(_message.replace(String.format("<chat=%s:[i]:>", player.getUniqueId().toString()), "[i]")
+		    			.replace(String.format("<chat=%s:[I]:>", player.getUniqueId().toString()), "[i]") //Caps version
 		    			.replace(String.format("<chat=%s:[item]:>", player.getUniqueId().toString()), "[item]")
+		    			.replace(String.format("<chat=%s:[ITEM]:>", player.getUniqueId().toString()), "[item]")
 		    			.replace(String.format("<chat=%s:[inv]:>", player.getUniqueId().toString()), "[inv]")
+		    			.replace(String.format("<chat=%s:[INV]:>", player.getUniqueId().toString()), "[inv]")
 		    			.replace(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString()), "[ender]")
+		    			.replace(String.format("<chat=%s:[ENDER]:>", player.getUniqueId().toString()), "[ender]")
 		    			.replace(String.format("<chat=%s:[ping]:>", player.getUniqueId().toString()), "[ping]")
+		    			.replace(String.format("<chat=%s:[PING]:>", player.getUniqueId().toString()), "[ping]")
+		    			.replace(String.format("<chat=%s:[POS]:>", player.getUniqueId().toString()), "[pos]")
 		    			.replace(String.format("<chat=%s:[pos]:>", player.getUniqueId().toString()), "[pos]").toCharArray());
 				//Log.Warning(plugin, message);
 		    	DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
@@ -477,9 +486,13 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    				//Log.Warning(plugin, message);
 		    				String id = "";
 		    				if(item.getType() == Material.FILLED_MAP) {
-		    					id = MapToImage.getMapAsImage(item);
-		    					if(id == null) {
-		    						id = ItemStackToPng.createItemStackImage(item);
+		    					try {
+		    						id = MapToImage.getMapAsImage(item);
+		    						if(id == null) {
+		    							id = ItemStackToPng.createItemStackImage(item);
+		    						}
+		    					}catch(Exception e) {
+		    						
 		    					}
 		    				}else {
 		    					id = ItemStackToPng.createItemStackImage(item);
@@ -495,18 +508,24 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    			if(item.hasItemMeta()) {
 		    				if(item.getItemMeta().hasDisplayName()) {
 		    					message = message.replace("[item]", "[" + item.getItemMeta().getDisplayName() + "]");
+		    					message = message.replace("[ITEM]", "[" + item.getItemMeta().getDisplayName() + "]");
 		    					message = message.replace("[i]", "[" + item.getItemMeta().getDisplayName() + "]");
+		    					message = message.replace("[I]", "[" + item.getItemMeta().getDisplayName() + "]");
 		    					//message = message.replace("<%s:[item]:>", "[" + item.getItemMeta().getDisplayName() + "]");
 		    					//message = message.replace("<%s:[i]:>", "[" + item.getItemMeta().getDisplayName() + "]");
 		    				}else {
 		    					message = message.replace("[item]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    					message = message.replace("[ITEM]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 		    					message = message.replace("[i]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    					message = message.replace("[I]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 		    					//message = message.replace("<%s:[item]:>", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 		    					//message = message.replace("<%s:[i]:>", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 		    				}
 		    			}else {
 		    				message = message.replace("[item]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    				message = message.replace("[ITEM]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 		    				message = message.replace("[i]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
+		    				message = message.replace("[I]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 	    					//message = message.replace("<%s:[item]:>", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 	    					//message = message.replace("<%s:[i]:>", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 		    			}
@@ -516,20 +535,22 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    	}
 		    	
 		    	if(Bukkit.getPluginManager().getPlugin("InteractiveChat") != null) {
-		    		if(message.contains("[ping]")) {
+		    		if(message.contains("[ping]") || message.contains("[PING]")) {
 		    			//Log.Warning(plugin, message);
 		    			message = message.replace("[ping]", player.getPing() + "ms");
+		    			message = message.replace("[PING]", player.getPing() + "ms");
 		    			//message = message.replace(String.format("<%s:[ping]:>", player.getUniqueId().toString().toLowerCase()), player.getPing() + "ms");
 		    		}
 
-		    		if(message.contains("[pos]")) {
+		    		if(message.contains("[pos]") || message.contains("[PIS]")) {
 		    			//Log.Warning(plugin, message);
 		    			Location loc = player.getLocation();
 		    			message = message.replace("[pos]", String.format("%s: %s, %s, %s", player.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()));
+		    			message = message.replace("[POS]", String.format("%s: %s, %s, %s", player.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()));
 		    			//message = message.replace(String.format("<%s:[pos]:>", player.getUniqueId().toString().toLowerCase()), String.format("%s, %s, %s", loc.getX(), loc.getY(), loc.getZ()));
 		    		}
 
-		    		if(message.contains("[inv]")) {
+		    		if(message.contains("[inv]") || message.contains("[INV]")) {
 		    			//Log.Warning(plugin, message);
 		    			String id = InventoryImageGenerator.generate(player.getInventory().getContents(), 5, true);
 		    			if(id != null) {
@@ -542,10 +563,11 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    				}catch(Exception e) {}
 		    			}
 		    			message = message.replace("[inv]", "[Inventory]");
+		    			message = message.replace("[INV]", "[Inventory]");
 		    			//message = message.replace(String.format("<%s:[inv]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
 		    		}
 
-		    		if(message.contains("[ender]")) {
+		    		if(message.contains("[ender]") || message.contains("[ENDER]")) {
 		    			String id = InventoryImageGenerator.generate(player.getEnderChest().getContents(), 3, false);
 		    			if(id != null) {
 		    				try {
@@ -557,6 +579,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    				}catch(Exception e) {}
 		    			}
 		    			message = message.replace("[ender]", "[Enderchest]");
+		    			message = message.replace("[ENDER]", "[Enderchest]");
 		    			//message = message.replace(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
 		    		}
 		    	}
@@ -581,8 +604,6 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		
 		           
 		//});
-		
-    	
     }
 	
 	String FormatUsername(Player player, String message) {

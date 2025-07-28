@@ -1,0 +1,62 @@
+############################################################
+# +------------------------------------------------------+ #
+# |                       Config                         | #
+# +------------------------------------------------------+ #
+############################################################
+
+# Webhook URL from your Discord server, from the channel you want bans to announce in.
+webhook-url: ''
+
+# Bot user.
+bot-name: 'George'
+bot-picture: 'https://i.pinimg.com/originals/bf/23/ca/bf23ca87c2a867e2b3b991e76d982abd.jpg' #URL
+
+# Color of the Discord embed.
+ban-color: '#ff2b2b' # Red
+tempban-color: '#ff992b' # Orange
+unban-color: '#2afa4d' # Green
+banip-color: '#5b09ad' # Purple
+unbanip-color: '#0ce6fa' # Light Blue
+
+# What messages should the plugin send?
+bans: true
+tempbans: true
+unbans: true
+banips: true
+unbanips: true
+
+############################################################
+# +------------------------------------------------------+ #
+# |                      Messages                        | #
+# +------------------------------------------------------+ #
+############################################################
+
+# Message Content
+# This is located above the embed.
+bot-message: ''
+
+# Message Embed
+banned-title: '%target% has been banned!'
+tempbanned-title: '%target% has been temp banned!'
+unbanned-title: '%target% has been unbanned!'
+ip-banned-title: 'IP: %target% has been banned!'
+ip-unbanned-title: 'IP: %target% has been unbanned!'
+description: ''
+reason-line1: 'Reason: '
+reason-line2: '%reason%'
+banned-by-line1: 'Banned by: '
+banned-by-line2: '%sender%'
+unbanned-by-line1: 'Unbanned by: '
+unbanned-by-line2: '%sender%'
+duration-line1: 'Duration: '
+duration-line2: '%duration%'
+banned-on: 'Banned on %date%'
+unbanned-on: 'Unbanned on %date%'
+
+### Placeholders ###
+# %target% - The player affected.
+# %sender% - The player using the commands.
+# %reason% - reason for the ban. (returns "No reason given." if none given)
+# %duration% - Duration of the tempban. (ie. 12h, 2d)
+# %date% - Server time when the ban occured.
+# %plugin% - returns: &7[&9Discord&7]&r

@@ -68,6 +68,9 @@ custom-leave-causes:
  anti-cheat:
   keyword: 'Unfair Advantage'
   value: 'Cheating?'
+  
+# Should DiscordChat announce failed messages in chat?
+error-message: true
 
 ############################################################
 # +------------------------------------------------------+ #

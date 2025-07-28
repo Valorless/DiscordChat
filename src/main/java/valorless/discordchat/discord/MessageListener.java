@@ -1,11 +1,14 @@
 package valorless.discordchat.discord;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageType;
@@ -14,6 +17,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.ess3.api.IUser;
+import valorless.discordchat.BanListener;
+import valorless.discordchat.CustomConsoleSender;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.hooks.EssentialsHook;
@@ -76,6 +81,15 @@ public class MessageListener extends ListenerAdapter {
 				}
 			}catch(Exception e) {
 				Main.bot.SendMessage(event.getChannel(), e.getMessage());
+				if(Main.config.GetBool("error-message")) {
+					String msg = String.format(
+							"§7[§9Discord§7]§r Error proccessing message from %s, might be a forward or contain an image."
+							, nickname);
+					for(Player player : Bukkit.getOnlinePlayers()) {
+						player.sendMessage(msg);
+					}
+					Log.Info(Main.plugin, msg.replace("§7[§9Discord§7]§r ", ""));
+				}
 				e.printStackTrace();
 				return;
 			}
@@ -135,14 +149,44 @@ public class MessageListener extends ListenerAdapter {
 		Log.Info(Main.plugin, "User: " + user.getName());
 		Log.Info(Main.plugin, "Command: " + command);
 		if(!isStaff(member)) {
-			Main.bot.SendMessage(channel, String.format("<@%s> only staff may use commands.", user.getId()));
+			Main.bot.SendMessage(channel, String.format("<@%s> Only staff may use commands.", user.getId()));
 			return null;
 		}
 		
 		if(blockedCommand(command.substring(1)) == null) { 
 			//Log.Info(Main.plugin, "Sending command");
 			Bukkit.getScheduler().runTask(Main.plugin, () -> {
-				Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), command.substring(1));
+				CustomConsoleSender sender = new CustomConsoleSender(user.getName(), msg -> {
+					Main.bot.SendMessage(channel, String.format("<@%s> %s", user.getId(), 
+							Lang.RemoveColorCodesAndFormatting(msg)));
+					Log.Info(Main.plugin, Lang.RemoveColorCodesAndFormatting(msg));
+				});
+				
+				try {
+					if(Bukkit.dispatchCommand(sender, command.substring(1))) {
+						BanListener.DiscordCommand(sender, command.substring(1));
+					}
+				}catch(Exception e) {
+					// If a vanilla command, run through the default command sender,
+					// but no feedback messages.
+					if(e.getCause() != null 
+							&& e.getCause().getMessage().contains("Cannot make valorless.discordchat.CustomConsoleSender")
+							&& e.getCause().getMessage().contains("a vanilla command listener")) {
+						try {
+							Main.bot.SendMessage(channel, String.format("<@%s> Cannot process Vanilla command responses, but the command was dispatched."
+									+ "\nCheck the console for command feedback.", user.getId()));
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.substring(1));
+						}catch(Exception E) {
+							E.printStackTrace();
+							SendException(E, channel, user);
+						}
+						return;
+					}
+					
+					e.printStackTrace();
+					SendException(e, channel, user);
+					
+				}
 			});
 			
 			return null;
@@ -152,6 +196,18 @@ public class MessageListener extends ListenerAdapter {
 					String.format(Bot.config.GetString("blocked-commands-message"), blockedCommand(command.substring(1))));
 			return null;
 		}
+	}
+	
+	void SendException(Exception e, MessageChannel channel, User user) {
+		String error = String.format("<@%s> Unknown command.\n", user.getId());
+		error += e.getMessage();
+		error += String.join("\n", Arrays.stream(e.getStackTrace())
+			    .map(StackTraceElement::toString)
+			    .toList());
+		if(e.getCause() != null) {
+			error += "\nCaused by: " + e.getCause().getMessage();
+		}
+		Main.bot.SendMessage(channel, error);
 	}
 	
 	boolean isStaff(Member user) {

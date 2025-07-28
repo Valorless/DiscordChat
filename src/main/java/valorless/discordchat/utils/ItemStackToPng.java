@@ -81,10 +81,14 @@ public class ItemStackToPng {
                 for (Entry<Attribute, AttributeModifier> attribute : attributes.entries()) {
                 	String attributeText = "";
                 	if(attribute.getValue().getOperation() == Operation.ADD_NUMBER) {
-                		attributeText = String.format("%s %s", attribute.getValue().getAmount(), attribute.getKey().name());
+                		attributeText = String.format("%.1f %s", attribute.getValue().getAmount(), 
+                				Extra.UppercaseFirstLetter(attribute.getKey().name().replace("GENERIC_", "")));
+                		//attributeText = String.format("%s.1f %s", attribute.getValue().getAmount(), attribute.getKey().name());
                 	}
                 	if(attribute.getValue().getOperation() == Operation.ADD_SCALAR) {
-                		attributeText = String.format("%s %s", (attribute.getValue().getAmount()*100) + "%", attribute.getKey().name());
+                		attributeText = String.format("%s %s", String.format("%.1f",(attribute.getValue().getAmount()*100)) + "%", 
+                				Extra.UppercaseFirstLetter(attribute.getKey().name().replace("GENERIC_", "")));
+                		//attributeText = String.format("%s.1f %s", (attribute.getValue().getAmount()*100) + "%", attribute.getKey().name());
                 	}
                     width = Math.max(width, metrics.stringWidth(Lang.RemoveColorCodesAndFormatting(attributeText)) + 20);
                     height += metrics.getHeight() + lineSpacing;
@@ -143,13 +147,15 @@ public class ItemStackToPng {
                 for (Entry<Attribute, AttributeModifier> attribute : attributes.entries()) {
                 	String attributeText = "";
                 	if(attribute.getValue().getOperation() == Operation.ADD_NUMBER) {
-                		attributeText = String.format("%s %s", attribute.getValue().getAmount(), attribute.getKey().name());
+                		attributeText = String.format("%.1f %s", attribute.getValue().getAmount(), 
+                				Extra.UppercaseFirstLetter(attribute.getKey().name().replace("GENERIC_", "")));
                 	}
                 	if(attribute.getValue().getOperation() == Operation.ADD_SCALAR) {
-                		attributeText = String.format("%s %s", (attribute.getValue().getAmount()*100) + "%", attribute.getKey().name());
+                		attributeText = String.format("%s %s", String.format("%.1f",(attribute.getValue().getAmount()*100)) + "%", 
+                				Extra.UppercaseFirstLetter(attribute.getKey().name().replace("GENERIC_", "")));
                 	}
 
-                    drawStringWithColors(g, RemoveFormatting(attributeText), 10, yPos);
+                    drawStringWithColors(g, "§7" + RemoveFormatting(attributeText), 10, yPos);
                     yPos += metrics.getHeight() + lineSpacing;
                 }
             }
@@ -177,29 +183,20 @@ public class ItemStackToPng {
     }
     
     static String EnchantValue(int value) {
-    	if(value == 1) {
-    		return "I";
-    	}else if(value == 2) {
-    		return "II";
-    	}else if(value == 3) {
-    		return "III";
-    	}else if(value == 4) {
-    		return "IV";
-    	}else if(value == 5) {
-    		return "V";
-    	}else if(value == 6) {
-    		return "VI";
-    	}else if(value == 7) {
-    		return "VII";
-    	}else if(value == 8) {
-    		return "VIII";
-    	}else if(value == 9) {
-    		return "IX";
-    	}else if(value == 10) {
-    		return "X";
-    	}else {
-    		return "";
-    	}
+        if (value < 1 || value > 3999) return "";
+
+        StringBuilder result = new StringBuilder();
+        int[] values =    {1000, 900, 500, 400, 100, 90,  50, 40,  10, 9,   5,  4,  1};
+        String[] numerals = {"M",  "CM","D", "CD","C", "XC","L","XL","X","IX","V","IV","I"};
+
+        for (int i = 0; i < values.length; i++) {
+            while (value >= values[i]) {
+                value -= values[i];
+                result.append(numerals[i]);
+            }
+        }
+
+        return result.toString();
     }
     
     public static String RemoveFormatting(String text) {
