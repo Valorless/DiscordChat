@@ -10,6 +10,7 @@
     <url>http://127.0.0.1/dummy</url>
   </scm>
   <build>
+      <finalName>${project.artifactId}-${project.version}.${buildNumber}</finalName>
       <plugins>
 		  <plugin>
 			  <version>3.11.0</version>
@@ -88,29 +89,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-install-plugin</artifactId>
-    <version>2.5.2</version>
-    <executions>
-        <execution>
-            <id>install-external</id>
-            <phase>clean</phase>
-            <configuration>
-                <file>${basedir}/dependencies/ValorlessUtils-1.11.0.248.jar</file>
-                <repositoryLayout>default</repositoryLayout>
-                <groupId>valorless.valorlessutils</groupId>
-                <artifactId>ValorlessUtils</artifactId>
-                <version>1.11.0.248</version>
-                <packaging>jar</packaging>
-                <generatePom>true</generatePom>
-            </configuration>
-            <goals>
-                <goal>install-file</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
@@ -138,13 +116,16 @@
             </executions>
         </plugin>
       </plugins>
-      <finalName>${project.artifactId}-${project.version}.${buildNumber}</finalName>
   </build>
   <repositories>
        <repository>
          <id>spigot-repo</id>
          <url>https://hub.spigotmc.org/nexus/content/repositories/public/</url>
        </repository>
+       <repository>
+ <id>jitpack.io</id>
+ <url>https://jitpack.io</url>
+</repository>
         <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
@@ -175,10 +156,11 @@
            <scope>provided</scope>
        </dependency>
        <dependency>
-		<groupId>valorless.valorlessutils</groupId>
-		<artifactId>ValorlessUtils</artifactId>
-		<version>1.11.0.248</version>
-	</dependency>
+ <groupId>com.github.Valorless</groupId>
+ <artifactId>ValorlessUtils</artifactId>
+ <version>1.16.0</version>
+ <scope>provided</scope>
+</dependency>
     <dependency>
         <groupId>net.luckperms</groupId>
         <artifactId>api</artifactId>
