@@ -1,5 +1,6 @@
 package valorless.discordchat.discord;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
@@ -13,9 +14,10 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
@@ -72,6 +74,7 @@ public class Bot implements Listener {
 				builder.setCompression(Compression.NONE);
 				messageListener = new MessageListener();
 				builder.addEventListeners(new Object[] { messageListener });
+				builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
 
 				if(!config.GetString("bot-activity.type").equalsIgnoreCase("none")) {
 					Activity act;
@@ -157,6 +160,14 @@ public class Bot implements Listener {
 		Log.Info(Main.plugin, "Bot shutting down.");
 		Bukkit.getScheduler().cancelTask(taskId);
 		this.client.shutdownNow();
+		try {
+			if (!this.client.awaitShutdown(Duration.ofSeconds(10))) {
+				this.client.shutdownNow(); // Cancel all remaining requests
+				this.client.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
+			 }
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -175,7 +186,7 @@ public class Bot implements Listener {
 					int id = Integer.valueOf(ch);
 					Guild guild = Main.bot.client.getGuildChannelById(id).getGuild();
 					GuildChannel gchannel = guild.getGuildChannelById(id);
-					if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_WRITE)) {
+					if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_SEND)) {
 						guild.getTextChannelById(id).sendMessage(text).queue();
 						return true;
 					}else {
@@ -191,7 +202,7 @@ public class Bot implements Listener {
 		try {
 			Guild guild = channel.getJDA().getGuildChannelById(channel.getIdLong()).getGuild();
 			GuildChannel gchannel = guild.getGuildChannelById(channel.getIdLong());
-			if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_WRITE)) {
+			if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_SEND)) {
 				channel.sendMessage(text).queue();
 				return true;
 			}else {

@@ -46,7 +46,9 @@ jobs:
       id: cache-spigot
       uses: actions/cache@v4
       with:
-        path: ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
+        path: |
+          ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
+          ~/.m2/repository/org/spigotmc/spigot-api/1.21.1-R0.1-SNAPSHOT
         key: spigot-1.21.1
 
     # Download BuildTools if we don't have cache

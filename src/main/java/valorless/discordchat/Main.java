@@ -206,7 +206,7 @@ public final class Main extends JavaPlugin implements Listener {
 			});
 
 			memoryTracker = new MemoryTracker(5);
-		}, 100);
+		}, 10);
 	}
 
 	@Override
