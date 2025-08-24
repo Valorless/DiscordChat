@@ -51,13 +51,15 @@ jobs:
           echo "cached=false" >> $GITHUB_OUTPUT
         fi
         
-    - name: Cache Spigot Maven artifacts
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
-          ~/.m2/repository/org/spigotmc/spigot-api/1.21.1-R0.1-SNAPSHOT
-        key: spigot-1.21.1
+    - name: Copy Spigot JAR
+      run: |
+        mkdir -p ./spigot
+        if [ -f ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT.jar ]; then
+            cp ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT.jar ./spigot/1.21.1.jar
+            echo "Copied existing Spigot JAR"
+        else
+            echo "Spigot JAR not found, it will need to be generated"
+        fi
     
     - name: Download BuildTools
       if: steps.check_spigot.outputs.cached == 'false'
