@@ -51,15 +51,11 @@ jobs:
           echo "cached=false" >> $GITHUB_OUTPUT
         fi
         
-    - name: Copy Spigot JAR
+    - name: Install existing Spigot JAR into local Maven repo
       run: |
-        mkdir -p ./spigot
-        if [ -f ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT.jar ]; then
-            cp ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT.jar ./spigot/1.21.1.jar
-            echo "Copied existing Spigot JAR"
-        else
-            echo "Spigot JAR not found, it will need to be generated"
-        fi
+        mkdir -p ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
+        cp ./spigot/1.21.1.jar \
+           ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT.jar
     
     - name: Download BuildTools
       if: steps.check_spigot.outputs.cached == 'false'
