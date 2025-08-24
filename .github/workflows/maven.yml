@@ -50,6 +50,14 @@ jobs:
         else
           echo "cached=false" >> $GITHUB_OUTPUT
         fi
+        
+    - name: Cache Spigot Maven artifacts
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
+          ~/.m2/repository/org/spigotmc/spigot-api/1.21.1-R0.1-SNAPSHOT
+        key: spigot-1.21.1
     
     - name: Download BuildTools
       if: steps.check_spigot.outputs.cached == 'false'
