@@ -168,7 +168,7 @@ public class Bot implements Listener {
 	 *                If null, the message is sent to all configured channels.  
 	 * @param text The message content to be sent.  
 	 */
-	public void SendMessage(MessageChannel channel, String text) {
+	public boolean SendMessage(MessageChannel channel, String text) {
 		if(channel == null) {
 			try {
 				for(String ch : Bot.config.GetStringList("channels")) {
@@ -177,12 +177,15 @@ public class Bot implements Listener {
 					GuildChannel gchannel = guild.getGuildChannelById(id);
 					if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_WRITE)) {
 						guild.getTextChannelById(id).sendMessage(text).queue();
+						return true;
 					}else {
 						Log.Error(Main.plugin, String.format("I don't have permission to write in #%s", gchannel.getName()));
+						return false;
 					}
 				}
 			} catch(Exception e) {
 				e.printStackTrace();
+				return false;
 			}
 		}
 		try {
@@ -190,11 +193,14 @@ public class Bot implements Listener {
 			GuildChannel gchannel = guild.getGuildChannelById(channel.getIdLong());
 			if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_WRITE)) {
 				channel.sendMessage(text).queue();
+				return true;
 			}else {
 				Log.Error(Main.plugin, String.format("I don't have permission to write in #%s", gchannel.getName()));
+				return false;
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -224,7 +230,7 @@ public class Bot implements Listener {
 		}
 	}
 
-	private String activityMessage() {
+	public String activityMessage() {
 		int online = (EssentialsHook.isHooked()) ? EssentialsHook.visiblePlayers().size() : Bukkit.getOnlinePlayers().size();
 		return config.GetString("bot-activity.message")
 				.replace("%players%", "" + online)
