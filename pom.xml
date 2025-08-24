@@ -127,10 +127,6 @@
  <url>https://jitpack.io</url>
 </repository>
         <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
-        <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/releases/</url>
         </repository>
@@ -149,6 +145,10 @@
     <repository>
         <id>cs-arcane-arts</id>
         <url>https://dl.cloudsmith.io/public/arcane/archive/maven/</url>
+    </repository>
+    <repository>
+        <id>m2-dv8tion</id>
+        <url>https://m2.dv8tion.net/releases</url>
     </repository>
    </repositories>
   <dependencies>
@@ -172,10 +172,10 @@
         <scope>provided</scope>
     </dependency>
         <dependency>
-         <groupId>me.clip</groupId>
-          <artifactId>placeholderapi</artifactId>
-          <version>2.11.3</version>
-         <scope>provided</scope>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.6</version>
+            <scope>provided</scope>
         </dependency>
     <dependency>
         <groupId>org.apache.httpcomponents</groupId>
@@ -242,6 +242,16 @@
         <artifactId>EssentialsX</artifactId>
         <version>2.19.0</version>
         <scope>provided</scope>
+    <exclusions>
+        <exclusion>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>io.papermc</groupId>
+            <artifactId>paperlib</artifactId>
+        </exclusion>
+    </exclusions>
     </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

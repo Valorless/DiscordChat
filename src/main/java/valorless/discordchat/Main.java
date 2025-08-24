@@ -12,8 +12,8 @@ import valorless.discordchat.discord.Bot;
 import valorless.discordchat.hooks.*;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.MemoryTracker;
-import valorless.discordchat.utils.Metrics;
 import valorless.valorlessutils.utils.Utils;
+import valorless.valorlessutils.Metrics;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
 
