@@ -12,7 +12,7 @@ import valorless.discordchat.Main;
 import valorless.valorlessutils.ValorlessUtils.Log;
 
 public class DiscordChat {
-
+	
 	public static boolean sendMessage(String msg) {
 		if(Main.enabled == false) {
 			Log.Warning(Main.plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
