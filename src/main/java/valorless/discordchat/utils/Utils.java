@@ -16,7 +16,9 @@ public class Utils {
     public static void loadColors() {
         // Materials we don't want to use minecraft images for (could be because the
         // image provides a poor color)
-        blocksMap.put(Material.GRASS, new Color(49, 101, 25));
+        blocksMap.put(Material.GRASS_BLOCK, new Color(49, 101, 25));
+        blocksMap.put(Material.TALL_GRASS, new Color(49, 101, 25));
+        blocksMap.put(Material.SHORT_GRASS, new Color(49, 101, 25));
         blocksMap.put(Material.ROSE_BUSH, new Color(49, 101, 25));
         blocksMap.put(Material.BIG_DRIPLEAF, new Color(49, 101, 25));
         blocksMap.put(Material.BIG_DRIPLEAF_STEM, new Color(49, 101, 25));
