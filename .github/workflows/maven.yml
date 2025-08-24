@@ -41,27 +41,27 @@ jobs:
       run: |
         echo "branch=$(echo "${GITHUB_REF_NAME}" | tr '/' '_')" >> $GITHUB_ENV
     
-    # Cache the Spigot artifact in Maven repo
-    - name: Cache Spigot
-      id: cache-spigot
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
-          ~/.m2/repository/org/spigotmc/spigot-api/1.21.1-R0.1-SNAPSHOT
-        key: spigot-1.21.1
-
-    # Download BuildTools if we don't have cache
+    - name: Check for existing Spigot JAR
+      id: check_spigot
+      run: |
+        if [ -f "./spigot/1.21.1.jar" ]; then
+          echo "Spigot JAR exists, skipping BuildTools"
+          echo "cached=true" >> $GITHUB_OUTPUT
+        else
+          echo "cached=false" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Download BuildTools
-      if: steps.cache-spigot.outputs.cache-hit != 'true'
+      if: steps.check_spigot.outputs.cached == 'false'
       run: |
         curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
-
-    # Generate Spigot only if not cached
+    
     - name: Generate Spigot
-      if: steps.cache-spigot.outputs.cache-hit != 'true'
+      if: steps.check_spigot.outputs.cached == 'false'
       run: |
         java -jar BuildTools.jar --rev 1.21.1
+        mkdir -p ./spigot
+        cp ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT.jar ./spigot/1.21.1.jar
 
     # Verify
     - name: Verify Spigot Installation
