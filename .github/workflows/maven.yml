@@ -41,17 +41,27 @@ jobs:
       run: |
         echo "branch=$(echo "${GITHUB_REF_NAME}" | tr '/' '_')" >> $GITHUB_ENV
     
-    # Step 1: Download BuildTools
+    # Cache the Spigot artifact in Maven repo
+    - name: Cache Spigot
+      id: cache-spigot
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
+        key: spigot-1.21.1
+
+    # Download BuildTools if we don't have cache
     - name: Download BuildTools
+      if: steps.cache-spigot.outputs.cache-hit != 'true'
       run: |
         curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
-        
-    # Step 2: Run BuildTools to generate Spigot
+
+    # Generate Spigot only if not cached
     - name: Generate Spigot
+      if: steps.cache-spigot.outputs.cache-hit != 'true'
       run: |
         java -jar BuildTools.jar --rev 1.21.1
-        
-    # Step 3: Verify that Spigot is installed
+
+    # Verify
     - name: Verify Spigot Installation
       run: |
         ls ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
