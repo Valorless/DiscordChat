@@ -45,7 +45,7 @@ public class ItemStackToPng {
         itemName = itemName.replace("_", " ");
         ItemMeta meta = itemStack.getItemMeta();
         if (meta != null && meta.hasDisplayName()) {
-            itemName = Lang.RemoveColorCodesAndFormatting(meta.getDisplayName());
+            itemName = SmallCapsConverter.normalize(Lang.RemoveColorCodesAndFormatting(meta.getDisplayName()));
         }
 
         int width = 10;  // Minimum width
@@ -59,7 +59,7 @@ public class ItemStackToPng {
             if (meta.hasLore()) {
                 List<String> lore = meta.getLore();
                 for (String line : lore) {
-                    width = Math.max(width, metrics.stringWidth(Lang.RemoveColorCodesAndFormatting(line)) + 20);
+                    width = Math.max(width, metrics.stringWidth(SmallCapsConverter.normalize(Lang.RemoveColorCodesAndFormatting(line))) + 20);
                     height += metrics.getHeight() + lineSpacing;
                 }
             }
@@ -116,7 +116,7 @@ public class ItemStackToPng {
         
         int yPos = 20;
         minecraftFont.deriveFont(fontSize + 4f);
-        drawStringWithColors(g, RemoveFormatting(itemName), 10, yPos);
+        drawStringWithColors(g, SmallCapsConverter.normalize(RemoveFormatting(itemName)), 10, yPos);
         yPos += metrics.getHeight() + lineSpacing;
         minecraftFont.deriveFont(fontSize);
 
@@ -135,7 +135,7 @@ public class ItemStackToPng {
             if (meta.hasLore()) {
                 List<String> lore = meta.getLore();
                 for (String line : lore) {
-                    drawStringWithColors(g, RemoveFormatting(line), 10, yPos);
+                    drawStringWithColors(g, SmallCapsConverter.normalize(RemoveFormatting(line)), 10, yPos);
                     yPos += metrics.getHeight() + lineSpacing;
                 }
             }
@@ -221,9 +221,9 @@ public class ItemStackToPng {
 			text = text.replace("BANE_OF_ARTHROPODS", "§5Bane of Arthropods§7");
 			text = text.replace("BINDING_CURSE", "§cCurse of Binding§7");
 			text = text.replace("BLAST_PROTECTION", "§bBlast Protection§7");
-			text = text.replace("BREACH", "BREACH");
+			text = text.replace("BREACH", "&5Breach");
 			text = text.replace("CHANNELING", "§dChanneling§7");
-			text = text.replace("DENSITY", "DENSITY");
+			text = text.replace("DENSITY", "&5Density");
 			text = text.replace("DEPTH_STRIDER", "§bDeath Strider§7");
 			text = text.replace("EFFICIENCY", "§3Efficiency§7");
 			text = text.replace("FEATHER_FALLING", "§bFeather Falling§7");
@@ -259,7 +259,7 @@ public class ItemStackToPng {
 			text = text.replace("THORNS", "§bThorns§7");
 			text = text.replace("UNBREAKING", "§aUnbreaking§7");
 			text = text.replace("VANISHING_CURSE", "§cCurse of Vanishing§7");
-			text = text.replace("WIND_BURST", "WIND_BURST");
+			text = text.replace("WIND_BURST", "&5Wind Burst");
 		}
 		return text;
 	}
