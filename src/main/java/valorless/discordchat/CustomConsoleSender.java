@@ -32,9 +32,7 @@ public class CustomConsoleSender implements CommandSender {
 
     @Override
     public void sendMessage(String... messages) {
-        for (String message : messages) {
-            sendMessage(message);
-        }
+    	sendMessage(String.join("\n", messages));
     }
 
     @Override
