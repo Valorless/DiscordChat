@@ -341,7 +341,8 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	@SuppressWarnings("deprecation")
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerQuit(PlayerQuitEvent event) {
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+		if(kick) return;
+		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable(){
             @Override
             public void run(){
             	if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-leave")) && !kick) {            	    
@@ -390,8 +391,9 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}).execute();
     }
 	
-	//@EventHandler //(priority = EventPriority.LOWEST)
+	@EventHandler (priority = EventPriority.LOWEST)
     public void onPlayerKick(PlayerKickEvent event) {
+		if(event.isCancelled()) return;
 		kick = true;
 		if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-leave"))) {
 			Log.Info(plugin, "Kick event");
@@ -440,7 +442,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			for(Player player : Bukkit.getOnlinePlayers()) {
 				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave, event.getPlayer())));
 			}
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
+			Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable(){
 
 	            @Override
 	            public void run(){

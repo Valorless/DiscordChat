@@ -208,7 +208,7 @@ public class MessageListener extends ListenerAdapter {
 			}
 			else {
 				Main.bot.SendMessage(event.getChannel(), String.format("<@%s> " , event.getAuthor().getId()) +
-						String.format(Main.filter.GetString("chat-filter-message"), blockedWord(chatMessage)));
+						String.format(Lang.RemoveColorCodesAndFormatting(Main.filter.GetString("chat-filter-message")), blockedWord(chatMessage)));
 			}
 		}).execute();
 	}
