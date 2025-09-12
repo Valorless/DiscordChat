@@ -183,7 +183,7 @@ public class Bot implements Listener {
 		if(channel == null) {
 			try {
 				for(String ch : Bot.config.GetStringList("channels")) {
-					int id = Integer.valueOf(ch);
+					Long id = Long.valueOf(ch);
 					Guild guild = Main.bot.client.getGuildChannelById(id).getGuild();
 					GuildChannel gchannel = guild.getGuildChannelById(id);
 					if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_SEND)) {

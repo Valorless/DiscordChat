@@ -449,6 +449,25 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	                kick = false;
 	            }
 	        }, 3L);
+			
+			Bot.newChain().async(() -> {
+				DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+
+				webhook.setUsername(config.GetString("server-username"));
+				String msg = Lang.Get("leave")
+						.replace("%player%", event.getPlayer().getName());
+				webhook.setContent(FormatMessage(event.getPlayer(), msg));
+				//webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); 
+				webhook.setAvatarUrl(config.GetString("server-icon-url"));
+
+				try {
+					//Log.Info(plugin, "Executing webhook.");
+					webhook.execute();
+				} catch (IOException e) {
+					e.printStackTrace();
+					ConnectionFailed();
+				}
+			}).execute();
 		}
 	}
 	
