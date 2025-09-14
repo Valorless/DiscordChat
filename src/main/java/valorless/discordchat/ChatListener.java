@@ -292,6 +292,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
+		if(event.getPlayer().hasPermission("essentials.silentjoin")) return;
 		if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-join"))) {
 			String join = Main.config.GetString("custom-join");
 			join = join.replace("%username%", event.getPlayer().getName());
@@ -310,7 +311,6 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
 		if(!config.GetBool("join")) return;
-		
 
 		Bot.newChain().async(() -> {
 			DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
@@ -341,6 +341,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	@SuppressWarnings("deprecation")
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerQuit(PlayerQuitEvent event) {
+		if(event.getPlayer().hasPermission("essentials.silentquit")) return;
 		if(kick) return;
 		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable(){
             @Override
@@ -393,6 +394,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	
 	@EventHandler (priority = EventPriority.LOWEST)
     public void onPlayerKick(PlayerKickEvent event) {
+		if(event.getPlayer().hasPermission("essentials.silentquit")) return;
 		if(event.isCancelled()) return;
 		kick = true;
 		if(!Utils.IsStringNullOrEmpty(Main.config.GetString("custom-leave"))) {
