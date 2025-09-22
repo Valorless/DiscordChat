@@ -14,6 +14,7 @@ import com.google.common.collect.Multimap;
 import valorless.discordchat.ChatListener;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
+import valorless.valorlessutils.items.ItemUtils;
 import valorless.valorlessutils.utils.Utils;
 
 import javax.imageio.ImageIO;
@@ -47,6 +48,9 @@ public class ItemStackToPng {
         if (meta != null && meta.hasDisplayName()) {
             itemName = SmallCapsConverter.normalize(Lang.RemoveColorCodesAndFormatting(meta.getDisplayName()));
         }
+        if(meta != null && ItemUtils.HasItemName(itemStack)) {
+			itemName = SmallCapsConverter.normalize(Lang.RemoveColorCodesAndFormatting(ItemUtils.GetItemName(itemStack)));
+		}
 
         int width = 10;  // Minimum width
         int height = 20; // Starting height
@@ -113,6 +117,9 @@ public class ItemStackToPng {
         if (meta != null && meta.hasDisplayName()) {
             itemName = meta.getDisplayName();
         }
+        if(meta != null && ItemUtils.HasItemName(itemStack)) {
+			itemName = SmallCapsConverter.normalize(Lang.RemoveColorCodesAndFormatting(ItemUtils.GetItemName(itemStack)));
+		}
         
         int yPos = 20;
         minecraftFont.deriveFont(fontSize + 4f);

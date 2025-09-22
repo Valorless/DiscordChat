@@ -7,6 +7,7 @@ import valorless.discordchat.utils.ItemStackToPng;
 import valorless.discordchat.utils.MapToImage;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
+import valorless.valorlessutils.items.ItemUtils;
 import valorless.valorlessutils.utils.Utils;
 
 import org.bukkit.plugin.java.JavaPlugin;
@@ -536,6 +537,13 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		    					message = message.replace("[I]", "[" + item.getItemMeta().getDisplayName() + "]");
 		    					//message = message.replace("<%s:[item]:>", "[" + item.getItemMeta().getDisplayName() + "]");
 		    					//message = message.replace("<%s:[i]:>", "[" + item.getItemMeta().getDisplayName() + "]");
+		    				}else if(ItemUtils.HasItemName(item)) {
+		    					message = message.replace("[item]", "[" + ItemUtils.GetItemName(item) + "]");
+		    					message = message.replace("[ITEM]", "[" + ItemUtils.GetItemName(item) + "]");
+		    					message = message.replace("[i]", "[" + ItemUtils.GetItemName(item) + "]");
+		    					message = message.replace("[I]", "[" + ItemUtils.GetItemName(item) + "]");
+		    					//message = message.replace("<%s:[item]:>", "[" + ItemUtils.GetItemName(item) + "]");
+		    					//message = message.replace("<%s:[i]:>", "[" + ItemUtils.GetItemName(item) + "]");
 		    				}else {
 		    					message = message.replace("[item]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
 		    					message = message.replace("[ITEM]", "[" + FixName(item.getType().toString().replace("_", " ") + "]"));
