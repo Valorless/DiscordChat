@@ -55,5 +55,15 @@ public class EssentialsHook {
         }
 		return players;
 	}
+	
+	public static IUser getUser(Player player) {
+		return instance.getUser(player);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static boolean isAfk(Player player) {
+		IUser pl = EssentialsHook.getInstance().getUser(player);
+		return pl.isAfk();
+	}
 
 }

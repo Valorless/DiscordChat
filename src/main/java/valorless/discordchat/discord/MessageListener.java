@@ -418,6 +418,7 @@ public class MessageListener extends ListenerAdapter {
 				if(EssentialsHook.isHooked()) {
 					IUser pl = EssentialsHook.getInstance().getUser(player);
 					if(pl.isVanished()) continue;
+					if(pl.isAfk()) message += "\n`" + player.getName() + "` *AFK*";
 					else message += "\n`" + player.getName() + "`";
 				}else {
 					message += "\n`" + player.getName() + "`";
