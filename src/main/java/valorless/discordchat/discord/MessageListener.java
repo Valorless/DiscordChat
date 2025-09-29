@@ -139,6 +139,7 @@ public class MessageListener extends ListenerAdapter {
 				if(reply) {
 					String name = utils.getUserGlobalName(event.getMessage().getReferencedMessage().getAuthor().getId());
 					if(name.equalsIgnoreCase("No global name set")) name = event.getMessage().getReferencedMessage().getAuthor().getName();
+					if(name.equalsIgnoreCase("Error retrieving global name")) name = event.getMessage().getReferencedMessage().getAuthor().getName();
 					String replyMessage = "┌─── " + String.format("%s: %s", 
 							removeFirstBracketedText(name),
 							removeFirstBracketedText(event.getMessage().getReferencedMessage().getContentStripped())

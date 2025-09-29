@@ -35,7 +35,7 @@ public class DiscordUtils {
             // Return the global name, or a default if not set
             return globalName.isEmpty() ? "No global name set" : globalName;
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return "Error retrieving global name";
         }
     }
