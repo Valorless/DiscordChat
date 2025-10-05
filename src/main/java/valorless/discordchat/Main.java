@@ -85,6 +85,17 @@ public final class Main extends JavaPlugin implements Listener {
 			config.AddValidationEntry("player-username", "%player%");
 
 			config.AddValidationEntry("custom-join", "&7[&a+&7] %username%");
+			
+			config.AddValidationEntry("new-player-sound.enabled", true);
+			config.AddValidationEntry("new-player-sound.sound", "ITEM_GOAT_HORN_SOUND_1");
+			config.AddValidationEntry("new-player-sound.volume", 1);
+			config.AddValidationEntry("new-player-sound.pitch", 1.1);
+
+			config.AddValidationEntry("join-sound.enabled", true);
+			config.AddValidationEntry("join-sound.sound", "BLOCK_BELL_USE");
+			config.AddValidationEntry("join-sound.volume", 1);
+			config.AddValidationEntry("join-sound.pitch", 1);
+			
 			config.AddValidationEntry("custom-leave", "&7[&c-&7] %username% (%cause%)");
 			config.AddValidationEntry("custom-leave-causes.timed-out.keyword", "Timed out");
 			config.AddValidationEntry("custom-leave-causes.timed-out.value", "Timed out");

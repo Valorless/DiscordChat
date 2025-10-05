@@ -50,6 +50,18 @@ player-username: '%player%'
 # Custom join message in-game, leave empty to disable.
 custom-join: '&7[&a+&7] %username%'
 
+join-sound:
+ enabled: true
+ sound: BLOCK_BELL_USE
+ volume: 1.0
+ pitch: 1.0
+ 
+new-player-sound:
+ enabled: true
+ sound: ITEM_GOAT_HORN_SOUND_1
+ volume: 1.0
+ pitch: 1.1
+
 # Custom leave message in-game, leave empty to disable.
 custom-leave: '&7[&c-&7] %username% (%cause%)'
 custom-leave-causes:

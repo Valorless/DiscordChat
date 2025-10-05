@@ -8,6 +8,7 @@ import valorless.discordchat.utils.MapToImage;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
 import valorless.valorlessutils.items.ItemUtils;
+import valorless.valorlessutils.sound.SFX;
 import valorless.valorlessutils.utils.Utils;
 
 import org.bukkit.plugin.java.JavaPlugin;
@@ -305,6 +306,21 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			}
 			else {
 				event.setJoinMessage(join);
+			}
+		}
+		
+		if(Main.config.GetBool("join-sound.enabled")) {
+			Location loc = event.getPlayer().getLocation();
+			if(event.getPlayer().hasPlayedBefore()) {
+				SFX.Play(Main.config.GetString("join-sound.sound"),
+						Main.config.GetFloat("join-sound.volume").floatValue(),
+						Main.config.GetFloat("join-sound.pitch").floatValue(),
+						loc);
+			}else if(Main.config.GetBool("new-player-sound.enabled")) {
+				SFX.Play(Main.config.GetString("new-player-sound.sound"),
+						Main.config.GetFloat("new-player-sound.volume").floatValue(),
+						Main.config.GetFloat("new-player-sound.pitch").floatValue(),
+						loc);
 			}
 		}
 		
