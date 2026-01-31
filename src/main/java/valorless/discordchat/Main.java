@@ -7,9 +7,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import valorless.discordchat.discord.Bot;
 import valorless.discordchat.hooks.*;
+import valorless.discordchat.linking.Linking;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.MemoryTracker;
 import valorless.valorlessutils.utils.Utils;
@@ -168,7 +170,10 @@ public final class Main extends JavaPlugin implements Listener {
 			getServer().getPluginManager().registerEvents(new BanListener(), this);
 			getServer().getPluginManager().registerEvents(new ChatListener(), this);
 			ChatListener.onEnable();
+			Eco.init();
 			//getServer().getPluginManager().registerEvents(new CommandListenerOld(), this);
+			Linking.init();
+			PlayerCache.init();
 
 			if(Utils.IsStringNullOrEmpty(config.GetString("webhook-url"))) {
 				Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload."
@@ -192,22 +197,36 @@ public final class Main extends JavaPlugin implements Listener {
 				username = config.GetString("server-username");
 			}
 
-			if(config.GetBool("server-start") && enabled) {
-				DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
-
-				webhook.setUsername(username);
-				webhook.setContent(Lang.Get("server-start"));
-				webhook.setAvatarUrl(config.GetString("server-icon-url"));
-
-				try {
-					//Log.Info(plugin, "Executing webhook.");
-					webhook.execute();
-				} catch (IOException e) {
-					e.printStackTrace();
-					ChatListener.ConnectionFailed();
-				}
-			}
+			
 			bot = new Bot();
+			
+			new BukkitRunnable() {
+			    @Override
+			    public void run() {
+			        if (!bot.ready) return;
+			        if (config.GetBool("server-start") && enabled) {
+			            final DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+			            webhook.setUsername(username);
+			            webhook.setContent(Lang.Get("server-start"));
+			            webhook.setAvatarUrl(config.GetString("server-icon-url"));
+
+			            // execute network I/O off the main thread
+			            Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, () -> {
+			                try {
+			                    webhook.execute();
+			                } catch (IOException e) {
+			                    e.printStackTrace();
+			                    ChatListener.ConnectionFailed();
+			                }
+			            });
+
+			            // stop this repeating check
+			            this.cancel();
+			        }
+			    }
+			}
+			// runTaskTimer(plugin, delay, period) — using 20L checks every second instead of every tick
+			.runTaskTimer(Main.plugin, 1L, 1L);
 
 			InventoryImageGenerator.cche = Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
 				@Override
@@ -242,6 +261,7 @@ public final class Main extends JavaPlugin implements Listener {
 			}
 		}
 
+		Linking.shutdown();
 		bot.Shutdown();
 	}
 
@@ -254,6 +274,7 @@ public final class Main extends JavaPlugin implements Listener {
 		for (int i = 0; i < commands.length; i++) {
 			Log.Debug(plugin, "Registering Command: " + commands[i]);
 			getCommand(commands[i]).setExecutor(new CommandListener());
+			getCommand(commands[i]).setTabCompleter(new TabCompletion());
 		}
 	}
 

@@ -16,9 +16,13 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.Compression;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import valorless.discordchat.Main;
@@ -36,8 +40,14 @@ public class Bot implements Listener {
 	private static TaskChainFactory taskChainFactory;
 	private int taskId;
 	protected boolean error = false;
+	public boolean ready = false;
 
 	private JDA client;
+	private Guild server;
+
+	public Guild getServer() {
+		return server;
+	}
 
 	private MessageListener messageListener;
 
@@ -53,7 +63,6 @@ public class Bot implements Listener {
 		} 
 
 		Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
-
 			@Override
 			public void run() {
 				Log.Info(Main.plugin, "Initiating Bot");
@@ -73,8 +82,9 @@ public class Bot implements Listener {
 				builder.setBulkDeleteSplittingEnabled(false);
 				builder.setCompression(Compression.NONE);
 				messageListener = new MessageListener();
-				builder.addEventListeners(new Object[] { messageListener });
-				builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
+				builder.addEventListeners(new Object[] { messageListener, new DiscordCommands() });
+				builder.enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES);
+				builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 
 				if(!config.GetString("bot-activity.type").equalsIgnoreCase("none")) {
 					Activity act;
@@ -96,15 +106,37 @@ public class Bot implements Listener {
 
 				try {
 					client = builder.build();
-					/*try {
+					try {
 						client.awaitReady();
 						Log.Info(Main.plugin, "Bot initiated.");
+						ready = true;
+						for(String ch : Bot.config.GetStringList("channels")) {
+							Long id = Long.valueOf(ch);
+							server = Main.bot.client.getGuildChannelById(id).getGuild();
+							break;
+						}
+						server.updateCommands().addCommands(
+						        Commands.slash("help", "Shows a list of available commands."),
+						        Commands.slash("online", "Lists all online players."),
+						        Commands.slash("uptime", "Shows how long the server has been up."),
+						        Commands.slash("memory", "Shows the server memory usage.")
+						        	.setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+						        Commands.slash("link", "Link your Minecraft account to Discord.")
+					        		.addOption(OptionType.STRING, "username", "Player to pay."),
+						        Commands.slash("unlink", "Unlink your Minecraft account from Discord."),
+						        Commands.slash("pay", "Pay a player.")
+						        	.addOption(OptionType.STRING, "username", "Player to pay.")
+						        	.addOption(OptionType.NUMBER, "amount", "Amount to pay."),
+						        Commands.slash("balance", "Check your balance.")
+						).queue();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-					}*/
+					}
 				} catch (Exception excpetion) {
 					client = null;
 					Log.Error(Main.plugin, "FAILED TO LOGIN TO DISCORD USING TOKEN PROVIDED!");
+					Main.error = true;
+					excpetion.printStackTrace();
 					return;
 				}
 			}
@@ -113,6 +145,7 @@ public class Bot implements Listener {
 		taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			@Override
 			public void run() {
+				if(bot.client == null) return;
 				if(Main.error) {
 					setActivity(Activity.playing("MC Bridge Issues"));
 					if(!error) {
@@ -157,6 +190,7 @@ public class Bot implements Listener {
 	}
 
 	public void Shutdown() {
+		if(this.client == null) return;
 		Log.Info(Main.plugin, "Bot shutting down.");
 		Bukkit.getScheduler().cancelTask(taskId);
 		this.client.shutdownNow();
@@ -216,10 +250,12 @@ public class Bot implements Listener {
 	}
 
 	public void setActivity(Activity activity) {
+		if(this.client == null) return;
 		this.client.getPresence().setActivity(activity);
 	}
 
 	public void resetActivity() {
+		if(this.client == null) return;
 		if(this.client.getPresence() == null) return;
 		if(this.client.getPresence().getActivity() == null) return;
 		if(!config.GetString("bot-activity.type").equalsIgnoreCase("none")) {
@@ -247,4 +283,59 @@ public class Bot implements Listener {
 				.replace("%players%", "" + online)
 				.replace("%max-players%", "" + Bukkit.getMaxPlayers());
 	}
+
+	public MessageChannel GetChannelByID(Long channelID) {
+		return client.getTextChannelById(channelID);
+	}
+	
+	public String getUsernameByID(Long userID) {
+		try {
+			return client.retrieveUserById(userID).complete().getName();
+		} catch(Exception e) {
+			return "§cFailed to fetch username§r";
+		}
+	}
+	
+	public Long getUserIDByUsername(String username) {
+		try {
+			Guild server = null;
+			for(String ch : Bot.config.GetStringList("channels")) {
+				Long id = Long.valueOf(ch);
+				server = Main.bot.client.getGuildChannelById(id).getGuild();
+				break;
+			}
+			if(server != null) {
+				Log.Info(Main.plugin, server.getName());
+				return server.getMembers().stream()
+						.filter(member -> member.getUser().getName().equalsIgnoreCase(username))
+						.map(member -> member.getUser().getIdLong())
+						.findFirst()
+						.orElse(null);
+			}else return null;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public boolean addRole(Long userID, Long roleID) {
+		try {
+			server.addRoleToMember(server.getMemberById(userID), server.getRoleById(roleID)).queue();
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean removeRole(Long userID, Long roleID) {
+		try {
+			server.removeRoleFromMember(server.getMemberById(userID), server.getRoleById(roleID)).queue();
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 }

@@ -24,6 +24,7 @@ import valorless.discordchat.CustomConsoleSender;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.hooks.EssentialsHook;
+import valorless.discordchat.linking.Linking;
 import valorless.discordchat.utils.ServerStats;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.utils.Utils;
@@ -395,13 +396,23 @@ public class MessageListener extends ListenerAdapter {
 		return matcher.find();
 	}
 
-	@SuppressWarnings("deprecation")
 	void ProccessDiscordCommand(MessageChannel channel, Member member, User user, String command) {
 		//Log.Info(Main.plugin, "staff?");
 		Log.Info(Main.plugin, "User: " + user.getName());
 		Log.Info(Main.plugin, "Command: " + command);
+		Main.bot.SendMessage(channel, String.format("<@%s> I've upgraded to use commands.\nTry `/help`", user.getId()));
+		
+		/*
+		
 		String message = "";
-		String cmd = command.substring(1).toLowerCase().trim(); // Convert to lowercase and remove spaces
+		String cmd = "";
+		String fullCmd = command.substring(1).toLowerCase();
+		if(command.contains(" ")) {
+			String[] parts = command.split(" ");
+			cmd = parts[0].substring(1).toLowerCase().trim(); // Convert to lowercase and remove spaces
+		}else {
+			cmd = command.substring(1).toLowerCase().trim();
+		}
 
 		switch (cmd) {
 		case "help":
@@ -409,7 +420,13 @@ public class MessageListener extends ListenerAdapter {
 			message += "\n`!help` - You are here";
 			message += "\n`!online` - Lists all online players";
 			message += "\n`!uptime` - How long the server's been up.";
+			message += "\n`!link <username>` - Link your Minecraft account to Discord.";
+			message += "\n`!unlink` - Unlink your Minecraft account from Discord.";
+			if(Linking.isLinked(user.getIdLong())) {
+				message += "\\n`!pay <username> <amount>` - Pay a player.";
+			}
 			Main.bot.SendMessage(channel, message);
+			
 			break;
 
 		case "online":
@@ -425,9 +442,6 @@ public class MessageListener extends ListenerAdapter {
 					message += "\n`" + player.getName() + "`";
 				}
 			}
-			/*String text = Bukkit.getOnlinePlayers().stream()
-	                    .map(player -> "`" + player.getName() + "`")
-	                    .collect(Collectors.joining("\n"));*/
 			Main.bot.SendMessage(channel, message);
 			break;
 
@@ -440,10 +454,37 @@ public class MessageListener extends ListenerAdapter {
 			message = String.format("<@%s> %s", user.getId(), ServerStats.slashMem());
 			Main.bot.SendMessage(channel, message);
 			break;
+			
+		case "link":
+			if(command.length() <= 5) {
+				Main.bot.SendMessage(channel, String.format("<@%s> Usage: `!link <username>`", user.getId()));
+				break;
+			}
+			if(Linking.isLinked(user.getIdLong())) {
+				Main.bot.SendMessage(channel, String.format("<@%s> Your Discord account is already linked to a Minecraft account. Use `!unlink` to unlink first.", user.getId()));
+				break;
+			}
+			Player player = Linking.getPlayer(fullCmd.substring(5).trim());
+			if(player != null) {
+				Linking.addLink(user.getIdLong(), player.getUniqueId(), channel.getIdLong());
+			}else {
+				Main.bot.SendMessage(channel, String.format("<@%s> Sorry, could not find this player, Are you online? (CaPs SeNsItIvE)", user.getId()));
+			}
+			break;
+			
+		case "unlink":
+			if(Linking.unlink(user.getIdLong())) {
+				Main.bot.SendMessage(channel, String.format("<@%s> Your Discord account has been unlinked from your Minecraft account.", user.getId()));
+			} else {
+				Main.bot.SendMessage(channel, String.format("<@%s> Your Discord account is not linked to any Minecraft account.", user.getId()));
+			}
+			break;
+
 
 		default:
 			Main.bot.SendMessage(channel, String.format("<@%s> Sorry, I don't know this command.\nTry `!help`", user.getId()));
 			break;
 		}
+	*/
 	}
 }

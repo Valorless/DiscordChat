@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import valorless.discordchat.discord.Bot;
+import valorless.discordchat.linking.Linking;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.valorlessutils.ValorlessUtils.Log;
 
@@ -27,27 +28,58 @@ public class CommandListener implements CommandExecutor {
 			Log.Debug(plugin, "Argument: " + a);
 		}
 
-		if(sender instanceof Player) {
+		if(sender instanceof Player player) {
 			if(args.length == 0) {
 				return false;
 			}
 			else 
 				if (args.length >= 1){
 					if(args[0].equalsIgnoreCase("mute")) {
-						if(Main.muted.HasKey(sender.getName())) {
-							Main.muted.Set(sender.getName(), !Main.muted.GetBool(sender.getName()));
+						if(Main.muted.HasKey(player.getName())) {
+							Main.muted.Set(player.getName(), !Main.muted.GetBool(player.getName()));
 						}else {
-							Main.muted.Set(sender.getName(), true);
+							Main.muted.Set(player.getName(), true);
 						}
 					}
-					if(args[0].equalsIgnoreCase("reload") && sender.hasPermission("discordchat.reload")) {
+					if(args[0].equalsIgnoreCase("link")) {
+						if(args.length >= 2) {
+							// Attempt to link the player's Minecraft account with the provided Discord ID.
+							if( Linking.isLinked(player.getUniqueId()) ) {
+								player.sendMessage(Name + " §cYour Minecraft account is already linked to a Discord account.");
+								return true;
+							}
+							Long id = null;
+							try {
+								id = Long.parseLong(args[1]);
+							} catch (NumberFormatException e) {
+								id = Main.bot.getUserIDByUsername(args[1]);
+							}
+							if(id == null) {
+								player.sendMessage(Name + " §cDiscord user not found.\nIf this issue persists, please us the Discord ID instead.");
+								return true;
+							}
+							Linking.addLink(player.getUniqueId(), id, null);
+							return true;
+						}
+						return true;
+					}
+					if(args[0].equalsIgnoreCase("unlink")) {
+						Boolean result = Linking.unlink(player.getUniqueId());
+						if(result) {
+							player.sendMessage(Name + " §aYour Discord account has been unlinked from your Minecraft account.");
+						}else {
+							player.sendMessage(Name + " §cNo linked Discord account found for your Minecraft account.");
+						}
+						return true;
+					}
+					if(args[0].equalsIgnoreCase("reload") && player.hasPermission("discordchat.reload")) {
 						Main.config.Reload();
 						Main.filter.Reload();
 						Lang.lang.Reload();
 						Bot.ReloadConfig();
 						Main.bot.Shutdown();
 						Main.bot = new Bot();
-						sender.sendMessage(Name +" §aReloaded.");
+						player.sendMessage(Name +" §aReloaded.");
 						Log.Info(plugin, "Reloaded!");
 						Main.enabled = true;
 						if(Main.error) {

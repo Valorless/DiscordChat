@@ -8,6 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import net.ess3.api.events.AfkStatusChangeEvent;
+import net.ess3.api.events.AfkStatusChangeEvent.Cause;
 import valorless.discordchat.ChatListener;
 import valorless.discordchat.DiscordWebhook;
 import valorless.discordchat.Main;
@@ -25,6 +26,8 @@ public class EssentialsAfkStatusChange implements Listener {
 		boolean afk = event.getValue();
 		Player player = event.getAffected().getBase();
 		if(event.getAffected().isVanished()) return;
+		if(event.getAffected().isHidden()) return;
+		if(event.getCause() == Cause.QUIT) return;
 		String yesAfk = "**%s** is now AFK.";
 		String noAfk = "**%s** is no longer AFK.";
 		
