@@ -1,8 +1,17 @@
 package valorless.discordchat.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.Location;
+
+import valorless.discordchat.storage.Storage;
+import valorless.discordchat.storage.Storage.Enderchests.EnderchestEntry;
+import valorless.discordchat.storage.Storage.Enderchests.EnderchestSlot;
+import valorless.discordchat.storage.Storage.Inventories.InventoryEntry;
+import valorless.discordchat.storage.Storage.Inventories.InventorySlot;
 
 public class Extra {
 	
@@ -80,5 +89,53 @@ public class Extra {
 				.replace("%x", ToString(loc.getX()))
 				.replace("%y", ToString(loc.getY()))
 				.replace("%z", ToString(loc.getZ()));
+	}
+
+	public static String inventoryString(UUID minecraftUUID) {
+		List<String> items = new ArrayList<>();
+		
+		InventoryEntry inv = Storage.Inventories.getInventory(minecraftUUID);
+		for(InventorySlot slot : inv.slots) {
+			String item = "";
+			if(slot.display != null) {
+				if(slot.name != null) {
+					item = String.format(" - **%s** *(%s)* x%s", slot.display, slot.name, slot.amount);
+				}else {
+					item = String.format(" - **%s** *(%s)* x%s", slot.display, slot.item, slot.amount);
+				}
+			}
+			else if(slot.name != null) {
+				item = String.format(" - **%s** x%s", slot.name, slot.amount);
+			}
+			else {
+				item = String.format(" - **%s** x%s", slot.item, slot.amount);
+			}
+			items.add(item);
+		}
+		return String.join("\n", items);
+	}
+
+	public static String enderchestString(UUID minecraftUUID) {
+		List<String> items = new ArrayList<>();
+		
+		EnderchestEntry inv = Storage.Enderchests.getEnderchest(minecraftUUID);
+		for(EnderchestSlot slot : inv.slots) {
+			String item = "";
+			if(slot.display != null) {
+				if(slot.name != null) {
+					item = String.format(" - **%s** *(%s)* x%s", slot.display, slot.name, slot.amount);
+				}else {
+					item = String.format(" - **%s** *(%s)* x%s", slot.display, slot.item, slot.amount);
+				}
+			}
+			else if(slot.name != null) {
+				item = String.format(" - **%s** x%s", slot.name, slot.amount);
+			}
+			else {
+				item = String.format(" - **%s** x%s", slot.item, slot.amount);
+			}
+			items.add(item);
+		}
+		return String.join("\n", items);
 	}
 }

@@ -127,7 +127,9 @@ public class Bot implements Listener {
 						        Commands.slash("pay", "Pay a player.")
 						        	.addOption(OptionType.STRING, "username", "Player to pay.")
 						        	.addOption(OptionType.NUMBER, "amount", "Amount to pay."),
-						        Commands.slash("balance", "Check your balance.")
+						        Commands.slash("balance", "Check your balance."),
+						        Commands.slash("inventory", "View your Minecraft inventory."),
+						        Commands.slash("enderchest", "View your Minecraft enderchest.")
 						).queue();
 					} catch (InterruptedException e) {
 						e.printStackTrace();

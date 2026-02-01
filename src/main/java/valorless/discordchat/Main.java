@@ -12,12 +12,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import valorless.discordchat.discord.Bot;
 import valorless.discordchat.hooks.*;
 import valorless.discordchat.linking.Linking;
+import valorless.discordchat.storage.Storage;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.MemoryTracker;
 import valorless.valorlessutils.utils.Utils;
 import valorless.valorlessutils.Metrics;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
+import valorless.valorlessutils.translate.Translator;
 
 
 public final class Main extends JavaPlugin implements Listener {
@@ -32,6 +34,7 @@ public final class Main extends JavaPlugin implements Listener {
 	public static boolean error = false;
 	public static Bot bot;
 	public static MemoryTracker memoryTracker;
+	public static Translator translator;
 
 	public String[] commands = {
 			"discordchat", "dcm", "dc", "server"
@@ -49,6 +52,7 @@ public final class Main extends JavaPlugin implements Listener {
 
 		Lang.lang = new Config(this, "lang.yml");
 
+		translator = new Translator("en_us");
 	}
 
 	@Override
@@ -172,7 +176,7 @@ public final class Main extends JavaPlugin implements Listener {
 			ChatListener.onEnable();
 			Eco.init();
 			//getServer().getPluginManager().registerEvents(new CommandListenerOld(), this);
-			Linking.init();
+			Storage.init();
 			PlayerCache.init();
 
 			if(Utils.IsStringNullOrEmpty(config.GetString("webhook-url"))) {
@@ -261,7 +265,7 @@ public final class Main extends JavaPlugin implements Listener {
 			}
 		}
 
-		Linking.shutdown();
+		Storage.shutdown();
 		bot.Shutdown();
 	}
 

@@ -1,8 +1,5 @@
 package valorless.discordchat.discord;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -15,7 +12,9 @@ import org.bukkit.entity.Player;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -25,6 +24,8 @@ import valorless.discordchat.PlayerCache;
 import valorless.discordchat.hooks.Eco;
 import valorless.discordchat.hooks.EssentialsHook;
 import valorless.discordchat.linking.Linking;
+import valorless.discordchat.storage.Storage;
+import valorless.discordchat.utils.Extra;
 import valorless.discordchat.utils.ServerStats;
 import valorless.valorlessutils.ValorlessUtils.Log;
 
@@ -47,6 +48,9 @@ public class DiscordCommands extends ListenerAdapter {
 		{
 			put("/pay", "Pay a player.");
 			put("/balance", "Check your balance.");
+			//put("/memory", "Check server memory usage.");
+			put("/inventory", "View your Minecraft inventory.");
+			put("/enderchest", "View your Minecraft enderchest.");
 		}
 	};
 
@@ -207,11 +211,86 @@ public class DiscordCommands extends ListenerAdapter {
          * Uses the Eco hook to retrieve the balance based on the linked Minecraft UUID.
          */
         if(event.getName().equals("balance")) {
-        	BigDecimal bd = Eco.getBalance(Linking.getMinecraftUUID(user.getIdLong())).setScale(2, RoundingMode.HALF_UP);
-        	DecimalFormat df = new DecimalFormat("$#,##0.00");
-        	String result = df.format(bd); // "$1,024,173.32"
-        	event.reply("Your current balance is **" + result + "**").setEphemeral(true).queue();
+        	String result = Eco.getBalanceFormatted(Linking.getMinecraftUUID(user.getIdLong()));
+        	event.reply("Your current balance is **" + result + "**")
+            .addActionRow(Button.primary("balance-share", "Share"))
+        	.setEphemeral(true).queue();
         	return;
+        }
+        
+        if(event.getName().equals("inventory")) {
+        	//event.reply("Inventory command is not yet implemented.").setEphemeral(true).queue();
+        	if(Storage.Inventories.getInventory(Linking.getMinecraftUUID(user.getIdLong())) == null) {
+				event.reply("No inventory data found for your Minecraft account.\n"
+						+ "Please log in to populate the database.").setEphemeral(true).queue();
+				return;
+			}
+        	if(Extra.inventoryString(Linking.getMinecraftUUID(user.getIdLong())).length() > 1950) {
+        		event.reply("Your inventory data is too large to display here.\nPlease use the in-game command to view it.").setEphemeral(true).queue();
+				return;
+        	}
+        	event.reply("## Your inventory:\n" + 
+        			Extra.inventoryString(Linking.getMinecraftUUID(user.getIdLong())))
+            .addActionRow(Button.primary("inv-share", "Share"))
+            .setEphemeral(true)
+            .queue();
+			return;
+        }
+        
+        if(event.getName().equals("enderchest")) {
+			//event.reply("Enderchest command is not yet implemented.").setEphemeral(true).queue();
+        	if(Storage.Enderchests.getEnderchest(Linking.getMinecraftUUID(user.getIdLong())) == null) {
+				event.reply("No enderchest data found for your Minecraft account.\n"
+						+ "Please log in to populate the database.").setEphemeral(true).queue();
+				return;
+			}
+        	if(Extra.enderchestString(Linking.getMinecraftUUID(user.getIdLong())).length() > 1950) {
+        		event.reply("Your enderchest data is too large to display here.\nPlease use the in-game command to view it.").setEphemeral(true).queue();
+				return;
+        	}
+        	event.reply("## Your enderchest:\n" + 
+        			Extra.enderchestString(Linking.getMinecraftUUID(user.getIdLong())))
+            .addActionRow(Button.primary("ender-share", "Share"))
+            .setEphemeral(true)
+            .queue();
+			return;
+		}
+        
+        event.reply("An error occurred while processing your command. Please try again later.").setEphemeral(true).queue();
+    }
+	
+	@Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+		User user = event.getUser();
+		//Guild server = event.getGuild();
+		
+        if (event.getComponentId().equals("inv-share")) {
+        	String result = String.format("## <@%s>'s inventory:\n%s", 
+					user.getIdLong(),
+					Extra.inventoryString(Linking.getMinecraftUUID(user.getIdLong())));
+            event.reply(result).queue(); // send a message in the channel
+        	//event.getMessage().delete().queue();
+            return;
+        }
+		
+        if (event.getComponentId().equals("ender-share")) {
+        	String result = String.format("## <@%s>'s inventory:\n%s", 
+					user.getIdLong(),
+					Extra.enderchestString(Linking.getMinecraftUUID(user.getIdLong())));
+            event.reply(result).queue(); // send a message in the channel
+        	//event.getMessage().delete().queue();
+            return;
+        }
+		
+        if (event.getComponentId().equals("balance-share")) {
+        	String result = Eco.getBalanceFormatted(Linking.getMinecraftUUID(user.getIdLong()));
+        	event.reply(String.format("<@%s>'s balance: **%s**", 
+					user.getIdLong(),
+					result))
+        	.queue(); // send a message in the channel
+        	//event.reply("Your current balance is **" + result + "**").queue();
+        	//event.getMessage().delete().queue();
+            return;
         }
     }
 	
@@ -226,6 +305,8 @@ public class DiscordCommands extends ListenerAdapter {
 	@Override
     public void onModalInteraction(ModalInteractionEvent event) {
 		User user = event.getUser();
+		//Guild server = event.getGuild();
+		
 		/** Link modal
 		 * Processes the linking of a Discord account to a Minecraft account.
 		 * Validates if the user is already linked and if the Minecraft player exists.
@@ -293,10 +374,8 @@ public class DiscordCommands extends ListenerAdapter {
 				event.reply(String.format("Player %s cannot be found.", username)).setEphemeral(true).queue();
 				return;
 			}
-
-        	BigDecimal bd = BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_UP);
-        	DecimalFormat df = new DecimalFormat("$#,##0.00");
-        	String result = df.format(bd); // "$1,024,173.32"
+            
+        	String result = Eco.formatMoney(amount);
             if(Eco.canAfford(payer.getUniqueId(), amount)) {
             	Eco.takeMoney(payer.getUniqueId(), amount);
             	Eco.giveMoney(recipient.getUniqueId(), amount);
