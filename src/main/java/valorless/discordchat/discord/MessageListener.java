@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,11 +26,11 @@ import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.hooks.EssentialsHook;
 import valorless.discordchat.linking.Linking;
-import valorless.discordchat.utils.ServerStats;
 import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.utils.Utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -37,12 +38,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class MessageListener extends ListenerAdapter { 
 	public List<String> monitoredChannels;
-	DiscordUtils utils = new DiscordUtils();
 
 	public MessageListener() {
 		this.monitoredChannels = Bot.config.GetStringList("channels");
 	}
 
+	@SuppressWarnings("deprecation")
 	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 		Member member = event.getMember();
 		if (!monitoredChannels.contains(event.getChannel().getId())) return; 
@@ -63,7 +64,7 @@ public class MessageListener extends ListenerAdapter {
 			String username = event.getAuthor().getName();
 			String guildName = event.getGuild().getName();
 			String channel = event.getMessage().getChannel().getName();
-			String displayname = utils.getUserGlobalName(event.getAuthor().getId());
+			String displayname = event.getAuthor().getGlobalName() != null  ? event.getAuthor().getGlobalName() : username;
 			String nickname = (member.getNickname() != null) ? member.getNickname() : displayname;
 			String badge = getBadge(member);
 			Role mainRole = getHighestFrom(member);
@@ -115,13 +116,32 @@ public class MessageListener extends ListenerAdapter {
 
 			chatMessage = Lang.hex(chatMessage);
 			chatMessage = chatMessage.replace("&", "§");
-			chatMessage = chatMessage.replace("%username%", username)
+			if(Linking.isLinked(event.getAuthor().getIdLong())) {
+				UUID uuid = Linking.getMinecraftUUID(event.getAuthor().getIdLong());
+				OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+				String name = player.getName();
+				if(EssentialsHook.isHooked()) {
+					IUser user = EssentialsHook.getInstance().getUser(player);
+					if(user.getFormattedNickname() != null) {
+						name = user.getFormattedNickname() + "§r";
+					}
+				}
+				chatMessage = chatMessage.replace("%username%", name)
+					.replace("%displayname%", name)
+					.replace("%nickname%", reply ? name + " (Reply)" : name)
+					.replace("%server%", guildName)
+					.replace("%channel%", channel)
+					.replace("%role%", role)
+					.replace("%badge%", badge);
+			}else {
+				chatMessage = chatMessage.replace("%username%", username)
 					.replace("%displayname%", displayname)
 					.replace("%nickname%", reply ? nickname + " (Reply)" : nickname)
 					.replace("%server%", guildName)
 					.replace("%channel%", channel)
 					.replace("%role%", role)
 					.replace("%badge%", badge);
+			}
 
 			if(Utils.IsStringNullOrEmpty(event.getMessage().getContentDisplay())) {
 				if(attachments) {
@@ -138,7 +158,9 @@ public class MessageListener extends ListenerAdapter {
 
 			if(blockedWord(chatMessage) == null) { 
 				if(reply) {
-					String name = utils.getUserGlobalName(event.getMessage().getReferencedMessage().getAuthor().getId());
+					String name = event.getMessage().getReferencedMessage().getAuthor().getGlobalName() != null ? 
+							event.getMessage().getReferencedMessage().getAuthor().getGlobalName() : 
+								event.getMessage().getReferencedMessage().getAuthor().getName();
 					if(name.equalsIgnoreCase("No global name set")) name = event.getMessage().getReferencedMessage().getAuthor().getName();
 					if(name.equalsIgnoreCase("Error retrieving global name")) name = event.getMessage().getReferencedMessage().getAuthor().getName();
 					String replyMessage = "┌─── " + String.format("%s: %s", 
@@ -164,7 +186,8 @@ public class MessageListener extends ListenerAdapter {
 					if (ref != null) {
 					    // A referenced message exists
 					    ref.resolve().queue(originalMessage -> {
-					    	String name = utils.getUserGlobalName(originalMessage.getAuthor().getId());
+					    	String name = originalMessage.getAuthor().getGlobalName() != null ? 
+					    			originalMessage.getAuthor().getGlobalName() : originalMessage.getAuthor().getName();
 					    	String msg = "";
 							if(name.equalsIgnoreCase("No global name set")) name = originalMessage.getAuthor().getName();
 					    	

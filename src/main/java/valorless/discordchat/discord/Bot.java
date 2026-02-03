@@ -130,8 +130,7 @@ public class Bot implements Listener {
 						        Commands.slash("balance", "Check your balance."),
 						        Commands.slash("inventory", "View your Minecraft inventory."),
 						        Commands.slash("enderchest", "View your Minecraft enderchest."),
-						        Commands.slash("stats", "View mcMMO stats of a player."),
-						        Commands.slash("top", "View top mcMMO players on the server.")
+						        Commands.slash("stats", "View mcMMO stats of a player.")
 						).queue();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
