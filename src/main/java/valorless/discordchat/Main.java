@@ -272,6 +272,7 @@ public final class Main extends JavaPlugin implements Listener {
 	void Hooks() {
 		PlaceholderAPIHook.Hook();
 		EssentialsHook.Hook();
+		mcmmoHook.Hook();
 	}
 
 	public void RegisterCommands() {

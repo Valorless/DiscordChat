@@ -46,6 +46,10 @@ public class PlayerCache implements Listener {
 		return null;
 	}
 	
+	public static HashMap<String, UUID> getCache() {
+		return cache;
+	}
+	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		UUID uuid = event.getPlayer().getUniqueId();

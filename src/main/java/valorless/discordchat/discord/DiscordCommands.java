@@ -1,7 +1,9 @@
 package valorless.discordchat.discord;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -9,12 +11,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import com.gmail.nossr50.mcMMO;
+import com.gmail.nossr50.datatypes.database.PlayerStat;
+import com.gmail.nossr50.datatypes.player.PlayerProfile;
+import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
+
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -23,6 +31,7 @@ import valorless.discordchat.Main;
 import valorless.discordchat.PlayerCache;
 import valorless.discordchat.hooks.Eco;
 import valorless.discordchat.hooks.EssentialsHook;
+import valorless.discordchat.hooks.mcmmoHook;
 import valorless.discordchat.linking.Linking;
 import valorless.discordchat.storage.Storage;
 import valorless.discordchat.utils.Extra;
@@ -39,6 +48,8 @@ public class DiscordCommands extends ListenerAdapter {
 			put("/uptime", "How long the server's been up.");
 			put("/link", "Link your Minecraft account to Discord.");
 			put("/unlink", "Unlink your Minecraft account from Discord.");
+			//put("/memory", "Check server memory usage.");
+			put("/stats", "Lookup mcMMO stats for a player.");
 		}
 	};
 	
@@ -256,6 +267,74 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
         
+        if(event.getName().equals("stats")) {
+			//event.reply("Stats command is not yet implemented.").setEphemeral(true).queue();s
+            TextInput username = TextInput.create("username", "Minecraft Username", TextInputStyle.SHORT)
+                    .setPlaceholder("MasterMiner42")
+                    .setValue(Linking.isLinked(event.getUser().getIdLong()) ? 
+                    		Bukkit.getOfflinePlayer(Linking.getMinecraftUUID(event.getUser().getIdLong())).getName(): null)
+                    .build();
+
+            Modal modal = Modal.create("stats", "mcMMO Stats Lookup")
+            	    .addActionRow(List.of(username))
+                    .build();
+
+            event.replyModal(modal).queue();
+			return;
+        }
+        
+        if (event.getName().equals("#top")) {
+            event.deferReply(true).queue();
+
+            Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, () -> {
+                try {
+                    // Acquire data (may be heavy). If mcMMO requires main thread, run that part sync.
+                    // Example: if mcmmoHook.getTop() must be run synchronously, wrap that call:
+                    // Map<String,Integer> skillLevels = Bukkit.getScheduler().callSyncMethod(Main.plugin, () -> mcmmoHook.getTop()).get();
+                    Map<String, Integer> skillLevels = mcmmoHook.getTop();
+            		Log.Info(Main.plugin, "Retrieved mcMMO top players." + skillLevels.size() + " entries.\n" + String.join("\n", skillLevels.keySet()));
+
+                    if (skillLevels == null || skillLevels.isEmpty()) {
+                        event.getHook().sendMessage("No mcMMO data available.").setEphemeral(true).queue();
+                        return;
+                    }
+
+                    // Convert entries -> sorted list by value desc
+                    List<Map.Entry<String, Integer>> entries = new ArrayList<>(skillLevels.entrySet());
+                    entries.sort(Map.Entry.<String, Integer>comparingByValue().reversed());
+
+                    int limit = Math.min(10, entries.size());
+                    StringBuilder result = new StringBuilder("## mcMMO Top Players by Total Level:\n");
+
+                    for (int i = 0; i < limit; i++) {
+                        Map.Entry<String, Integer> e = entries.get(i);
+                        String name = e.getKey() == null ? "Unknown" : e.getKey().replace("\n", "");
+                        int level = e.getValue() == null ? 0 : e.getValue();
+                        result.append(String.format("**%d. %s** - Total Level: **%d**\n", i + 1, name, level));
+                    }
+
+                    // send the message (JDA queue is thread-safe)
+                    event.getHook().sendMessage(result.toString())
+                        //.addActionRow(Button.primary("top-share", "Share"))
+                        .setEphemeral(true)
+                        .queue();
+
+                } catch (Throwable t) {
+                    // log the stacktrace so you see the failure
+                    t.printStackTrace();
+                    try {
+                        event.getHook().sendMessage("An error occurred while building the leaderboard: " + t.getMessage())
+                            .setEphemeral(true).queue();
+                    } catch (Exception ignore) {}
+                }
+            });
+            return;
+        }
+        /*
+        Make a command for mcmmo stats, and one for specific player lookup of mcmmo stats.
+        Make another command for mcmmo top stats.
+        */
+        
         event.reply("An error occurred while processing your command. Please try again later.").setEphemeral(true).queue();
     }
 	
@@ -287,6 +366,21 @@ public class DiscordCommands extends ListenerAdapter {
         	event.reply(String.format("<@%s>'s balance: **%s**", 
 					user.getIdLong(),
 					result))
+        	.queue(); // send a message in the channel
+        	//event.reply("Your current balance is **" + result + "**").queue();
+        	//event.getMessage().delete().queue();
+            return;
+        }
+		
+        if (event.getComponentId().equals("top-share")) {
+        	HashMap<String, Integer> skillLevels = mcmmoHook.getTop();
+        	String result = String.format("## <@%s> mcMMO Top Players by Total Level:\n", user.getIdLong());
+        	for(int i = 0; i < 10; i++) {
+				String name = (String) skillLevels.keySet().toArray()[i];
+				int level = skillLevels.get(name);
+				result += String.format("**%d. %s** - Total Level: **%d**\n", i + 1, name, level);
+			}
+        	event.reply(result)
         	.queue(); // send a message in the channel
         	//event.reply("Your current balance is **" + result + "**").queue();
         	//event.getMessage().delete().queue();
@@ -388,8 +482,33 @@ public class DiscordCommands extends ListenerAdapter {
             	event.reply(String.format("You cannot afford to pay %s %s.", username, result)).setEphemeral(true).queue();
             }
             return;
-            
         }
+        
+		if(event.getModalId().equals("stats")) {
+			String username = event.getValue("username").getAsString();
+			UUID playerUUID = PlayerCache.getUUID(username);
+			PlayerProfile profile = mcMMO.getDatabaseManager().loadPlayerProfile(playerUUID);
+			
+			if(profile != null) {
+				String msg = String.format("## mcMMO Stats for %s:\n", username);
+				int totalLevel = 0;
+				for(PrimarySkillType pst : PrimarySkillType.values()) {
+					int level = profile.getSkillLevel(pst);
+					double xp = profile.getSkillXpLevel(pst);
+					double max = profile.getXpToLevel(pst);
+					msg += String.format(" - **%s** - Level: **%d** - XP: %.2f/%.2f\n", 
+							Extra.UppercaseFirstLetter(pst.name()), level, xp, max);
+					totalLevel += level;
+				}
+				msg += String.format("**Total Level:** %d", totalLevel);
+				
+				event.reply(msg).setEphemeral(true).queue();
+				return;
+			}
+
+			event.reply("Failed to retrieve stats for " + username + ".").setEphemeral(true).queue();
+			return;
+		}
     }
 	
 }

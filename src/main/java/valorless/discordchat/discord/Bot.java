@@ -129,7 +129,9 @@ public class Bot implements Listener {
 						        	.addOption(OptionType.NUMBER, "amount", "Amount to pay."),
 						        Commands.slash("balance", "Check your balance."),
 						        Commands.slash("inventory", "View your Minecraft inventory."),
-						        Commands.slash("enderchest", "View your Minecraft enderchest.")
+						        Commands.slash("enderchest", "View your Minecraft enderchest."),
+						        Commands.slash("stats", "View mcMMO stats of a player."),
+						        Commands.slash("top", "View top mcMMO players on the server.")
 						).queue();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -195,15 +197,17 @@ public class Bot implements Listener {
 		if(this.client == null) return;
 		Log.Info(Main.plugin, "Bot shutting down.");
 		Bukkit.getScheduler().cancelTask(taskId);
-		this.client.shutdownNow();
+		this.client.shutdown();
 		try {
-			if (!this.client.awaitShutdown(Duration.ofSeconds(10))) {
+			if (!this.client.awaitShutdown(Duration.ofSeconds(5))) {
+				Log.Warning(Main.plugin, "Bot did not shut down in time, forcing shutdown.");
 				this.client.shutdownNow(); // Cancel all remaining requests
-				this.client.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
+				this.client.awaitShutdown(Duration.ofSeconds(3)); // Wait until shutdown is complete (indefinitely)
 			 }
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		Log.Info(Main.plugin, "Bot shut down.");
 	}
 
 	/**
