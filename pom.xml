@@ -150,12 +150,6 @@
         <id>m2-dv8tion</id>
         <url>https://m2.dv8tion.net/releases</url>
     </repository>
-  <repository>
-    <id>local-libs</id>
-    <url>file://${project.basedir}/dependencies</url>
-    <releases><enabled>true</enabled></releases>
-    <snapshots><enabled>false</enabled></snapshots>
-</repository>
 <repository>
     <id>neetgames</id> <!--mcMMO-->
     <url>https://nexus.neetgames.com/repository/maven-releases/</url>

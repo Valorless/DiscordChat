@@ -225,7 +225,7 @@ public class Storage {
 		}
 		
 		public static void updateEntry(Player player) {
-			Log.Info(Main.plugin, "Updating inventory for player: " + player.getName());
+			Log.Debug(Main.plugin, "Updating inventory for player: " + player.getName());
 			List<InventorySlot> slots = new ArrayList<>();
 			for(ItemStack item : player.getInventory().getContents()) {
 				if(item != null && item.getType() != Material.AIR) {
@@ -371,7 +371,7 @@ public class Storage {
 		}
 		
 		public static void updateEntry(Player player) {
-			Log.Info(Main.plugin, "Updating enderchest for player: " + player.getName());
+			Log.Debug(Main.plugin, "Updating enderchest for player: " + player.getName());
 			List<EnderchestSlot> slots = new ArrayList<>();
 			for(ItemStack item : player.getEnderChest().getContents()) {
 				if(item != null && item.getType() != Material.AIR) {
