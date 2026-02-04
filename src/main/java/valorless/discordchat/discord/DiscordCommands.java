@@ -398,8 +398,11 @@ public class DiscordCommands extends ListenerAdapter {
             
         	String result = Eco.formatMoney(amount);
             if(Eco.canAfford(payer.getUniqueId(), amount)) {
-            	Eco.takeMoney(payer.getUniqueId(), amount);
-            	Eco.giveMoney(recipient.getUniqueId(), amount);
+            	Boolean success = Eco.pay(payer.getUniqueId(), recipient.getUniqueId(), amount);
+            	if(!success) {
+					event.reply("An error occurred while processing the payment. Please try again later.").setEphemeral(true).queue();
+					return;
+				}
             	if(recipientID != null) {
             		event.reply(String.format("<@%s> paid <@%s> **%s**!", user.getIdLong(), recipientID, result)).queue();
             		return;

@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import com.earth2me.essentials.User;
 import net.ess3.api.IEssentials;
 import net.ess3.api.MaxMoneyException;
+import net.ess3.api.events.UserBalanceUpdateEvent.Cause;
 import valorless.discordchat.Main;
 import valorless.valorlessutils.ValorlessUtils.Log;
 
@@ -187,6 +188,15 @@ public class Eco {
 	public static String formatMoney(BigDecimal amount) {
 		DecimalFormat df = new DecimalFormat("$#,##0.00");
 		return df.format(amount.setScale(2, RoundingMode.HALF_UP)); // "$1,024,173.32"
+	}
+	
+	public static Boolean pay(UUID from, UUID to, Double amount) {
+		try {
+			ess.getUser(from).payUser(ess.getUser(to), BigDecimal.valueOf(amount), Cause.COMMAND_PAY);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}	
 	}
 	
 }
