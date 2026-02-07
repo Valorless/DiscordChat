@@ -1,5 +1,6 @@
 package valorless.discordchat;
 
+import valorless.discordchat.utils.DurationFormatter;
 import valorless.valorlessutils.ValorlessUtils.*;
 
 import java.awt.Color;
@@ -14,11 +15,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
+import me.leoko.advancedban.bukkit.event.PunishmentEvent;
+import me.leoko.advancedban.bukkit.event.RevokePunishmentEvent;
+import me.leoko.advancedban.utils.Punishment;
+import me.leoko.advancedban.utils.PunishmentType;
+
 public class BanListener implements Listener { // Primary objective of BanListener is to listen for Ban commands.
 	public enum BanType { ban, unban, tempban, ipban, ipunban }
 
 	static String Name = "§7[§9Discord§7]§r ";
-
+	
+	/*
 	@EventHandler
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		String[] args = event.getMessage().split("\\s+");
@@ -27,6 +34,7 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		ProcessCommand(args, sender, false);
 	}
 
+	
 	@EventHandler
 	public void onServerCommand(ServerCommandEvent event) {
 		String[] args = event.getCommand().split("\\s+");
@@ -35,11 +43,49 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		ProcessCommand(args, console, true);
 	}
 
-
 	public static void DiscordCommand(CustomConsoleSender sender, String message) {
 		String[] args = message.split("\\s+");
 		args[0] = "/" + args[0];
 		ProcessCommand(args, sender, false);
+	}*/
+	
+	@EventHandler
+	public void onBanEvent(PunishmentEvent event) {
+		Punishment punishment = event.getPunishment();
+		if(punishment != null) {
+			Date now = new Date();
+			String target = punishment.getName();
+			String sender = punishment.getOperator();
+			String reason = punishment.getReason();
+			String duration = DurationFormatter.formatDurationBetween(punishment.getStart(), punishment.getEnd());
+			//String duration = FormatDuration(punishment.getDuration(true));
+			if(punishment.getType() == PunishmentType.BAN && Main.bans.GetBool("bans")) {
+				SendWebhook(BanType.ban, target, sender, reason, now, "");
+			}
+			if(punishment.getType() == PunishmentType.TEMP_BAN && Main.bans.GetBool("tempbans") ) {
+				SendWebhook(BanType.tempban, target, sender, reason, now, duration);
+			}
+			if(punishment.getType() == PunishmentType.IP_BAN && Main.bans.GetBool("banips")) {
+				SendWebhook(BanType.ipban, target, sender, reason, now, "");
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onUnbanEvent(RevokePunishmentEvent event) {
+		Punishment punishment = event.getPunishment();
+		if(punishment != null) {
+			Date now = new Date();
+			String target = punishment.getName();
+			String sender = punishment.getOperator();
+			String reason = punishment.getReason();
+			if(punishment.getType() == PunishmentType.BAN && Main.bans.GetBool("unbans")) {
+				SendWebhook(BanType.unban, target, sender, reason, now, "");
+			}
+			if(punishment.getType() == PunishmentType.IP_BAN && Main.bans.GetBool("unbanips")) {
+				SendWebhook(BanType.ipunban, target, sender, reason, now, "");
+			}
+		}
 	}
 
 	public static void ProcessCommand(String[] args, CommandSender sender, Boolean console) {
@@ -282,6 +328,7 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		return result.toString();
 	}
 
+	//Legacy method for formatting durations, may be used in the future if DurationFormatter does not work as intended.
 	static String FormatDuration(String duration) {
 		if(duration.contains("mo")) return duration.replace("mo", " Months");
 		if(duration.contains("s")) return duration.replace("s", " Seconds");

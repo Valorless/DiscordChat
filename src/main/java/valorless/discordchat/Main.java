@@ -11,7 +11,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import valorless.discordchat.discord.Bot;
 import valorless.discordchat.hooks.*;
-import valorless.discordchat.linking.Linking;
 import valorless.discordchat.storage.Storage;
 import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.MemoryTracker;
@@ -37,7 +36,7 @@ public final class Main extends JavaPlugin implements Listener {
 	public static Translator translator;
 
 	public String[] commands = {
-			"discordchat", "dcm", "dc", "server"
+			"discordchat", "dcm", "dc", "server", "discord"
 	};
 
 	public void onLoad() {

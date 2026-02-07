@@ -257,9 +257,7 @@ public class MessageListener extends ListenerAdapter {
 				});
 
 				try {
-					if(Bukkit.dispatchCommand(sender, command.substring(1))) {
-						BanListener.DiscordCommand(sender, command.substring(1));
-					}
+					Bukkit.dispatchCommand(sender, command.substring(1));
 				}catch(Exception e) {
 					// If a vanilla command, run through the default command sender,
 					// but no feedback messages.

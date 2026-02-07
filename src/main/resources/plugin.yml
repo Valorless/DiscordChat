@@ -2,18 +2,14 @@ name: DiscordChat
 main: valorless.discordchat.Main
 version: version-number
 author: Valorless
-api-version: 1.18
+api-version: 1.21
 depend: [ValorlessUtils]
 softdepend: [InteractiveChat, Essentials, PlaceholderAPI]
 commands:
   discordchat:
     description: Main command.
     usage:
-    aliases: [dcm, dc]
-  discordchat mute:
-    description: Mute discord messages.
-    usage:
-    aliases: [dcm mute, dc mute]
+    aliases: [dcm, dc, discord]
   server:
     description: /say replacement.
     permission: discordchat.server
@@ -22,7 +18,7 @@ permissions:
   discordchat.*:
     description: Gives access to all discordchat commands.
     children:
-        discordchat.reload: true
+      discordchat.reload: true
   discordchat.reload:
     description: Allows you to reload the configuration.
     default: op
