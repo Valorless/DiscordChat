@@ -7,6 +7,9 @@
 # Switch this to true to use the Discord -> Minecraft functionality
 enabled: true
 
+# Link to show on /discord
+invite-link: 'https://discord.gg/WnT7zpcdDq'
+
 # This is the API token for your discord bot please see here for more information:
 # https://github.com/Valorless/DiscordChat/wiki/Creating-and-using-a-Discord-Bot-&-Token
 # Do NOT share this.

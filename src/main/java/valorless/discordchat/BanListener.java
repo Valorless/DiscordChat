@@ -57,6 +57,8 @@ public class BanListener implements Listener { // Primary objective of BanListen
 			String target = punishment.getName();
 			String sender = punishment.getOperator();
 			String reason = punishment.getReason();
+			if(reason == null || reason.equals("")) reason = "No reason given.";
+			if(reason.equalsIgnoreCase("@BBBAuto")) return; // Don't send auto bans to discord, as they can be very spammy and often have no reason.
 			String duration = DurationFormatter.formatDurationBetween(punishment.getStart(), punishment.getEnd());
 			//String duration = FormatDuration(punishment.getDuration(true));
 			if(punishment.getType() == PunishmentType.BAN && Main.bans.GetBool("bans")) {

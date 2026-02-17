@@ -169,6 +169,10 @@ public class Bot implements Listener {
 		}, 100L, 100L);
 
 	}
+	
+	public String getInviteLink() {
+		return config.GetString("invite-link");
+	}
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {

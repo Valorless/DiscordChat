@@ -30,7 +30,8 @@ public class CommandListener implements CommandExecutor {
 
 		if(sender instanceof Player player) {
 			if(args.length == 0) {
-				return false;
+				player.sendMessage(Lang.Parse(Main.bot.getInviteLink()));
+				return true;
 			}
 			else 
 				if (args.length >= 1){
