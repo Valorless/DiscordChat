@@ -44,7 +44,7 @@ jobs:
     - name: Check for existing Spigot JAR
       id: check_spigot
       run: |
-        if [ -f "./spigot/1.21.1.jar" ]; then
+        if [ -f "./spigot/1.21.11.jar" ]; then
           echo "Spigot JAR exists, skipping BuildTools"
           echo "cached=true" >> $GITHUB_OUTPUT
         else
@@ -53,9 +53,9 @@ jobs:
         
     - name: Install existing Spigot JAR into local Maven repo
       run: |
-        mkdir -p ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
-        cp ./spigot/1.21.1.jar \
-           ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT.jar
+        mkdir -p ~/.m2/repository/org/spigotmc/spigot/1.21.11-R0.1-SNAPSHOT
+        cp ./spigot/1.21.11.jar \
+           ~/.m2/repository/org/spigotmc/spigot/1.21.11-R0.1-SNAPSHOT/spigot-1.21.11-R0.1-SNAPSHOT.jar
     
     - name: Download BuildTools
       if: steps.check_spigot.outputs.cached == 'false'
@@ -65,14 +65,14 @@ jobs:
     - name: Generate Spigot
       if: steps.check_spigot.outputs.cached == 'false'
       run: |
-        java -jar BuildTools.jar --rev 1.21.1
+        java -jar BuildTools.jar --rev 1.21.11
         mkdir -p ./spigot
-        cp ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT/spigot-1.21.1-R0.1-SNAPSHOT.jar ./spigot/1.21.1.jar
+        cp ~/.m2/repository/org/spigotmc/spigot/1.21.11-R0.1-SNAPSHOT/spigot-1.21.11-R0.1-SNAPSHOT.jar ./spigot/1.21.11.jar
 
     # Verify
     - name: Verify Spigot Installation
       run: |
-        ls ~/.m2/repository/org/spigotmc/spigot/1.21.1-R0.1-SNAPSHOT
+        ls ~/.m2/repository/org/spigotmc/spigot/1.21.11-R0.1-SNAPSHOT
 
     # Extract version from main pom.xml
     - name: Get version from main pom.xml
