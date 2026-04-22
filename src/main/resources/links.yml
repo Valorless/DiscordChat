@@ -1,0 +1,51 @@
+config:
+  discord-role: '1466922269984161883' # The role that gets assigned when a player links their account.
+
+lang:
+  # Placeholders:
+  # %player% - Minecraft username
+  request:
+    minecraft: 'A link request has been initiated for your account.\nPlease confirm the link on Discord, with "/link" in #ingame-chat.'
+    discord: 'Link request received for username: %player%'
+  # Placeholders:
+  # %discord-id% - Discord id
+  # %discord% - Discord username
+  # %player% - Minecraft username
+  linked:
+    minecraft: '&aYour account has been linked to Discord User: &e%discord%'
+    discord: '<@%discord-id%> Account successfully linked to Minecraft player **%player%**.'
+  already-linked:
+    minecraft: '&cYour Minecraft account is already linked to a Discord account.'
+    discord: 'Your Discord account is already linked to a Minecraft account. Use `/unlink` to unlink first.'
+  unlinked:
+    minecraft: '&aYour Discord account has been unlinked from your Minecraft account.'
+    discord: 'Your Discord account has been unlinked from your Minecraft account.'
+  unlink-error:
+    discord: 'An error occurred while trying to unlink your account. Please try again later.'
+  not-found:
+    minecraft: '&cDiscord user not found.\nIf this issue persists, please us the Discord ID instead.'
+    discord: 'Sorry, could not find this player, Are you online? (CaPs SeNsItIvE)'
+  not-found-account:
+    minecraft: '&cNo linked Discord account found for your Minecraft account.'
+    discord: 'You are not linked to any Minecraft account.'
+  not-linked:
+    discord: 'You must link your Discord account to a Minecraft account first using `/link`.'
+
+discord-ui:
+  link:
+    title: 'Minecraft Account Linking'
+    username-title: 'Minecraft Username'
+    information-title: 'Information'
+    information-info:
+      - "In order to link your Minecraft account to Discord,"
+      - "please enter your Minecraft username in the field below and submit the form."
+      - "Make sure you are currently online on the Minecraft server when submitting the link request."
+      - "Once submitted, you're required to confirm the link in-game with '/discord link'."
+  unlink:
+    title: 'Minecraft Account Unlinking'
+    information-title: 'Information'
+    information-info: 'Are you sure you want to unlink?'
+
+# Automatically generated
+
+data: []

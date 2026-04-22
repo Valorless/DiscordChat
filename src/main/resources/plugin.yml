@@ -22,4 +22,14 @@ permissions:
   discordchat.reload:
     description: Allows you to reload the configuration.
     default: op
-  
+libraries:
+  - net.dv8tion:JDA:5.6.1
+  - org.slf4j:slf4j-api:2.0.7
+  - org.jsoup:jsoup:1.15.3
+  - org.json:json:20211205
+  - com.google.code.gson:gson:2.10.1
+  - com.kohlschutter.junixsocket:junixsocket-common:2.6.2
+  - com.kohlschutter.junixsocket:junixsocket-native-common:2.6.2
+  - junit:junit:4.13.1
+  - org.apache.httpcomponents:httpmime:4.5.13
+  - org.apache.httpcomponents:httpclient:4.5.13

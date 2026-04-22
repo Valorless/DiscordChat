@@ -8,6 +8,8 @@
 # I.E: [15:20:02] [HH:MM:SS]
 # I do not know if this translates to 12H, as I use 24H
 
+prefix: '&7[&#7289daDiscord&7]&r '
+
 # Prefix in front of all plugin messages sent with /server. '' for blank.
 # Does not support PlaceholderAPI
 console-prefix: '[§4Console§r]'

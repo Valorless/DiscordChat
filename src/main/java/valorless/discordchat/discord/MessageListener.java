@@ -122,7 +122,7 @@ public class MessageListener extends ListenerAdapter {
 				String name = player.getName();
 				if(EssentialsHook.isHooked()) {
 					IUser user = EssentialsHook.getInstance().getUser(player);
-					if(user.getFormattedNickname() != null) {
+					if(user != null && user.getFormattedNickname() != null) {
 						name = user.getFormattedNickname() + "§r";
 					}
 				}

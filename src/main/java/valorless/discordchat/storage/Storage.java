@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import valorless.discordchat.ConfigValidation;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.linking.Linking;
@@ -79,16 +80,19 @@ public class Storage {
 		 * <p>Creates the data section if it does not exist and logs the number of loaded links.</p>
 		 */
 		private static void loadData() {
-			dataFile = new Config(Main.plugin, "links.yml");
+			dataFile = ConfigValidation.validateAndGetConfig("links.yml");
+			//dataFile = new Config("links.yml");
+			Linking.setLinkingRole(Long.parseLong(dataFile.getString("config.discord-role")));
+
 			int i = 0;
-			ConfigurationSection section = dataFile.GetFile().getSection("data");
+			ConfigurationSection section = dataFile.getFile().getSection("data");
 			if(section == null) {
-				section = dataFile.GetFile().createSection("data");
+				section = dataFile.getFile().createSection("data");
 			}
 			Set<String> keys = section.getKeys(false);
 			for(String key : keys) {
 				UUID uuid = UUID.fromString(key);
-				Long discordID = Long.valueOf(dataFile.GetString("data." + key));
+				Long discordID = Long.valueOf(dataFile.getString("data." + key));
 				if(discordID == 0L) {
 					Log.Warning(Main.plugin, "Invalid Discord ID for UUID: " + key);
 					continue;
@@ -168,14 +172,14 @@ public class Storage {
 		private static void loadData() {
 			dataFile = new Config(Main.plugin, "inventories.yml");
 			int i = 0;
-			ConfigurationSection section = dataFile.GetFile().getSection("data");
+			ConfigurationSection section = dataFile.getFile().getSection("data");
 			if(section == null) {
-				section = dataFile.GetFile().createSection("data");
+				section = dataFile.getFile().createSection("data");
 			}
 			Set<String> keys = section.getKeys(false);
 			for(String key : keys) {
 				UUID uuid = UUID.fromString(key);
-				String value = dataFile.GetString("data." + key);
+				String value = dataFile.getString("data." + key);
 				data.put(uuid, fromJson(value));
 				Log.Debug(Main.plugin, "Loaded inventory: " + uuid.toString() + " -> " + value);
 				i++;
@@ -188,9 +192,9 @@ public class Storage {
 		 */
 		private static void saveData() {
 			for(Entry<UUID, InventoryEntry> entry : data.entrySet()) {
-				dataFile.Set("data." + entry.getKey().toString(), toJson(entry.getValue()));
+				dataFile.set("data." + entry.getKey().toString(), toJson(entry.getValue()));
 			}
-			dataFile.SaveConfig();
+			dataFile.saveConfig();
 		}
 		
 		public static InventoryEntry fromJson(String json) {
@@ -314,14 +318,14 @@ public class Storage {
 		private static void loadData() {
 			dataFile = new Config(Main.plugin, "enderchests.yml");
 			int i = 0;
-			ConfigurationSection section = dataFile.GetFile().getSection("data");
+			ConfigurationSection section = dataFile.getFile().getSection("data");
 			if(section == null) {
-				section = dataFile.GetFile().createSection("data");
+				section = dataFile.getFile().createSection("data");
 			}
 			Set<String> keys = section.getKeys(false);
 			for(String key : keys) {
 				UUID uuid = UUID.fromString(key);
-				String value = dataFile.GetString("data." + key);
+				String value = dataFile.getString("data." + key);
 				data.put(uuid, fromJson(value));
 				Log.Debug(Main.plugin, "Loaded enderchest: " + uuid.toString() + " -> " + value);
 				i++;
@@ -334,9 +338,9 @@ public class Storage {
 		 */
 		private static void saveData() {
 			for(Entry<UUID, EnderchestEntry> entry : data.entrySet()) {
-				dataFile.Set("data." + entry.getKey().toString(), toJson(entry.getValue()));
+				dataFile.set("data." + entry.getKey().toString(), toJson(entry.getValue()));
 			}
-			dataFile.SaveConfig();
+			dataFile.saveConfig();
 		}
 		
 		public static EnderchestEntry fromJson(String json) {

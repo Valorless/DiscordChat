@@ -12,11 +12,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import valorless.discordchat.discord.Bot;
 import valorless.discordchat.hooks.*;
 import valorless.discordchat.storage.Storage;
-import valorless.discordchat.utils.InventoryImageGenerator;
 import valorless.discordchat.utils.MemoryTracker;
+import valorless.valorlessutils.logging.Log;
 import valorless.valorlessutils.utils.Utils;
 import valorless.valorlessutils.Metrics;
-import valorless.valorlessutils.ValorlessUtils.Log;
 import valorless.valorlessutils.config.Config;
 import valorless.valorlessutils.translate.Translator;
 
@@ -43,13 +42,13 @@ public final class Main extends JavaPlugin implements Listener {
 		plugin = this;
 		ChatListener.plugin = this;
 		CommandListener.plugin = this;
-		config = new Config(this, "config.yml");
-		filter = new Config(this, "blocked-words.yml");
-		muted = new Config(this, "muted.yml");
-		bans = new Config(this, "bans.yml");
+		config = new Config(this,"config.yml");
+		filter = new Config(this,"blocked-words.yml");
+		muted = new Config(this,"muted.yml");
+		bans = new Config(this,"bans.yml");
 		ChatListener.config = config;
 
-		Lang.lang = new Config(this, "lang.yml");
+		Lang.lang = new Config(this,"lang.yml");
 
 		translator = new Translator("en_us");
 	}
@@ -64,111 +63,113 @@ public final class Main extends JavaPlugin implements Listener {
 			Metrics metrics = new Metrics(this, pluginId);
 
 			Hooks();
+			new PlaceholderAPI().register();
 			ReconnectChecker();
 
 			for(Player player : Bukkit.getOnlinePlayers()) {
-				player.sendMessage("§7[§9Discord§7]§r §aChat Connected!");
+				player.sendMessage(Lang.Get("prefix") + "§aChat Connected!");
 			}
 
-			ChatListener.url = config.GetString("webserver.url") + config.GetString("webserver.media-location");
+			ChatListener.url = config.getString("webserver.url") + config.getString("webserver.media-location");
 
 			Main.plugin.saveResource("MinecraftFont.ttf", true);
 
 			//Config
-			config.AddValidationEntry("debug", false);
-			config.AddValidationEntry("webhook-url", "");
-			config.AddValidationEntry("webserver.url", "https://domain.net/");
-			config.AddValidationEntry("webserver.upload-url", "https://domain.net/media/upload.php");
-			config.AddValidationEntry("webserver.media-location", "media/generated/");
-			config.AddValidationEntry("save-locally", false);
-			config.AddValidationEntry("save-location", "/public_html/media/generated/");
-			config.AddValidationEntry("cleanup-age", 7);
-			config.AddValidationEntry("server-icon-url", "");
-			config.AddValidationEntry("server-username", "Server");
-			config.AddValidationEntry("console-icon-url", "");
-			config.AddValidationEntry("console-username", "Console");
-			config.AddValidationEntry("player-username", "%player%");
+			config.addValidationEntry("debug", false);
+			config.addValidationEntry("webhook-url", "");
+			config.addValidationEntry("webserver.url", "https://domain.net/");
+			config.addValidationEntry("webserver.upload-url", "https://domain.net/media/upload.php");
+			config.addValidationEntry("webserver.media-location", "media/generated/");
+			config.addValidationEntry("save-locally", false);
+			config.addValidationEntry("save-location", "/public_html/media/generated/");
+			config.addValidationEntry("cleanup-age", 7);
+			config.addValidationEntry("server-icon-url", "");
+			config.addValidationEntry("server-username", "Server");
+			config.addValidationEntry("console-icon-url", "");
+			config.addValidationEntry("console-username", "Console");
+			config.addValidationEntry("player-username", "%player%");
 
-			config.AddValidationEntry("custom-join", "&7[&a+&7] %username%");
+			config.addValidationEntry("custom-join", "&7[&a+&7] %username%");
 			
-			config.AddValidationEntry("new-player-sound.enabled", true);
-			config.AddValidationEntry("new-player-sound.sound", "ITEM_GOAT_HORN_SOUND_1");
-			config.AddValidationEntry("new-player-sound.volume", 1);
-			config.AddValidationEntry("new-player-sound.pitch", 1.1);
+			config.addValidationEntry("new-player-sound.enabled", true);
+			config.addValidationEntry("new-player-sound.sound", "ITEM_GOAT_HORN_SOUND_1");
+			config.addValidationEntry("new-player-sound.volume", 1);
+			config.addValidationEntry("new-player-sound.pitch", 1.1);
 
-			config.AddValidationEntry("join-sound.enabled", true);
-			config.AddValidationEntry("join-sound.sound", "BLOCK_BELL_USE");
-			config.AddValidationEntry("join-sound.volume", 1);
-			config.AddValidationEntry("join-sound.pitch", 1);
+			config.addValidationEntry("join-sound.enabled", true);
+			config.addValidationEntry("join-sound.sound", "BLOCK_BELL_USE");
+			config.addValidationEntry("join-sound.volume", 1);
+			config.addValidationEntry("join-sound.pitch", 1);
 			
-			config.AddValidationEntry("custom-leave", "&7[&c-&7] %username% (%cause%)");
-			config.AddValidationEntry("custom-leave-causes.timed-out.keyword", "Timed out");
-			config.AddValidationEntry("custom-leave-causes.timed-out.value", "Timed out");
-			config.AddValidationEntry("error-message", true);
+			config.addValidationEntry("custom-leave", "&7[&c-&7] %username% (%cause%)");
+			config.addValidationEntry("custom-leave-causes.timed-out.keyword", "Timed out");
+			config.addValidationEntry("custom-leave-causes.timed-out.value", "Timed out");
+			config.addValidationEntry("error-message", true);
 
-			config.AddValidationEntry("server-start", true);
-			config.AddValidationEntry("server-stop", true);
-			config.AddValidationEntry("join", true);
-			config.AddValidationEntry("quit", true);
-			config.AddValidationEntry("death", true);
+			config.addValidationEntry("server-start", true);
+			config.addValidationEntry("server-stop", true);
+			config.addValidationEntry("join", true);
+			config.addValidationEntry("quit", true);
+			config.addValidationEntry("death", true);
 
-			config.AddValidationEntry("chat-event-priority", "NORMAL");
-			config.AddValidationEntry("hide-achievements", new ArrayList<String>() {
+			config.addValidationEntry("chat-event-priority", "NORMAL");
+			config.addValidationEntry("hide-achievements", new ArrayList<String>() {
 				private static final long serialVersionUID = 1L;
 				{ add("AchievementNo.1"); }} );
-			config.Validate();
+			config.validate();
 
 			//Blocked Words
-			filter.AddValidationEntry("chat-filter-message", "&cSorry, but messages containing \"%s\" cannot be sent.");
-			filter.AddValidationEntry("chat-filter", new ArrayList<String>() {
+			filter.addValidationEntry("chat-filter-message", "&cSorry, but messages containing \"%s\" cannot be sent.");
+			filter.addValidationEntry("chat-filter", new ArrayList<String>() {
 				private static final long serialVersionUID = 1L;
 				{ add("@everyone"); add("@here"); }} );
-			filter.Validate();
+			filter.validate();
 
 			//Lang
-			Lang.lang.AddValidationEntry("console-prefix", "[§4Console§r]");
-			Lang.lang.AddValidationEntry("console-message", "%timestamp% %message%");
-			Lang.lang.AddValidationEntry("message", "%timestamp% %message%");
-			Lang.lang.AddValidationEntry("server-start", "%timestamp% **Chat Enabled**");
-			Lang.lang.AddValidationEntry("server-stop", "%timestamp% **Chat Disabled**");
-			Lang.lang.AddValidationEntry("server-reconnect", "%timestamp% **Chat Reconnected**");
-			Lang.lang.AddValidationEntry("join", "%timestamp% **%player%** has joined the server.");
-			Lang.lang.AddValidationEntry("join-first-time", "%timestamp% **%player%** has joined the server for the first time!.");
-			Lang.lang.AddValidationEntry("leave", "%timestamp% **%player%** has left the server.");
-			Lang.lang.AddValidationEntry("with-player-count", "%message% (%player-count%/%player-count-max%)");
-			Lang.lang.Validate();
+			Lang.lang.addValidationEntry("prefix", "&7[&9DiscordChat&7]&r ");
+			Lang.lang.addValidationEntry("console-prefix", "[&4Console&r]");
+			Lang.lang.addValidationEntry("console-message", "%timestamp% %message%");
+			Lang.lang.addValidationEntry("message", "%timestamp% %message%");
+			Lang.lang.addValidationEntry("server-start", "%timestamp% **Chat Enabled**");
+			Lang.lang.addValidationEntry("server-stop", "%timestamp% **Chat Disabled**");
+			Lang.lang.addValidationEntry("server-reconnect", "%timestamp% **Chat Reconnected**");
+			Lang.lang.addValidationEntry("join", "%timestamp% **%player%** has joined the server.");
+			Lang.lang.addValidationEntry("join-first-time", "%timestamp% **%player%** has joined the server for the first time!.");
+			Lang.lang.addValidationEntry("leave", "%timestamp% **%player%** has left the server.");
+			Lang.lang.addValidationEntry("with-player-count", "%message% (%player-count%/%player-count-max%)");
+			Lang.lang.validate();
 
 
 			//Config
-			bans.AddValidationEntry("webhook-url", "");
-			bans.AddValidationEntry("bot-name", "George");
-			bans.AddValidationEntry("bot-picture", "https://i.pinimg.com/originals/bf/23/ca/bf23ca87c2a867e2b3b991e76d982abd.jpg");
-			bans.AddValidationEntry("ban-color", "#ff2b2b");
-			bans.AddValidationEntry("tempban-color", "#ff992b");
-			bans.AddValidationEntry("unban-color", "#2afa4d");
-			bans.AddValidationEntry("banip-color", "#5b09ad");
-			bans.AddValidationEntry("unbanip-color", "#0ce6fa");
-			bans.AddValidationEntry("bans", true);
-			bans.AddValidationEntry("tempbans", true);
-			bans.AddValidationEntry("unbans", true);
-			bans.AddValidationEntry("banips", true);
-			bans.AddValidationEntry("unbanips", true);
-			bans.AddValidationEntry("bot-message", "");
-			bans.AddValidationEntry("banned-title", "%target% has been banned!");
-			bans.AddValidationEntry("tempbanned-title", "%target% has been temp banned!");
-			bans.AddValidationEntry("unbanned-title", "%target% has been unbanned!");
-			bans.AddValidationEntry("ip-banned-title", "IP: %target% has been banned!");
-			bans.AddValidationEntry("ip-unbanned-title", "IP: %target% has been unbanned!");
-			bans.AddValidationEntry("description", "");
-			bans.AddValidationEntry("reason-line1", "Reason: ");
-			bans.AddValidationEntry("reason-line2", "%reason%");
-			bans.AddValidationEntry("banned-by-line1", "Banned by: ");
-			bans.AddValidationEntry("banned-by-line2", "%sender%");
-			bans.AddValidationEntry("unbanned-by-line1", "Unbanned by: ");
-			bans.AddValidationEntry("unbanned-by-line2", "%sender%");
-			bans.AddValidationEntry("duration-line1", "Duration: ");
-			bans.AddValidationEntry("duration-line2", "%duration%");
-			bans.AddValidationEntry("banned-on", "Banned on %date%");
+			bans.addValidationEntry("webhook-url", "");
+			bans.addValidationEntry("bot-name", "George");
+			bans.addValidationEntry("bot-picture", "https://i.pinimg.com/originals/bf/23/ca/bf23ca87c2a867e2b3b991e76d982abd.jpg");
+			bans.addValidationEntry("ban-color", "#ff2b2b");
+			bans.addValidationEntry("tempban-color", "#ff992b");
+			bans.addValidationEntry("unban-color", "#2afa4d");
+			bans.addValidationEntry("banip-color", "#5b09ad");
+			bans.addValidationEntry("unbanip-color", "#0ce6fa");
+			bans.addValidationEntry("bans", true);
+			bans.addValidationEntry("tempbans", true);
+			bans.addValidationEntry("unbans", true);
+			bans.addValidationEntry("banips", true);
+			bans.addValidationEntry("unbanips", true);
+			bans.addValidationEntry("bot-message", "");
+			bans.addValidationEntry("banned-title", "%target% has been banned!");
+			bans.addValidationEntry("tempbanned-title", "%target% has been temp banned!");
+			bans.addValidationEntry("unbanned-title", "%target% has been unbanned!");
+			bans.addValidationEntry("ip-banned-title", "IP: %target% has been banned!");
+			bans.addValidationEntry("ip-unbanned-title", "IP: %target% has been unbanned!");
+			bans.addValidationEntry("description", "");
+			bans.addValidationEntry("reason-line1", "Reason: ");
+			bans.addValidationEntry("reason-line2", "%reason%");
+			bans.addValidationEntry("banned-by-line1", "Banned by: ");
+			bans.addValidationEntry("banned-by-line2", "%sender%");
+			bans.addValidationEntry("unbanned-by-line1", "Unbanned by: ");
+			bans.addValidationEntry("unbanned-by-line2", "%sender%");
+			bans.addValidationEntry("duration-line1", "Duration: ");
+			bans.addValidationEntry("duration-line2", "%duration%");
+			bans.addValidationEntry("banned-on", "Banned on %date%");
 
 			getServer().getPluginManager().registerEvents(new BanListener(), this);
 			getServer().getPluginManager().registerEvents(new ChatListener(), this);
@@ -178,10 +179,11 @@ public final class Main extends JavaPlugin implements Listener {
 			Storage.init();
 			PlayerCache.init();
 
-			if(Utils.IsStringNullOrEmpty(config.GetString("webhook-url"))) {
-				Log.Warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload."
+			if(Utils.IsStringNullOrEmpty(config.getString("webhook-url"))) {
+				Log.warning(plugin, "Please change my config.yml before using me." +
+						"\nYou can reload me when needed with /dcm reload."
 						+ "\nThough I highly recommend restarting.");
-				Log.Info(plugin, "§cDisabled!");
+				Log.info(plugin, "§cDisabled!");
 				enabled = false;
 			}
 
@@ -197,7 +199,7 @@ public final class Main extends JavaPlugin implements Listener {
 			}
 
 			while(username == "") {
-				username = config.GetString("server-username");
+				username = config.getString("server-username");
 			}
 
 			
@@ -207,11 +209,11 @@ public final class Main extends JavaPlugin implements Listener {
 			    @Override
 			    public void run() {
 			        if (!bot.ready) return;
-			        if (config.GetBool("server-start") && enabled) {
-			            final DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+			        if (config.getBool("server-start") && enabled) {
+			            final DiscordWebhook webhook = new DiscordWebhook(config.getString("webhook-url"));
 			            webhook.setUsername(username);
 			            webhook.setContent(Lang.Get("server-start"));
-			            webhook.setAvatarUrl(config.GetString("server-icon-url"));
+			            webhook.setAvatarUrl(config.getString("server-icon-url"));
 
 			            // execute network I/O off the main thread
 			            Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, () -> {
@@ -231,12 +233,12 @@ public final class Main extends JavaPlugin implements Listener {
 			// runTaskTimer(plugin, delay, period) — using 20L checks every second instead of every tick
 			.runTaskTimer(Main.plugin, 1L, 1L);
 
-			InventoryImageGenerator.cche = Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
-				@Override
-				public void run() {
-					InventoryImageGenerator.LoadCache();  
-				}
-			});
+			//InventoryImageGenerator.cche = Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable(){
+			//	@Override
+			//	public void run() {
+			//		InventoryImageGenerator.LoadCache();
+			//	}
+			//});
 
 			memoryTracker = new MemoryTracker(5);
 		}, 10);
@@ -244,16 +246,16 @@ public final class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {    
-		InventoryImageGenerator.cche.cancel();	
+		//InventoryImageGenerator.cche.cancel();
 		for(Player player : Bukkit.getOnlinePlayers()) {
-			player.sendMessage("§7[§9Discord§7]§r §cChat Disconnected!");
+			player.sendMessage(Lang.Get("prefix") + "§cChat Disconnected!");
 		}
-		if(config.GetBool("server-stop") && enabled) {
-			DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+		if(config.getBool("server-stop") && enabled) {
+			DiscordWebhook webhook = new DiscordWebhook(config.getString("webhook-url"));
 
 			webhook.setUsername(username);
 			webhook.setContent(Lang.Get("server-stop"));
-			webhook.setAvatarUrl(config.GetString("server-icon-url"));
+			webhook.setAvatarUrl(config.getString("server-icon-url"));
 
 			try {
 				//Log.Info(plugin, "Executing webhook.");
@@ -275,11 +277,11 @@ public final class Main extends JavaPlugin implements Listener {
 	}
 
 	public void RegisterCommands() {
-		for (int i = 0; i < commands.length; i++) {
-			Log.Debug(plugin, "Registering Command: " + commands[i]);
-			getCommand(commands[i]).setExecutor(new CommandListener());
-			getCommand(commands[i]).setTabCompleter(new TabCompletion());
-		}
+        for (String command : commands) {
+            Log.debug(plugin, "Registering Command: " + command);
+            getCommand(command).setExecutor(new CommandListener());
+            getCommand(command).setTabCompleter(new TabCompletion());
+        }
 	}
 
 
@@ -288,19 +290,21 @@ public final class Main extends JavaPlugin implements Listener {
 			@Override
 			public void run() {
 				if(enabled && error) {
-					DiscordWebhook webhook = new DiscordWebhook(config.GetString("webhook-url"));
+					DiscordWebhook webhook = new DiscordWebhook(config.getString("webhook-url"));
 
-					webhook.setUsername(ChatListener.encodeStringToUnicodeSequence(Lang.RemoveColorCodesAndFormatting(config.GetString("server-username"))));
-					webhook.setContent(ChatListener.encodeStringToUnicodeSequence(Lang.RemoveColorCodesAndFormatting(Lang.Get("server-reconnect"))));
-					webhook.setAvatarUrl(config.GetString("server-icon-url"));
+					webhook.setUsername(ChatListener.encodeStringToUnicodeSequence(
+							Lang.RemoveColorCodesAndFormatting(config.getString("server-username"))));
+					webhook.setContent(ChatListener.encodeStringToUnicodeSequence(
+							Lang.RemoveColorCodesAndFormatting(Lang.Get("server-reconnect"))));
+					webhook.setAvatarUrl(config.getString("server-icon-url"));
 
 					try {
 						webhook.execute();
 						error = false;
 					} catch (IOException e) {
 						e.printStackTrace();
-						Log.Error(plugin, "Connection failed.");
-						Log.Error(plugin, "Trying again in 60s.");
+						Log.error(plugin, "Connection failed.");
+						Log.error(plugin, "Trying again in 60s.");
 						error = true;
 						return;
 					}

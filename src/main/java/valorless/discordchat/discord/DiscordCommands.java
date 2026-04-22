@@ -139,13 +139,15 @@ public class DiscordCommands extends ListenerAdapter {
 		 * Uses the Linking hook to perform the unlinking operation.
 		 */
 		if(event.getName().equals("unlink")) {
-			TextInput info = TextInput.create("username", "Information", TextInputStyle.SHORT)
+			TextInput info = TextInput.create("username",
+							Storage.Accounts.dataFile.getString("discord-ui.unlink.information-title"), TextInputStyle.SHORT)
                     .setPlaceholder("MasterMiner42")
-                    .setValue("Are you sure you want to unlink?")
+                    .setValue(Storage.Accounts.dataFile.getString("discord-ui.unlink.information-info"))
                     .setRequired(false)
                     .build();
 			
-            Modal modal = Modal.create("unlink", "Minecraft Account Unlinking")
+            Modal modal = Modal.create("unlink",
+							Storage.Accounts.dataFile.getString("discord-ui.unlink.title"))
             	    .addActionRow(List.of(info))
                     .build();
 
@@ -158,21 +160,22 @@ public class DiscordCommands extends ListenerAdapter {
 		 * Uses the Linking hook to handle the linking upon modal submission.
 		 */
         if(event.getName().equals("link")) {
-            TextInput info = TextInput.create("info", "Information", TextInputStyle.PARAGRAPH)
+            TextInput info = TextInput.create("info",
+							Storage.Accounts.dataFile.getString("discord-ui.link.information-title"), TextInputStyle.PARAGRAPH)
                     .setPlaceholder("MasterMiner42")
-                    .setValue("In order to link your Minecraft account to Discord, "
-                    		+ "please enter your Minecraft username in the field below and submit the form."
-                    		+ "\nMake sure you are currently online on the Minecraft server when submitting the link request."
-                    		+ "\nOnce submitted, you're required to confirm the link in-game.")
+                    .setValue(String.join("\n",
+							Storage.Accounts.dataFile.getStringList("discord-ui.link.information-info")))
                     .setRequired(false)
                     .build();
             
-            TextInput username = TextInput.create("username", "Minecraft Username", TextInputStyle.SHORT)
+            TextInput username = TextInput.create("username",
+							Storage.Accounts.dataFile.getString("discord-ui.link.username-title"), TextInputStyle.SHORT)
                     .setPlaceholder("MasterMiner42")
                     .setValue(event.getOption("username") != null ? event.getOption("username").getAsString() : null)
                     .build();
 
-            Modal modal = Modal.create("link", "Minecraft Account Linking")
+            Modal modal = Modal.create("link",
+							Storage.Accounts.dataFile.getString("discord-ui.link.title"))
             	    .addActionRow(List.of(info))
             	    .addActionRow(List.of(username))
                     .build();
@@ -183,7 +186,8 @@ public class DiscordCommands extends ListenerAdapter {
 		
         /** Ensure the user is linked for the following commands **/
 		if(!Linking.isLinked(user.getIdLong())) {
-			event.reply("You must link your Discord account to a Minecraft account first using `/link`.")
+			//event.reply("You must link your Discord account to a Minecraft account first using `/link`.")
+			event.reply(Storage.Accounts.dataFile.getString("lang.not-linked.discord"))
 				.setEphemeral(true).queue();
 			return;
 		}
@@ -295,7 +299,7 @@ public class DiscordCommands extends ListenerAdapter {
         }
 		
         if (event.getComponentId().equals("ender-share")) {
-        	String result = String.format("## <@%s>'s inventory:\n%s", 
+        	String result = String.format("## <@%s>'s enderchest:\n%s",
 					user.getIdLong(),
 					Extra.enderchestString(Linking.getMinecraftUUID(user.getIdLong())));
             event.reply(result).queue(); // send a message in the channel
@@ -336,7 +340,8 @@ public class DiscordCommands extends ListenerAdapter {
 			String username = event.getValue("username").getAsString();
 
 			if(Linking.isLinked(user.getIdLong())) {
-				event.reply(String.format("Your Discord account is already linked to a Minecraft account. Use `/unlink` to unlink first."))
+				//event.reply(String.format("Your Discord account is already linked to a Minecraft account. Use `/unlink` to unlink first."))
+				event.reply(Storage.Accounts.dataFile.getString("lang.already-linked.discord"))
 					.setEphemeral(true).queue();
 				return;
 			}
@@ -344,31 +349,39 @@ public class DiscordCommands extends ListenerAdapter {
 			if(player != null) {
 				Linking.addLink(user.getIdLong(), player.getUniqueId(), event.getChannelIdLong());
 			}else {
-				event.reply(String.format("Sorry, could not find this player, Are you online? (CaPs SeNsItIvE)"))
+				//event.reply(String.format("Sorry, could not find this player, Are you online? (CaPs SeNsItIvE)"))
+				event.reply(Storage.Accounts.dataFile.getString("lang.not-found.discord"))
 					.setEphemeral(true).queue();
 				return;
 			}
 
-			event.reply("Link request received for username: " + username).setEphemeral(true).queue();
+
+			event.reply(Storage.Accounts.dataFile.getString("lang.request.discord").replace("%player%", username))
+					.setEphemeral(true).queue();
+			//event.reply("Link request received for username: " + username).setEphemeral(true).queue();
 			return;
 		}
 		
 		if(event.getModalId().equals("unlink")) {
 			if(!Linking.isLinked(user.getIdLong())) {
-				event.reply("You are not linked to any Minecraft account.").setEphemeral(true).queue();
+				//event.reply("You are not linked to any Minecraft account.").setEphemeral(true).queue();
+				event.reply(Storage.Accounts.dataFile.getString("lang.not-found-account.discord")).setEphemeral(true).queue();
 				return;
 			}
 			if(Linking.unlink(user.getIdLong())) {
-				event.reply("Your Discord account has been unlinked from your Minecraft account.").setEphemeral(true).queue();
+				//event.reply("Your Discord account has been unlinked from your Minecraft account.").setEphemeral(true).queue();
+				event.reply(Storage.Accounts.dataFile.getString("lang.unlinked.discord")).setEphemeral(true).queue();
 			}else {
-				event.reply("An error occurred while trying to unlink your account. Please try again later.").setEphemeral(true).queue();
+				//event.reply("An error occurred while trying to unlink your account. Please try again later.").setEphemeral(true).queue();
+				event.reply(Storage.Accounts.dataFile.getString("lang.unlink-error.discord")).setEphemeral(true).queue();
 			}
 			return;
 		}
 		
 		/** Ensure the user is linked for the following modals **/
 		if(!Linking.isLinked(user.getIdLong())) {
-			event.reply("You must link your Discord account to a Minecraft account first using `/link`.")
+			//event.reply("You must link your Discord account to a Minecraft account first using `/link`.")
+			event.reply(Storage.Accounts.dataFile.getString("lang.not-linked.discord"))
 				.setEphemeral(true).queue();
 			return;
 		}

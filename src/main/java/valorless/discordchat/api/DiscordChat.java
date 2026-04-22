@@ -9,17 +9,17 @@ import valorless.discordchat.ChatListener;
 import valorless.discordchat.DiscordWebhook;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 public class DiscordChat {
 	
 	public static boolean sendMessage(String msg) {
 		if(Main.enabled == false) {
-			Log.Warning(Main.plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
+			Log.warning(Main.plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
-		DiscordWebhook webhook = new DiscordWebhook(Main.config.GetString("webhook-url"));
+		DiscordWebhook webhook = new DiscordWebhook(Main.config.getString("webhook-url"));
 
-		webhook.setUsername(Main.config.GetString("console-username"));
+		webhook.setUsername(Main.config.getString("console-username"));
 
 		webhook.setContent(ChatListener.FormatMessage(null, Lang.Get("console-message")
 				.replace("%message%", Lang.RemoveColorCodesAndFormatting(msg))));
@@ -27,13 +27,13 @@ public class DiscordChat {
 		{
 			player.sendMessage(Lang.Get("console-prefix") + msg);
 		}
-		webhook.setAvatarUrl(Main.config.GetString("console-icon-url"));
+		webhook.setAvatarUrl(Main.config.getString("console-icon-url"));
 
 		try {
 			webhook.execute();
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.Error(Main.plugin, "§cConnection failed.");
+			Log.error(Main.plugin, "§cConnection failed.");
 		}
 		return true;
 	}

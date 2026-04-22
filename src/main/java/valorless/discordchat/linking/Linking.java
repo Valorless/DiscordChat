@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.storage.Storage;
 import valorless.valorlessutils.ValorlessUtils.Log;
@@ -26,6 +27,8 @@ import valorless.valorlessutils.config.Config;
  * It also provides utilities to query and remove existing links.</p>
  */
 public class Linking implements Listener{
+
+	private static long linkingRole;
 	
 	/**
 	 * Initiate or complete a link from the Minecraft side.
@@ -51,7 +54,10 @@ public class Linking implements Listener{
 		}else {
 			OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
 			if(player.isOnline()) {
-				player.getPlayer().sendMessage("§7[§9DiscordChat§7]§r A link request has been initiated for your account.\nPlease confirm the link on Discord.");
+				player.getPlayer().sendMessage(Lang.Parse(
+						Lang.Get("prefix") +
+						Storage.Accounts.dataFile.getString("lang.request.minecraft")
+				));
 			}
 			return false;
 		}
@@ -133,7 +139,7 @@ public class Linking implements Listener{
 				Bukkit.getPluginManager().callEvent(new UnlinkEvent(uuid, discordID));
 			});
 			Log.Info(Main.plugin, "Unlinked Minecraft player " + Bukkit.getOfflinePlayer(uuid).getName() + " from Discord ID: " + discordID);
-			Main.bot.removeRole(discordID, 1466922269984161883L);
+			Main.bot.removeRole(discordID, linkingRole);
 			return true;
 		}
 		return false;
@@ -154,7 +160,7 @@ public class Linking implements Listener{
 				Bukkit.getPluginManager().callEvent(new UnlinkEvent(uuid, discordID));
 			});
 			Log.Info(Main.plugin, "Unlinked Discord ID: " + discordID + " from Minecraft player " + Bukkit.getOfflinePlayer(uuid).getName());
-			Main.bot.removeRole(discordID, 1466922269984161883L);
+			Main.bot.removeRole(discordID, linkingRole);
 			return true;
 		}
 		return false;
@@ -203,8 +209,17 @@ public class Linking implements Listener{
 				.findFirst()
 				.orElse(null);
 	}
-	
+
 	/**
+	 * Set the Discord role ID to be assigned upon successful linking.
+	 *
+	 * @param linkingRole the Discord role ID to assign to linked users
+	 */
+    public static void setLinkingRole(long linkingRole) {
+        Linking.linkingRole = linkingRole;
+    }
+
+    /**
 	 * Handle a successful link event to notify both Minecraft and Discord, clean up pending state,
 	 * and assign any necessary roles.
 	 *
@@ -221,20 +236,37 @@ public class Linking implements Listener{
 		// Clean up pending entries after a successful link
 		Storage.Accounts.pending.remove(uuid.toString());
 		Storage.Accounts.pending.remove("" + discordID);
+
+		Player player = Bukkit.getPlayer(uuid);
 		
-		if(Bukkit.getPlayer(uuid) != null && Bukkit.getPlayer(uuid).isOnline()) {
-			Bukkit.getPlayer(uuid).sendMessage("§7[§9DiscordChat§7]§r §aYour account has been linked to Discord User: " + Main.bot.getUsernameByID(discordID));
+		if(player != null && player.isOnline()) {
+			//player.sendMessage("§7[§9DiscordChat§7]§r §aYour account has been linked to Discord User: " + Main.bot.getUsernameByID(discordID));
+
+			player.sendMessage(Lang.Parse(
+					Lang.Get("prefix") +
+					Storage.Accounts.dataFile.getString("lang.linked.minecraft")
+						.replace("%discord%", Main.bot.getUsernameByID(discordID))
+						.replace("%discord-id%", discordID.toString())
+						.replace("%player%", player.getName())
+
+			));
 		}
 		
 		if(channelID != null) {
-			String message = String.format("<@%s> Account successfully linked to Minecraft player **%s**.", 
-					discordID, 
-					Bukkit.getOfflinePlayer(uuid).getName());
+			String message = Storage.Accounts.dataFile.getString("lang.linked.discord")
+					.replace("%discord%", Main.bot.getUsernameByID(discordID))
+					.replace("%discord-id%", discordID.toString())
+					.replace("%player%", Bukkit.getOfflinePlayer(uuid).getName());
+
+
+			//String message = String.format("<@%s> Account successfully linked to Minecraft player **%s**.",
+			//		discordID,
+			//		Bukkit.getOfflinePlayer(uuid).getName());
 			MessageChannel channel = Main.bot.GetChannelByID(channelID);
 			Main.bot.SendMessage(channel, message);
 		}
 		
-		Main.bot.addRole(discordID, 1466922269984161883L);
+		Main.bot.addRole(discordID, linkingRole);
 	}
 	
 	/**

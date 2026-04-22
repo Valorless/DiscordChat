@@ -138,4 +138,26 @@ public class Extra {
 		}
 		return String.join("\n", items);
 	}
+
+	public static String inventoryString(InventoryEntry inv) {
+		List<String> items = new ArrayList<>();
+		for(InventorySlot slot : inv.slots) {
+			String item = "";
+			if(slot.display != null) {
+				if(slot.name != null) {
+					item = String.format(" - **%s** *(%s)* x%s", slot.display, slot.name, slot.amount);
+				}else {
+					item = String.format(" - **%s** *(%s)* x%s", slot.display, slot.item, slot.amount);
+				}
+			}
+			else if(slot.name != null) {
+				item = String.format(" - **%s** x%s", slot.name, slot.amount);
+			}
+			else {
+				item = String.format(" - **%s** x%s", slot.item, slot.amount);
+			}
+			items.add(item);
+		}
+		return String.join("\n", items);
+	}
 }
