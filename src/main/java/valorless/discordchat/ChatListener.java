@@ -634,9 +634,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				} catch (Exception E) {
 					E.printStackTrace();
 				}
-			}
 
-			if (Bukkit.getPluginManager().getPlugin("InteractiveChat") != null) {
 				if (message.contains("[ping]") || message.contains("[PING]")) {
 					//Log.Warning(plugin, message);
 					message = message.replace("[ping]", player.getPing() + "ms");
@@ -660,26 +658,27 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 								.setDescription(FormatMessage(player, inventory))
 						);
 					} catch (Exception e) {}
+					message = message.replace("[inv]", "[Inventory]");
+					message = message.replace("[INV]", "[Inventory]");
+				}
 
-
-					if (message.contains("[ender]") || message.contains("[ENDER]")) {
-						try {
-							String enderchest = Extra.enderchestString(player.getUniqueId());
-							webhook.addEmbed(new DiscordWebhook.EmbedObject()
-									.setTitle(FormatMessage(player, String.format("%s's Enderchest", player.getName())))
-									.setDescription(FormatMessage(player, enderchest))
-							);
-						} catch (Exception e) {}
-						message = message.replace("[ender]", "[Enderchest]");
-						message = message.replace("[ENDER]", "[Enderchest]");
-						//message = message.replace(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
-					}
+				if (message.contains("[ender]") || message.contains("[ENDER]")) {
+					try {
+						String enderchest = Extra.enderchestString(player.getUniqueId());
+						webhook.addEmbed(new DiscordWebhook.EmbedObject()
+								.setTitle(FormatMessage(player, String.format("%s's Enderchest", player.getName())))
+								.setDescription(FormatMessage(player, enderchest))
+						);
+					} catch (Exception e) {}
+					message = message.replace("[ender]", "[Enderchest]");
+					message = message.replace("[ENDER]", "[Enderchest]");
+					//message = message.replace(String.format("<chat=%s:[ender]:>", player.getUniqueId().toString().toLowerCase()), "[Enderchest]");
 				}
 
 				webhook.setContent(FormatMessage(player, message));
 				webhook.setAvatarUrl("https://minotar.net/armor/bust/" + player.getName() + "/100.png"); // Fallback image, should the player not have a valid UUID. Might not work anymore..
 				if (!Utils.IsStringNullOrEmpty(player.getUniqueId().toString())) {
-					webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId().toString() + ".png"); // Get player UUID the normal way.
+					webhook.setAvatarUrl("https://visage.surgeplay.com/bust/512/" + player.getUniqueId() + ".png"); // Get player UUID the normal way.
 				} else {
 					Log.debug(plugin, "Failed second attempt to get UUID of player" + player.getName() + ".");
 					Log.debug(plugin, "Cannot set the bot's picture.");
@@ -761,15 +760,11 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		return result.toString();
 	}
 
-	public void UpdatePlaceholders(Player player) {
-
-	}
-
 	public boolean IsAchievementIgnored(String achievementTitle) {
 		List<String> list = Main.config.getStringList("hide-achievements");
 		for(String entry : list) {
-			if(Utils.IsStringNullOrEmpty(entry)) return false;
-			if(Utils.IsStringNullOrEmpty(achievementTitle)) return false;
+			if(Utils.IsStringNullOrEmpty(entry) ||
+				Utils.IsStringNullOrEmpty(achievementTitle)) return false;
 			if(entry.contains(achievementTitle)) return true;
 		}
 		return false;
@@ -786,7 +781,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		Log.error(plugin, "§cConnection failed.");
 		Main.error = true;
 		Log.error(plugin, "Attempting to reconnect soon.");
-		Log.error(plugin, "Plugin disabled regular connections to avoid further failed connections.");
+		Log.error(plugin, "Disabled regular connections to avoid further failed connections.");
 		Log.error(plugin, "Please reload the plugin to manually re-enable");
 
 		Main.bot.SendMessage(null, "Chat Disconnected");
