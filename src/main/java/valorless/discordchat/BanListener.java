@@ -61,13 +61,13 @@ public class BanListener implements Listener { // Primary objective of BanListen
 			if(reason.equalsIgnoreCase("@BBBAuto")) return; // Don't send auto bans to discord, as they can be very spammy and often have no reason.
 			String duration = DurationFormatter.formatDurationBetween(punishment.getStart(), punishment.getEnd());
 			//String duration = FormatDuration(punishment.getDuration(true));
-			if(punishment.getType() == PunishmentType.BAN && Main.bans.GetBool("bans")) {
+			if(punishment.getType() == PunishmentType.BAN && Main.bans.getBool("bans")) {
 				SendWebhook(BanType.ban, target, sender, reason, now, "");
 			}
-			if(punishment.getType() == PunishmentType.TEMP_BAN && Main.bans.GetBool("tempbans") ) {
+			if(punishment.getType() == PunishmentType.TEMP_BAN && Main.bans.getBool("tempbans") ) {
 				SendWebhook(BanType.tempban, target, sender, reason, now, duration);
 			}
-			if(punishment.getType() == PunishmentType.IP_BAN && Main.bans.GetBool("banips")) {
+			if(punishment.getType() == PunishmentType.IP_BAN && Main.bans.getBool("banips")) {
 				SendWebhook(BanType.ipban, target, sender, reason, now, "");
 			}
 		}
@@ -81,17 +81,17 @@ public class BanListener implements Listener { // Primary objective of BanListen
 			String target = punishment.getName();
 			String sender = punishment.getOperator();
 			String reason = punishment.getReason();
-			if(punishment.getType() == PunishmentType.BAN && Main.bans.GetBool("unbans")) {
+			if(punishment.getType() == PunishmentType.BAN && Main.bans.getBool("unbans")) {
 				SendWebhook(BanType.unban, target, sender, reason, now, "");
 			}
-			if(punishment.getType() == PunishmentType.IP_BAN && Main.bans.GetBool("unbanips")) {
+			if(punishment.getType() == PunishmentType.IP_BAN && Main.bans.getBool("unbanips")) {
 				SendWebhook(BanType.ipunban, target, sender, reason, now, "");
 			}
 		}
 	}
 
 	public static void ProcessCommand(String[] args, CommandSender sender, Boolean console) {
-		if(args[0].equalsIgnoreCase("/ban") && args.length >= 2 && Main.bans.GetBool("bans") == true) {
+		if(args[0].equalsIgnoreCase("/ban") && args.length >= 2 && Main.bans.getBool("bans") == true) {
 			if(sender.hasPermission("minecraft.command.ban") || sender.hasPermission("essentials.ban")) {
 				Date now = new Date();
 				String target = args[1];
@@ -115,7 +115,7 @@ public class BanListener implements Listener { // Primary objective of BanListen
 				}
 			}
 		}
-		if(args[0].equalsIgnoreCase("/tempban") && args.length >= 3 && Main.bans.GetBool("tempbans") == true) {
+		if(args[0].equalsIgnoreCase("/tempban") && args.length >= 3 && Main.bans.getBool("tempbans") == true) {
 			if(sender.hasPermission("essentials.tempban")) {
 				Date now = new Date();
 				String target = args[1];
@@ -140,8 +140,8 @@ public class BanListener implements Listener { // Primary objective of BanListen
 
 			}
 		}
-		if(args[0].equalsIgnoreCase("/unban") && args.length >= 2 && Main.bans.GetBool("unbans") == true || 
-				args[0].equalsIgnoreCase("/pardon") && args.length >= 2 && Main.bans.GetBool("unbans") == true) {
+		if(args[0].equalsIgnoreCase("/unban") && args.length >= 2 && Main.bans.getBool("unbans") == true || 
+				args[0].equalsIgnoreCase("/pardon") && args.length >= 2 && Main.bans.getBool("unbans") == true) {
 			if(sender.hasPermission("minecraft.command.pardon") || sender.hasPermission("essentials.unban")) {
 				Date now = new Date();
 				String target = args[1];
@@ -154,7 +154,7 @@ public class BanListener implements Listener { // Primary objective of BanListen
 				}
 			}
 		}
-		if(args[0].equalsIgnoreCase("/banip") && args.length >= 2 && Main.bans.GetBool("banips") == true) {
+		if(args[0].equalsIgnoreCase("/banip") && args.length >= 2 && Main.bans.getBool("banips") == true) {
 			if(sender.hasPermission("essentials.banip")) {
 				Date now = new Date();
 				String target = args[1];
@@ -178,8 +178,8 @@ public class BanListener implements Listener { // Primary objective of BanListen
 				}
 			}
 		}
-		if(args[0].equalsIgnoreCase("/unbanip") && args.length >= 2 && Main.bans.GetBool("unbanips") == true ||
-				args[0].equalsIgnoreCase("/pardon-ip") && args.length >= 2 && Main.bans.GetBool("unbanips") == true) {
+		if(args[0].equalsIgnoreCase("/unbanip") && args.length >= 2 && Main.bans.getBool("unbanips") == true ||
+				args[0].equalsIgnoreCase("/pardon-ip") && args.length >= 2 && Main.bans.getBool("unbanips") == true) {
 			if(sender.hasPermission("minecraft.command.pardon-ip") || sender.hasPermission("essentials.unbanip")) {
 				Date now = new Date();
 				String target = args[1];
@@ -202,13 +202,13 @@ public class BanListener implements Listener { // Primary objective of BanListen
 	}
 
 	public static void SendWebhook(BanType type, String target, String sender, String reason, Date date, String duration) {
-		Log.Info(Main.plugin, "Attempting to send ban to discord!");
-		Log.Info(Main.plugin, "Type: " + type.name());
-		Log.Info(Main.plugin, "Target: " + target);
-		Log.Info(Main.plugin, "Sender: " + sender);
-		Log.Info(Main.plugin, "Reason: " + reason);
-		Log.Info(Main.plugin, "Date: " + date.toString());
-		Log.Info(Main.plugin, "Duration: " + duration);
+		Log.info(Main.plugin, "Attempting to send ban to discord!");
+		Log.info(Main.plugin, "Type: " + type.name());
+		Log.info(Main.plugin, "Target: " + target);
+		Log.info(Main.plugin, "Sender: " + sender);
+		Log.info(Main.plugin, "Reason: " + reason);
+		Log.info(Main.plugin, "Date: " + date.toString());
+		Log.info(Main.plugin, "Duration: " + duration);
 		
 		Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, () -> {
 			HashMap<String, String> ph = new HashMap<String, String>();
@@ -219,75 +219,75 @@ public class BanListener implements Listener { // Primary objective of BanListen
 			ph.put("%date%", date.toString());
 			ph.put("%plugin%", Name);
 
-			DiscordWebhook webhook = new DiscordWebhook(Main.bans.GetString("webhook-url"));
-			webhook.setContent(parsePlaceholders(Main.bans.GetString("bot-message"), ph));
-			webhook.setAvatarUrl(Main.bans.GetString("bot-picture"));
-			webhook.setUsername(Main.bans.GetString("bot-name"));
+			DiscordWebhook webhook = new DiscordWebhook(Main.bans.getString("webhook-url"));
+			webhook.setContent(parsePlaceholders(Main.bans.getString("bot-message"), ph));
+			webhook.setAvatarUrl(Main.bans.getString("bot-picture"));
+			webhook.setUsername(Main.bans.getString("bot-name"));
 			webhook.setTts(false);
 			if(type == BanType.ban) {
 				webhook.addEmbed(new DiscordWebhook.EmbedObject()
-						.setTitle(parsePlaceholders(Main.bans.GetString("banned-title"), ph))
-						.setDescription(parsePlaceholders(Main.bans.GetString("description"), ph))
-						.setColor(Color.decode(Main.bans.GetString("ban-color")))
-						.addField(parsePlaceholders(Main.bans.GetString("reason-line1"), ph), parsePlaceholders(Main.bans.GetString("reason-line2"), ph), false)
-						.addField(parsePlaceholders(Main.bans.GetString("banned-by-line1"), ph), parsePlaceholders(Main.bans.GetString("banned-by-line2"), ph), false)
+						.setTitle(parsePlaceholders(Main.bans.getString("banned-title"), ph))
+						.setDescription(parsePlaceholders(Main.bans.getString("description"), ph))
+						.setColor(Color.decode(Main.bans.getString("ban-color")))
+						.addField(parsePlaceholders(Main.bans.getString("reason-line1"), ph), parsePlaceholders(Main.bans.getString("reason-line2"), ph), false)
+						.addField(parsePlaceholders(Main.bans.getString("banned-by-line1"), ph), parsePlaceholders(Main.bans.getString("banned-by-line2"), ph), false)
 						.setThumbnail("https://minotar.net/armor/bust/" + target + "/100.png")
-						.setFooter(parsePlaceholders(Main.bans.GetString("banned-on"), ph), "")
+						.setFooter(parsePlaceholders(Main.bans.getString("banned-on"), ph), "")
 						.setUrl("https://mcnames.net/username/" + target)
 						);
 			}
 			if(type == BanType.tempban)
 			{
 				webhook.addEmbed(new DiscordWebhook.EmbedObject()
-						.setTitle(parsePlaceholders(Main.bans.GetString("tempbanned-title"), ph))
-						.setDescription(parsePlaceholders(Main.bans.GetString("description"), ph))
-						.setColor(Color.decode(Main.bans.GetString("tempban-color")))
-						.addField(parsePlaceholders(Main.bans.GetString("reason-line1"), ph), parsePlaceholders(Main.bans.GetString("reason-line2"), ph), false)
-						.addField(parsePlaceholders(Main.bans.GetString("banned-by-line1"), ph), parsePlaceholders(Main.bans.GetString("banned-by-line2"), ph), false)
-						.addField(parsePlaceholders(Main.bans.GetString("duration-line1"), ph), parsePlaceholders(Main.bans.GetString("duration-line2"), ph), false)
+						.setTitle(parsePlaceholders(Main.bans.getString("tempbanned-title"), ph))
+						.setDescription(parsePlaceholders(Main.bans.getString("description"), ph))
+						.setColor(Color.decode(Main.bans.getString("tempban-color")))
+						.addField(parsePlaceholders(Main.bans.getString("reason-line1"), ph), parsePlaceholders(Main.bans.getString("reason-line2"), ph), false)
+						.addField(parsePlaceholders(Main.bans.getString("banned-by-line1"), ph), parsePlaceholders(Main.bans.getString("banned-by-line2"), ph), false)
+						.addField(parsePlaceholders(Main.bans.getString("duration-line1"), ph), parsePlaceholders(Main.bans.getString("duration-line2"), ph), false)
 						.setThumbnail("https://minotar.net/armor/bust/" + target + "/100.png")
-						.setFooter(parsePlaceholders(Main.bans.GetString("banned-on"), ph), "")
+						.setFooter(parsePlaceholders(Main.bans.getString("banned-on"), ph), "")
 						.setUrl("https://mcnames.net/username/" + target)
 						);
 			}
 			if(type == BanType.unban)
 			{
 				webhook.addEmbed(new DiscordWebhook.EmbedObject()
-						.setTitle(parsePlaceholders(Main.bans.GetString("unbanned-title"), ph))
-						.setDescription(parsePlaceholders(Main.bans.GetString("description"), ph))
-						.setColor(Color.decode(Main.bans.GetString("unban-color")))
-						.addField(parsePlaceholders(Main.bans.GetString("unbanned-by-line1"), ph), parsePlaceholders(Main.bans.GetString("unbanned-by-line2"), ph), false)
+						.setTitle(parsePlaceholders(Main.bans.getString("unbanned-title"), ph))
+						.setDescription(parsePlaceholders(Main.bans.getString("description"), ph))
+						.setColor(Color.decode(Main.bans.getString("unban-color")))
+						.addField(parsePlaceholders(Main.bans.getString("unbanned-by-line1"), ph), parsePlaceholders(Main.bans.getString("unbanned-by-line2"), ph), false)
 						.setThumbnail("https://minotar.net/armor/bust/" + target + "/100.png")
-						.setFooter(parsePlaceholders(Main.bans.GetString("unbanned-on"), ph), "")
+						.setFooter(parsePlaceholders(Main.bans.getString("unbanned-on"), ph), "")
 						.setUrl("https://mcnames.net/username/" + target)
 						);
 			}
 			if(type == BanType.ipban) {
 				webhook.addEmbed(new DiscordWebhook.EmbedObject()
-						.setTitle(parsePlaceholders(Main.bans.GetString("ip-banned-title"), ph))
-						.setDescription(parsePlaceholders(Main.bans.GetString("description"), ph))
-						.setColor(Color.decode(Main.bans.GetString("banip-color")))
-						.addField(parsePlaceholders(Main.bans.GetString("reason-line1"), ph), parsePlaceholders(Main.bans.GetString("reason-line2"), ph), false)
-						.addField(parsePlaceholders(Main.bans.GetString("banned-by-line1"), ph), parsePlaceholders(Main.bans.GetString("banned-by-line2"), ph), false)
-						.setFooter(parsePlaceholders(Main.bans.GetString("banned-on"), ph), "")
+						.setTitle(parsePlaceholders(Main.bans.getString("ip-banned-title"), ph))
+						.setDescription(parsePlaceholders(Main.bans.getString("description"), ph))
+						.setColor(Color.decode(Main.bans.getString("banip-color")))
+						.addField(parsePlaceholders(Main.bans.getString("reason-line1"), ph), parsePlaceholders(Main.bans.getString("reason-line2"), ph), false)
+						.addField(parsePlaceholders(Main.bans.getString("banned-by-line1"), ph), parsePlaceholders(Main.bans.getString("banned-by-line2"), ph), false)
+						.setFooter(parsePlaceholders(Main.bans.getString("banned-on"), ph), "")
 						);
 			}
 			if(type == BanType.ipunban)
 			{
 				webhook.addEmbed(new DiscordWebhook.EmbedObject()
-						.setTitle(parsePlaceholders(Main.bans.GetString("ip-unbanned-title"), ph))
-						.setDescription(parsePlaceholders(Main.bans.GetString("description"), ph))
-						.setColor(Color.decode(Main.bans.GetString("unbanip-color")))
-						.addField(parsePlaceholders(Main.bans.GetString("unbanned-by-line1"), ph), parsePlaceholders(Main.bans.GetString("unbanned-by-line2"), ph), false)
-						.setFooter(parsePlaceholders(Main.bans.GetString("unbanned-on"), ph), "")
+						.setTitle(parsePlaceholders(Main.bans.getString("ip-unbanned-title"), ph))
+						.setDescription(parsePlaceholders(Main.bans.getString("description"), ph))
+						.setColor(Color.decode(Main.bans.getString("unbanip-color")))
+						.addField(parsePlaceholders(Main.bans.getString("unbanned-by-line1"), ph), parsePlaceholders(Main.bans.getString("unbanned-by-line2"), ph), false)
+						.setFooter(parsePlaceholders(Main.bans.getString("unbanned-on"), ph), "")
 						);
 			}
 			try {
-				Log.Info(Main.plugin, "Executing webhook.");
+				Log.info(Main.plugin, "Executing webhook.");
 				webhook.execute();
 			} catch (IOException e) {
 				e.printStackTrace();
-				Log.Error(Main.plugin, "&cConnection failed.");
+				Log.error(Main.plugin, "&cConnection failed.");
 			}
 		});
 	}

@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import me.clip.placeholderapi.PlaceholderAPI;
 import valorless.discordchat.hooks.EssentialsHook;
 import valorless.discordchat.hooks.PlaceholderAPIHook;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 public class Lang {
 	
@@ -38,35 +38,35 @@ public class Lang {
 
 	public static String Get(String key) {
 		if(lang.Get(key) == null) {
-			Log.Error(Main.plugin, String.format("Lang.yml is missing the key '%s'!", key));
+			Log.error(Main.plugin, String.format("Lang.yml is missing the key '%s'!", key));
 			return "§4error";
 		}
-		return Parse(lang.GetString(key));
+		return Parse(lang.getString(key));
 	}
 	
 	/* // Reverting back to the old Placeholder system.
 	public static String Get(String key, Object arg) {
 		if(lang.Get(key) == null) {
-			Log.Error(DiscordChatMonitor.plugin, String.format("Lang.yml is missing the key '%s'!", key));
+			Log.error(DiscordChatMonitor.plugin, String.format("Lang.yml is missing the key '%s'!", key));
 			return "§4error";
 		}
-		return Parse(String.format(lang.GetString(key), arg.toString()));
+		return Parse(String.format(lang.getString(key), arg.toString()));
 	}
 	
 	public static String Get(String key, Object arg1, Object arg2) {
 		if(lang.Get(key) == null) {
-			Log.Error(DiscordChatMonitor.plugin, String.format("Lang.yml is missing the key '%s'!", key));
+			Log.error(DiscordChatMonitor.plugin, String.format("Lang.yml is missing the key '%s'!", key));
 			return "§4error";
 		}
-		return Parse(String.format(lang.GetString(key), arg1.toString(), arg2.toString()));
+		return Parse(String.format(lang.getString(key), arg1.toString(), arg2.toString()));
 	}
 	
 	public static String Get(String key, Object arg1, Object arg2, Object arg3) {
 		if(lang.Get(key) == null) {
-			Log.Error(DiscordChatMonitor.plugin, String.format("Lang.yml is missing the key '%s'!", key));
+			Log.error(DiscordChatMonitor.plugin, String.format("Lang.yml is missing the key '%s'!", key));
 			return "§4error";
 		}
-		return Parse(String.format(lang.GetString(key), arg1.toString(), arg2.toString(), arg3.toString()));
+		return Parse(String.format(lang.getString(key), arg1.toString(), arg2.toString(), arg3.toString()));
 	}
 	*/
 	

@@ -26,7 +26,7 @@ import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.hooks.EssentialsHook;
 import valorless.discordchat.linking.Linking;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 import valorless.valorlessutils.utils.Utils;
 
 import org.bukkit.Bukkit;
@@ -40,23 +40,23 @@ public class MessageListener extends ListenerAdapter {
 	public List<String> monitoredChannels;
 
 	public MessageListener() {
-		this.monitoredChannels = Bot.config.GetStringList("channels");
+		this.monitoredChannels = Bot.config.getStringList("channels");
 	}
 
 	@SuppressWarnings("deprecation")
 	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 		Member member = event.getMember();
 		if (!monitoredChannels.contains(event.getChannel().getId())) return; 
-		if (event.getAuthor().isBot() && !Bot.config.GetBool("bot-messages")) return; 
+		if (event.getAuthor().isBot() && !Bot.config.getBool("bot-messages")) return; 
 		boolean reply = (event.getMessage() != null) ?
 				event.getMessage().getType() == MessageType.INLINE_REPLY : false;
 		boolean forward = (event.getMessage().getMessageReference() != null) ?
 				event.getMessage().getMessageReference().getType() ==  MessageReferenceType.FORWARD : false;
 		boolean attachments =  (event.getMessage().getAttachments() != null) ? !event.getMessage().getAttachments().isEmpty() : false;
 
-		Log.Debug(Main.plugin, "reply: " + reply);
-		Log.Debug(Main.plugin, "forward: " + forward);
-		Log.Debug(Main.plugin, "attachments: " + attachments);
+		Log.debug(Main.plugin, "reply: " + reply);
+		Log.debug(Main.plugin, "forward: " + forward);
+		Log.debug(Main.plugin, "attachments: " + attachments);
 
 		Bot.newChain().async(() -> {
 			String message = event.getMessage().getContentDisplay();
@@ -69,7 +69,7 @@ public class MessageListener extends ListenerAdapter {
 			String badge = getBadge(member);
 			Role mainRole = getHighestFrom(member);
 			String role = (mainRole != null) ? mainRole.getName() : "";
-			String chatMessage = Bot.config.GetString("message-format");
+			String chatMessage = Bot.config.getString("message-format");
 
 			if(containsUrl(message)) {
 				event.getMessage().delete();
@@ -80,30 +80,30 @@ public class MessageListener extends ListenerAdapter {
 			if(!Utils.IsStringNullOrEmpty(event.getMessage().getContentDisplay())) {
 				try {
 					char c = message.charAt(0);
-					char prefix = Bot.config.GetString("command-prefix").charAt(0);
-					//Log.Info(Main.plugin, c + "");
-					//Log.Info(Main.plugin, prefix + "");
+					char prefix = Bot.config.getString("command-prefix").charAt(0);
+					//Log.info(Main.plugin, c + "");
+					//Log.info(Main.plugin, prefix + "");
 					if(c == prefix) {
-						Log.Info(Main.plugin, "Command");
+						Log.info(Main.plugin, "Command");
 						message = ProccessCommand(event.getChannel(), member, event.getAuthor(), message);
 						if(message == null) {
 							return;
 						}
 					}else if(c == '!') {
-						Log.Info(Main.plugin, "D-Command");
+						Log.info(Main.plugin, "D-Command");
 						ProccessDiscordCommand(event.getChannel(), member, event.getAuthor(), message);
 						return;
 					}
 				}catch(Exception e) {
 					Main.bot.SendMessage(event.getChannel(), e.getMessage());
-					if(Main.config.GetBool("error-message")) {
+					if(Main.config.getBool("error-message")) {
 						String msg = String.format(
 								"§7[§9Discord§7]§r Error proccessing message from %s, might be a forward or contain an image."
 								, nickname);
 						for(Player player : Bukkit.getOnlinePlayers()) {
 							player.sendMessage(msg);
 						}
-						Log.Info(Main.plugin, msg.replace("§7[§9Discord§7]§r ", ""));
+						Log.info(Main.plugin, msg.replace("§7[§9Discord§7]§r ", ""));
 					}
 					e.printStackTrace();
 					return;
@@ -170,7 +170,7 @@ public class MessageListener extends ListenerAdapter {
 					//Bukkit.broadcastMessage(replyMessage + "\n" + chatMessage);
 					for(Player player : Bukkit.getOnlinePlayers()) {
 						if(Main.muted.HasKey(player.getName()))
-							if(Main.muted.GetBool(player.getName())) continue;
+							if(Main.muted.getBool(player.getName())) continue;
 						player.sendMessage(replyMessage + "\n" + chatMessage);
 					}
 					ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
@@ -207,13 +207,13 @@ public class MessageListener extends ListenerAdapter {
 					        
 							for(Player player : Bukkit.getOnlinePlayers()) {
 								if(Main.muted.HasKey(player.getName()))
-									if(Main.muted.GetBool(player.getName())) continue;
+									if(Main.muted.getBool(player.getName())) continue;
 								player.sendMessage(msg);
 							}
 							ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 							console.sendMessage(msg);
 					    }, failure -> {
-					        Log.Debug(Main.plugin, "Failed to resolve the referenced message");
+					        Log.debug(Main.plugin, "Failed to resolve the referenced message");
 					        return;
 					    });
 					}
@@ -224,7 +224,7 @@ public class MessageListener extends ListenerAdapter {
 					//Bukkit.broadcastMessage(chatMessage); 
 					for(Player player : Bukkit.getOnlinePlayers()) {
 						if(Main.muted.HasKey(player.getName()))
-							if(Main.muted.GetBool(player.getName())) continue;
+							if(Main.muted.getBool(player.getName())) continue;
 						player.sendMessage(chatMessage);
 					}
 					ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
@@ -233,27 +233,27 @@ public class MessageListener extends ListenerAdapter {
 			}
 			else {
 				Main.bot.SendMessage(event.getChannel(), String.format("<@%s> " , event.getAuthor().getId()) +
-						String.format(Lang.RemoveColorCodesAndFormatting(Main.filter.GetString("chat-filter-message")), blockedWord(chatMessage)));
+						String.format(Lang.RemoveColorCodesAndFormatting(Main.filter.getString("chat-filter-message")), blockedWord(chatMessage)));
 			}
 		}).execute();
 	}
 
 	String ProccessCommand(MessageChannel channel, Member member, User user, String command) {
-		//Log.Info(Main.plugin, "staff?");
-		Log.Info(Main.plugin, "User: " + user.getName());
-		Log.Info(Main.plugin, "Command: " + command);
+		//Log.info(Main.plugin, "staff?");
+		Log.info(Main.plugin, "User: " + user.getName());
+		Log.info(Main.plugin, "Command: " + command);
 		if(!isStaff(member)) {
 			Main.bot.SendMessage(channel, String.format("<@%s> Only staff may use commands.", user.getId()));
 			return null;
 		}
 
 		if(blockedCommand(command.substring(1)) == null) { 
-			//Log.Info(Main.plugin, "Sending command");
+			//Log.info(Main.plugin, "Sending command");
 			Bukkit.getScheduler().runTask(Main.plugin, () -> {
 				CustomConsoleSender sender = new CustomConsoleSender(user.getName(), msg -> {
 					Main.bot.SendMessage(channel, String.format("<@%s> %s", user.getId(), 
 							Lang.RemoveColorCodesAndFormatting(msg)));
-					Log.Info(Main.plugin, Lang.RemoveColorCodesAndFormatting(msg));
+					Log.info(Main.plugin, Lang.RemoveColorCodesAndFormatting(msg));
 				});
 
 				try {
@@ -285,7 +285,7 @@ public class MessageListener extends ListenerAdapter {
 		}
 		else {
 			Main.bot.SendMessage(channel, String.format("<@%s> " , user.getId()) +
-					String.format(Bot.config.GetString("blocked-commands-message"), blockedCommand(command.substring(1))));
+					String.format(Bot.config.getString("blocked-commands-message"), blockedCommand(command.substring(1))));
 			return null;
 		}
 	}
@@ -303,7 +303,7 @@ public class MessageListener extends ListenerAdapter {
 	}
 
 	boolean isStaff(Member user) {
-		List<String> staff = Bot.config.GetStringList("staff");
+		List<String> staff = Bot.config.getStringList("staff");
 		for(String id : staff) {
 			for(Role role : user.getRoles()) {
 				if(id.equalsIgnoreCase(role.getId())) {
@@ -316,7 +316,7 @@ public class MessageListener extends ListenerAdapter {
 
 	boolean guildMaster(Member user) {
 		for(Role role : user.getRoles()) {
-			//Log.Info(Main.plugin, role.getName() + " - " + role.getId());
+			//Log.info(Main.plugin, role.getName() + " - " + role.getId());
 			if(role.getId().equalsIgnoreCase("1222980440416190696")) return true;
 		}
 
@@ -325,7 +325,7 @@ public class MessageListener extends ListenerAdapter {
 
 	boolean hasRole(Member user, String roleID) {
 		for(Role role : user.getRoles()) {
-			//Log.Info(Main.plugin, role.getName() + " - " + role.getId());
+			//Log.info(Main.plugin, role.getName() + " - " + role.getId());
 			if(role.getId().equalsIgnoreCase(roleID)) return true;
 		}
 
@@ -335,15 +335,15 @@ public class MessageListener extends ListenerAdapter {
 	String getBadge(Member user) {
 		String badges = "";
 		Map<String, String> map = new HashMap<String, String>();
-		for(Object entry : Bot.config.GetConfigurationSection("role-badges").getKeys(false)) {
+		for(Object entry : Bot.config.getConfigurationSection("role-badges").getKeys(false)) {
 			String key = entry.toString();
-			String value = Bot.config.GetString("role-badges." + entry.toString());
+			String value = Bot.config.getString("role-badges." + entry.toString());
 			map.put(key, value);
 		}
 
 		for(Entry<String, String> entry : map.entrySet()) {
 			if(hasRole(user, entry.getKey())) {
-				//Log.Error(Main.plugin, entry.getKey() + "");
+				//Log.error(Main.plugin, entry.getKey() + "");
 				badges = badges + Lang.Parse(entry.getValue());
 			}
 		}
@@ -363,7 +363,7 @@ public class MessageListener extends ListenerAdapter {
 
 	public String blockedWord(String string) {
 		// Retrieve the list of blocked words
-		List<String> list = Main.filter.GetStringList("chat-filter");
+		List<String> list = Main.filter.getStringList("chat-filter");
 		String filtermsg = string.toLowerCase();
 
 		// Loop through each blocked word
@@ -381,7 +381,7 @@ public class MessageListener extends ListenerAdapter {
 
 	public String blockedCommand(String string) {
 		// Retrieve the list of blocked commands
-		List<String> list = Bot.config.GetStringList("blocked-commands");
+		List<String> list = Bot.config.getStringList("blocked-commands");
 
 		// Extract the first word (command) from the input string
 		String command = string.split("\\s+")[0].toLowerCase();
@@ -418,9 +418,9 @@ public class MessageListener extends ListenerAdapter {
 	}
 
 	void ProccessDiscordCommand(MessageChannel channel, Member member, User user, String command) {
-		//Log.Info(Main.plugin, "staff?");
-		Log.Info(Main.plugin, "User: " + user.getName());
-		Log.Info(Main.plugin, "Command: " + command);
+		//Log.info(Main.plugin, "staff?");
+		Log.info(Main.plugin, "User: " + user.getName());
+		Log.info(Main.plugin, "Command: " + command);
 		Main.bot.SendMessage(channel, String.format("<@%s> I've upgraded to use commands.\nTry `/help`", user.getId()));
 		
 		/*

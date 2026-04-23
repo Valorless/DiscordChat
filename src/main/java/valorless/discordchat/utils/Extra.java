@@ -112,7 +112,9 @@ public class Extra {
 			}
 			items.add(item);
 		}
-		return String.join("\n", items);
+		if(items.isEmpty()) {
+			return "*Nothing but dust and a few crumbs could be found*";
+		}else return String.join("\n", items);
 	}
 
 	public static String enderchestString(UUID minecraftUUID) {
@@ -136,7 +138,9 @@ public class Extra {
 			}
 			items.add(item);
 		}
-		return String.join("\n", items);
+		if(items.isEmpty()) {
+			return "*Nothing but dust and a few crumbs could be found*";
+		}else return String.join("\n", items);
 	}
 
 	public static String inventoryString(InventoryEntry inv) {

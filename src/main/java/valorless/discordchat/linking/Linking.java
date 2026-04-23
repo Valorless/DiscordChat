@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.storage.Storage;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 import valorless.valorlessutils.config.Config;
 
 /**
@@ -43,7 +43,7 @@ public class Linking implements Listener{
 	 * @return true if the link was finalized, false if it remains pending or failed
 	 */
 	public static Boolean addLink(UUID uuid, Long discordID, Long channelID) {
-		Log.Info(Main.plugin, "Attempting to link Minecraft UUID " + uuid.toString() + " with Discord ID " + Main.bot.getUsernameByID(discordID));
+		Log.info(Main.plugin, "Attempting to link Minecraft UUID " + uuid.toString() + " with Discord ID " + Main.bot.getUsernameByID(discordID));
 		if(isLinked(uuid)) return false;
 		
 		if(!Storage.Accounts.pending.containsKey(uuid.toString()) && !isPending("" + discordID)) {
@@ -76,7 +76,7 @@ public class Linking implements Listener{
 	 * @return true if the link was finalized, false if it remains pending or failed
 	 */
 	public static Boolean addLink(Long discordID, UUID uuid, Long channelID) {
-		Log.Info(Main.plugin, "Attempting to link Discord ID " + discordID + " with Minecraft UUID " + uuid.toString());
+		Log.info(Main.plugin, "Attempting to link Discord ID " + discordID + " with Minecraft UUID " + uuid.toString());
 		if(isLinked(discordID)) return false;
 		
 		if(!Storage.Accounts.pending.containsKey("" + discordID) && !isPending(uuid.toString())) {
@@ -98,7 +98,7 @@ public class Linking implements Listener{
 	 */
 	public static Boolean isPending(String key) {
 		for(String k : Storage.Accounts.pending.keySet()) {
-			Log.Info(Main.plugin, "Pending key: " + k + " -> " + Storage.Accounts.pending.get(k));
+			Log.info(Main.plugin, "Pending key: " + k + " -> " + Storage.Accounts.pending.get(k));
 			if(Storage.Accounts.pending.get(k).equalsIgnoreCase(key)) {
 				return true;
 			}
@@ -134,11 +134,11 @@ public class Linking implements Listener{
 		Long discordID = Storage.Accounts.data.get(uuid);
 		if(discordID != null) {
 			Storage.Accounts.data.remove(uuid);
-			Storage.Accounts.dataFile.Set("data." + uuid.toString(), null);
+			Storage.Accounts.dataFile.set("data." + uuid.toString(), null);
 			Bukkit.getScheduler().runTask(Main.plugin, () -> {
 				Bukkit.getPluginManager().callEvent(new UnlinkEvent(uuid, discordID));
 			});
-			Log.Info(Main.plugin, "Unlinked Minecraft player " + Bukkit.getOfflinePlayer(uuid).getName() + " from Discord ID: " + discordID);
+			Log.info(Main.plugin, "Unlinked Minecraft player " + Bukkit.getOfflinePlayer(uuid).getName() + " from Discord ID: " + discordID);
 			Main.bot.removeRole(discordID, linkingRole);
 			return true;
 		}
@@ -155,11 +155,11 @@ public class Linking implements Listener{
 		UUID uuid = getMinecraftUUID(discordID);
 		if(uuid != null) {
 			Storage.Accounts.data.remove(uuid);
-			Storage.Accounts.dataFile.Set("data." + uuid.toString(), null);
+			Storage.Accounts.dataFile.set("data." + uuid.toString(), null);
 			Bukkit.getScheduler().runTask(Main.plugin, () -> {
 				Bukkit.getPluginManager().callEvent(new UnlinkEvent(uuid, discordID));
 			});
-			Log.Info(Main.plugin, "Unlinked Discord ID: " + discordID + " from Minecraft player " + Bukkit.getOfflinePlayer(uuid).getName());
+			Log.info(Main.plugin, "Unlinked Discord ID: " + discordID + " from Minecraft player " + Bukkit.getOfflinePlayer(uuid).getName());
 			Main.bot.removeRole(discordID, linkingRole);
 			return true;
 		}
@@ -231,7 +231,7 @@ public class Linking implements Listener{
 		Long discordID = event.getDiscordID();
 		Long channelID = event.getChannelID();
 		
-		Log.Info(Main.plugin, "Linked Minecraft player " + Bukkit.getOfflinePlayer(uuid).getName() + " to Discord User: " + Main.bot.getUsernameByID(discordID));
+		Log.info(Main.plugin, "Linked Minecraft player " + Bukkit.getOfflinePlayer(uuid).getName() + " to Discord User: " + Main.bot.getUsernameByID(discordID));
 		
 		// Clean up pending entries after a successful link
 		Storage.Accounts.pending.remove(uuid.toString());

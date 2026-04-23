@@ -12,7 +12,7 @@ import net.ess3.api.IEssentials;
 import net.ess3.api.MaxMoneyException;
 import net.ess3.api.events.UserBalanceUpdateEvent.Cause;
 import valorless.discordchat.Main;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 /**
  * Essentials economy helper.
@@ -80,7 +80,7 @@ public class Eco {
 	public static void takeMoney(Player player, Double amount) {
 		User user = ess.getUser(player);
 		user.takeMoney(BigDecimal.valueOf(amount));
-		Log.Info(Main.plugin, "Took " + amount + " from " + player.toString());
+		Log.info(Main.plugin, "Took " + amount + " from " + player.toString());
 	}
 	
 	/**
@@ -92,7 +92,7 @@ public class Eco {
 	public static void takeMoney(UUID player, Double amount) {
 		User user = ess.getUser(player);
 		user.takeMoney(BigDecimal.valueOf(amount));
-		Log.Info(Main.plugin, "Took " + amount + " from " + user.getName());
+		Log.info(Main.plugin, "Took " + amount + " from " + user.getName());
 	}
 	
 	/**
@@ -106,7 +106,7 @@ public class Eco {
 		User user = ess.getUser(player);
 		try {
 			user.giveMoney(BigDecimal.valueOf(amount));
-			Log.Info(Main.plugin, "Gave " + amount + " to " + player.toString());
+			Log.info(Main.plugin, "Gave " + amount + " to " + player.toString());
 			return true;
 		} catch (MaxMoneyException e) {
 			//e.printStackTrace();
@@ -125,7 +125,7 @@ public class Eco {
 		User user = ess.getUser(player);
 		try {
 			user.giveMoney(BigDecimal.valueOf(amount));
-			Log.Info(Main.plugin, "Gave " + amount + " to " + user.getName());
+			Log.info(Main.plugin, "Gave " + amount + " to " + user.getName());
 			return true;
 		} catch (MaxMoneyException e) {
 			//e.printStackTrace();

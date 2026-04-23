@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -23,6 +26,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.ess3.api.IUser;
+import valorless.discordchat.DiscordWebhook;
 import valorless.discordchat.Main;
 import valorless.discordchat.PlayerCache;
 import valorless.discordchat.hooks.Eco;
@@ -31,7 +35,7 @@ import valorless.discordchat.linking.Linking;
 import valorless.discordchat.storage.Storage;
 import valorless.discordchat.utils.Extra;
 import valorless.discordchat.utils.ServerStats;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 public class DiscordCommands extends ListenerAdapter {
 	
@@ -72,8 +76,8 @@ public class DiscordCommands extends ListenerAdapter {
 	@SuppressWarnings("deprecation")
 	@Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-		Log.Info(Main.plugin, "User: " + event.getUser().getName());
-		Log.Info(Main.plugin, "Command: " + event.getName());
+		Log.info(Main.plugin, "User: " + event.getUser().getName());
+		Log.info(Main.plugin, "Command: " + event.getName());
 		User user = event.getUser();
 		
 		/** Help command
@@ -239,11 +243,30 @@ public class DiscordCommands extends ListenerAdapter {
         		event.reply("Your inventory data is too large to display here.\nPlease use the in-game command to view it.").setEphemeral(true).queue();
 				return;
         	}
-        	event.reply("## Your inventory:\n" + 
-        			Extra.inventoryString(Linking.getMinecraftUUID(user.getIdLong())))
-            .addActionRow(Button.primary("inv-share", "Share"))
-            .setEphemeral(true)
-            .queue();
+
+			String result = "## Your Inventory:";
+			OfflinePlayer player = Bukkit.getOfflinePlayer(Linking.getMinecraftUUID(user.getIdLong()));
+
+			MessageEmbed embed = new EmbedBuilder()
+					.setTitle(String.format("%s's Inventory", player.getName()))
+					.setDescription(Extra.inventoryString(player.getUniqueId()))
+					.build();
+
+			ReplyCallbackAction reply = event.reply(result); // send a message in the channel
+			reply.addEmbeds(embed);
+			reply.addActionRow(Button.primary("inv-share", "Share"));
+			reply.setEphemeral(true);
+			try {
+				reply.queue();
+			}catch(Exception e) {
+				event.reply("An error occurred while sending your inventory data. Please try again later.").setEphemeral(true).queue();
+			}
+
+        	//event.reply("## Your inventory:\n" +
+        	//		Extra.inventoryString(Linking.getMinecraftUUID(user.getIdLong())))
+            //.addActionRow(Button.primary("inv-share", "Share"))
+            //.setEphemeral(true)
+            //.queue();
 			return;
         }
         
@@ -258,11 +281,29 @@ public class DiscordCommands extends ListenerAdapter {
         		event.reply("Your enderchest data is too large to display here.\nPlease use the in-game command to view it.").setEphemeral(true).queue();
 				return;
         	}
-        	event.reply("## Your enderchest:\n" + 
-        			Extra.enderchestString(Linking.getMinecraftUUID(user.getIdLong())))
-            .addActionRow(Button.primary("ender-share", "Share"))
-            .setEphemeral(true)
-            .queue();
+        	//event.reply("## Your enderchest:\n" +
+        	//		Extra.enderchestString(Linking.getMinecraftUUID(user.getIdLong())))
+            //.addActionRow(Button.primary("ender-share", "Share"))
+            //.setEphemeral(true)
+            //.queue();
+
+			String result = "## Your Enderchest:";
+			OfflinePlayer player = Bukkit.getOfflinePlayer(Linking.getMinecraftUUID(user.getIdLong()));
+
+			MessageEmbed embed = new EmbedBuilder()
+					.setTitle(String.format("%s's Enderchest", player.getName()))
+					.setDescription(Extra.enderchestString(player.getUniqueId()))
+					.build();
+
+			ReplyCallbackAction reply = event.reply(result); // send a message in the channel
+			reply.addEmbeds(embed);
+			reply.addActionRow(Button.primary("ender-share", "Share"));
+			reply.setEphemeral(true);
+			try {
+				reply.queue();
+			}catch(Exception e) {
+				event.reply("An error occurred while sending your enderchest data. Please try again later.").setEphemeral(true).queue();
+			}
 			return;
 		}
         
@@ -290,19 +331,53 @@ public class DiscordCommands extends ListenerAdapter {
 		//Guild server = event.getGuild();
 		
         if (event.getComponentId().equals("inv-share")) {
-        	String result = String.format("## <@%s>'s inventory:\n%s", 
-					user.getIdLong(),
-					Extra.inventoryString(Linking.getMinecraftUUID(user.getIdLong())));
-            event.reply(result).queue(); // send a message in the channel
-        	//event.getMessage().delete().queue();
+        	String result = String.format("## <@%s>'s Inventory:",
+					user.getIdLong());
+
+			OfflinePlayer player = Bukkit.getOfflinePlayer(Linking.getMinecraftUUID(user.getIdLong()));
+
+			MessageEmbed embed = new EmbedBuilder()
+					.setTitle(String.format("%s's Inventory", player.getName()))
+					.setDescription(Extra.inventoryString(player.getUniqueId()))
+					.build();
+
+			ReplyCallbackAction reply = event.reply(result); // send a message in the channel
+			reply.addEmbeds(embed);
+			try {
+				reply.queue();
+			}catch(Exception e) {
+				event.reply("An error occurred while sharing your inventory data. Please try again later.").setEphemeral(true).queue();
+			}
+			//String result = String.format("## <@%s>'s inventory:\n%s",
+
+			//event.getMessage().delete().queue();
             return;
         }
 		
         if (event.getComponentId().equals("ender-share")) {
-        	String result = String.format("## <@%s>'s enderchest:\n%s",
-					user.getIdLong(),
-					Extra.enderchestString(Linking.getMinecraftUUID(user.getIdLong())));
-            event.reply(result).queue(); // send a message in the channel
+			String result = String.format("## <@%s>'s Enderchest:",
+					user.getIdLong());
+
+			OfflinePlayer player = Bukkit.getOfflinePlayer(Linking.getMinecraftUUID(user.getIdLong()));
+
+			MessageEmbed embed = new EmbedBuilder()
+					.setTitle(String.format("%s's Enderchest", player.getName()))
+					.setDescription(Extra.enderchestString(player.getUniqueId()))
+					.build();
+
+			ReplyCallbackAction reply = event.reply(result); // send a message in the channel
+			reply.addEmbeds(embed);
+			try {
+				reply.queue();
+			}catch(Exception e) {
+				event.reply("An error occurred while sharing your enderchest data. Please try again later.").setEphemeral(true).queue();
+			}
+
+
+        	//String result = String.format("## <@%s>'s enderchest:\n%s",
+			//		user.getIdLong(),
+			//		Extra.enderchestString(Linking.getMinecraftUUID(user.getIdLong())));
+            //event.reply(result).queue(); // send a message in the channel
         	//event.getMessage().delete().queue();
             return;
         }

@@ -167,7 +167,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				event.getPlayer().sendMessage(String.format(Main.filter.getString("chat-filter-message"), entry));
 				event.setCancelled(true);
 				String msg = "§c[BLOCKED] " + event.getPlayer().getName() + ": " + event.getMessage();
-				Log.Error(plugin, msg);
+				Log.error(plugin, msg);
 				for(Player player : Bukkit.getOnlinePlayers()) {
 					if(player.hasPermission("discordchat.reload") || player.isOp()) {
 						player.sendMessage(msg);
@@ -179,7 +179,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				event.getPlayer().sendMessage(String.format(Main.filter.getString("chat-filter-message"), entry));
 				event.setCancelled(true);
 				String msg = "§c[BLOCKED] " + event.getPlayer().getName() + ": " + event.getMessage();
-				Log.Error(plugin, msg);
+				Log.error(plugin, msg);
 				for(Player player : Bukkit.getOnlinePlayers()) {
 					if(player.hasPermission("discordchat.reload") || player.isOp()) {
 						player.sendMessage(msg);
@@ -250,7 +250,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			);
 
 			try {
-				//Log.Info(plugin, "Executing webhook.");
+				//Log.info(plugin, "Executing webhook.");
 				webhook.execute();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -261,8 +261,8 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 
 	@EventHandler (priority = EventPriority.LOWEST)
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		//Log.Debug(plugin, event.getDeathMessage().toString());
-		//Log.Debug(plugin, event.toString());
+		//Log.debug(plugin, event.getDeathMessage().toString());
+		//Log.debug(plugin, event.toString());
 		if(Main.enabled == false) {
 			Log.warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
@@ -294,7 +294,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			);
 
 			try {
-				//Log.Info(plugin, "Executing webhook.");
+				//Log.info(plugin, "Executing webhook.");
 				webhook.execute();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -381,7 +381,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			}
 
 			try {
-				//Log.Info(plugin, "Executing webhook.");
+				//Log.info(plugin, "Executing webhook.");
 				webhook.execute();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -454,7 +454,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			webhook.setAvatarUrl(config.getString("server-icon-url"));
 
 			try {
-				//Log.Info(plugin, "Executing webhook.");
+				//Log.info(plugin, "Executing webhook.");
 				webhook.execute();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -534,7 +534,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				webhook.setAvatarUrl(config.getString("server-icon-url"));
 
 				try {
-					//Log.Info(plugin, "Executing webhook.");
+					//Log.info(plugin, "Executing webhook.");
 					webhook.execute();
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -567,17 +567,17 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 					.replace(String.format("<chat=%s:[PING]:>", player.getUniqueId().toString()), "[ping]")
 					.replace(String.format("<chat=%s:[POS]:>", player.getUniqueId().toString()), "[pos]")
 					.replace(String.format("<chat=%s:[pos]:>", player.getUniqueId().toString()), "[pos]").toCharArray());
-			//Log.Warning(plugin, message);
+			//Log.warning(plugin, message);
 			DiscordWebhook webhook = new DiscordWebhook(config.getString("webhook-url"));
 			webhook.setUsername(
 					FormatUsername(player, config.getString("player-username").replace("%player%", player.getName()))
 			);
 			if (Bukkit.getPluginManager().getPlugin("InteractiveChat") != null) {
 				try {
-					//Log.Info(plugin, message);
+					//Log.info(plugin, message);
 					ItemStack item = (ItemStack) args[0];
 					if (message.contains("[item]") && args.length != 0 && item.hasItemMeta() || message.contains("[i]") && args.length != 0 && item.hasItemMeta()) {
-						//Log.Warning(plugin, message);
+						//Log.warning(plugin, message);
 						String id = "";
 						if (item.getType() == Material.FILLED_MAP) {
 							try {
@@ -636,14 +636,14 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				}
 
 				if (message.contains("[ping]") || message.contains("[PING]")) {
-					//Log.Warning(plugin, message);
+					//Log.warning(plugin, message);
 					message = message.replace("[ping]", player.getPing() + "ms");
 					message = message.replace("[PING]", player.getPing() + "ms");
 					//message = message.replace(String.format("<%s:[ping]:>", player.getUniqueId().toString().toLowerCase()), player.getPing() + "ms");
 				}
 
 				if (message.contains("[pos]") || message.contains("[POS]")) {
-					//Log.Warning(plugin, message);
+					//Log.warning(plugin, message);
 					Location loc = player.getLocation();
 					message = message.replace("[pos]", String.format("%s: %s, %s, %s", player.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()));
 					message = message.replace("[POS]", String.format("%s: %s, %s, %s", player.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()));
@@ -685,7 +685,7 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				}
 
 				try {
-					//Log.Info(plugin, "Executing webhook.");
+					//Log.info(plugin, "Executing webhook.");
 					webhook.execute();
 				} catch (IOException e) {
 					e.printStackTrace();

@@ -18,7 +18,7 @@ import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
 
 import valorless.discordchat.Main;
 import valorless.discordchat.PlayerCache;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 /**
  * Integration helper for mcMMO.
@@ -30,11 +30,11 @@ public class mcmmoHook {
 	public static void Hook() {
 		JavaPlugin plugin = Main.plugin;
 		
-		Log.Debug(plugin, "Attempting to hook mcMMO.");
+		Log.debug(plugin, "Attempting to hook mcMMO.");
 		if (Bukkit.getPluginManager().getPlugin("mcMMO") != null) {
-    		Log.Info(plugin, "mcMMO integrated!");
+    		Log.info(plugin, "mcMMO integrated!");
 		}else {
-			Log.Debug(plugin, "mcMMO not detected.");
+			Log.debug(plugin, "mcMMO not detected.");
 		}
 	}
 	
@@ -61,7 +61,7 @@ public class mcmmoHook {
 	}
 	
 	public static HashMap<String, Integer> getTop() {
-		Log.Debug(Main.plugin, "Fetching top mcMMO power levels.");
+		Log.debug(Main.plugin, "Fetching top mcMMO power levels.");
 		HashMap<String, Integer> skillLevels = new HashMap<>();
     	PlayerCache.getCache().forEach((name, uuid) -> {
     		try {

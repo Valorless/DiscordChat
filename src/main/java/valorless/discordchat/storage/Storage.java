@@ -25,7 +25,7 @@ import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.linking.Linking;
 import valorless.discordchat.utils.Json;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 import valorless.valorlessutils.config.Config;
 
 public class Storage {
@@ -94,14 +94,14 @@ public class Storage {
 				UUID uuid = UUID.fromString(key);
 				Long discordID = Long.valueOf(dataFile.getString("data." + key));
 				if(discordID == 0L) {
-					Log.Warning(Main.plugin, "Invalid Discord ID for UUID: " + key);
+					Log.warning(Main.plugin, "Invalid Discord ID for UUID: " + key);
 					continue;
 				}
 				data.put(uuid, discordID);
-				Log.Debug(Main.plugin, "Loaded link: " + uuid.toString() + " -> " + discordID);
+				Log.debug(Main.plugin, "Loaded link: " + uuid.toString() + " -> " + discordID);
 				i++;
 			}
-			Log.Info(Main.plugin, "Loaded " + i + " linked accounts.");
+			Log.info(Main.plugin, "Loaded " + i + " linked accounts.");
 		}
 		
 		/**
@@ -109,9 +109,9 @@ public class Storage {
 		 */
 		private static void saveData() {
 			for(Entry<UUID, Long> entry : data.entrySet()) {
-				dataFile.Set("data." + entry.getKey().toString(), entry.getValue().toString());
+				dataFile.set("data." + entry.getKey().toString(), entry.getValue().toString());
 			}
-			dataFile.SaveConfig();
+			dataFile.saveConfig();
 		}
 	}
 	
@@ -181,10 +181,10 @@ public class Storage {
 				UUID uuid = UUID.fromString(key);
 				String value = dataFile.getString("data." + key);
 				data.put(uuid, fromJson(value));
-				Log.Debug(Main.plugin, "Loaded inventory: " + uuid.toString() + " -> " + value);
+				Log.debug(Main.plugin, "Loaded inventory: " + uuid.toString() + " -> " + value);
 				i++;
 			}
-			Log.Info(Main.plugin, "Loaded " + i + " inventories.");
+			Log.info(Main.plugin, "Loaded " + i + " inventories.");
 		}
 		
 		/**
@@ -229,7 +229,7 @@ public class Storage {
 		}
 		
 		public static void updateEntry(Player player) {
-			Log.Debug(Main.plugin, "Updating inventory for player: " + player.getName());
+			Log.debug(Main.plugin, "Updating inventory for player: " + player.getName());
 			List<InventorySlot> slots = new ArrayList<>();
 			for(ItemStack item : player.getInventory().getContents()) {
 				if(item != null && item.getType() != Material.AIR) {
@@ -327,10 +327,10 @@ public class Storage {
 				UUID uuid = UUID.fromString(key);
 				String value = dataFile.getString("data." + key);
 				data.put(uuid, fromJson(value));
-				Log.Debug(Main.plugin, "Loaded enderchest: " + uuid.toString() + " -> " + value);
+				Log.debug(Main.plugin, "Loaded enderchest: " + uuid.toString() + " -> " + value);
 				i++;
 			}
-			Log.Info(Main.plugin, "Loaded " + i + " enderchests.");
+			Log.info(Main.plugin, "Loaded " + i + " enderchests.");
 		}
 		
 		/**
@@ -375,7 +375,7 @@ public class Storage {
 		}
 		
 		public static void updateEntry(Player player) {
-			Log.Debug(Main.plugin, "Updating enderchest for player: " + player.getName());
+			Log.debug(Main.plugin, "Updating enderchest for player: " + player.getName());
 			List<EnderchestSlot> slots = new ArrayList<>();
 			for(ItemStack item : player.getEnderChest().getContents()) {
 				if(item != null && item.getType() != Material.AIR) {

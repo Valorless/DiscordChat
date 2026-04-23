@@ -258,7 +258,7 @@ public final class Main extends JavaPlugin implements Listener {
 			webhook.setAvatarUrl(config.getString("server-icon-url"));
 
 			try {
-				//Log.Info(plugin, "Executing webhook.");
+				//Log.info(plugin, "Executing webhook.");
 				webhook.execute();
 			} catch (IOException e) {
 				e.printStackTrace();

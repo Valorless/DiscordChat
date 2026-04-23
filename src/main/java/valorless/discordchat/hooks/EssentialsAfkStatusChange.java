@@ -12,7 +12,7 @@ import net.ess3.api.events.AfkStatusChangeEvent.Cause;
 import valorless.discordchat.ChatListener;
 import valorless.discordchat.DiscordWebhook;
 import valorless.discordchat.Main;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 public class EssentialsAfkStatusChange implements Listener {
 	
@@ -20,7 +20,7 @@ public class EssentialsAfkStatusChange implements Listener {
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onAfkStatusChange(AfkStatusChangeEvent event) {
 		if(Main.enabled == false) {
-			Log.Warning(Main.plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
+			Log.warning(Main.plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
 		
 		boolean afk = event.getValue();
@@ -31,11 +31,11 @@ public class EssentialsAfkStatusChange implements Listener {
 		String yesAfk = "**%s** is now AFK.";
 		String noAfk = "**%s** is no longer AFK.";
 		
-    	DiscordWebhook webhook = new DiscordWebhook(Main.config.GetString("webhook-url"));
+    	DiscordWebhook webhook = new DiscordWebhook(Main.config.getString("webhook-url"));
     	
-    	webhook.setUsername(Main.config.GetString("server-username"));
+    	webhook.setUsername(Main.config.getString("server-username"));
     	webhook.setContent(ChatListener.FormatMessage(player, "%timestamp% " + String.format(afk ? yesAfk : noAfk, player.getName())));
-        webhook.setAvatarUrl(Main.config.GetString("server-icon-url"));
+        webhook.setAvatarUrl(Main.config.getString("server-icon-url"));
         
         try {
 			webhook.execute();

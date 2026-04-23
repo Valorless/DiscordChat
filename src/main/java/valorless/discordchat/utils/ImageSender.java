@@ -9,7 +9,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClients;
 
 import valorless.discordchat.Main;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -19,9 +19,9 @@ import java.io.IOException;
 public class ImageSender {
     public static void sendImage(BufferedImage image, String fileName) throws IOException {
     	
-    	String url = Main.config.GetString("webserver.upload-url");
-    	Log.Debug(Main.plugin, "Attempting to contact webserver");
-    	Log.Debug(Main.plugin, url);
+    	String url = Main.config.getString("webserver.upload-url");
+    	Log.debug(Main.plugin, "Attempting to contact webserver");
+    	Log.debug(Main.plugin, url);
         HttpClient httpclient = HttpClients.createDefault();
         HttpPost httppost = new HttpPost(url);
 
@@ -31,13 +31,13 @@ public class ImageSender {
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addBinaryBody("image", imageBytes, ContentType.APPLICATION_OCTET_STREAM, fileName);
-        builder.addTextBody("key", Main.config.GetString("webserver.secret-key"));
+        builder.addTextBody("key", Main.config.getString("webserver.secret-key"));
 
         HttpEntity multipart = builder.build();
         httppost.setEntity(multipart);
 
         HttpResponse response = httpclient.execute(httppost);
-    	Log.Debug(Main.plugin, response.toString());
+    	Log.debug(Main.plugin, response.toString());
         // Handle response if needed
     }
 }

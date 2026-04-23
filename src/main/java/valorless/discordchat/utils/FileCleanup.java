@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import valorless.discordchat.Main;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 public class FileCleanup {
 
@@ -39,18 +39,18 @@ public class FileCleanup {
                         if (daysOld > maxAge) {
                             // Delete the file
                             if (file.delete()) {
-                                Log.Info(Main.plugin, "Deleted file: " + file.getName());
+                                Log.info(Main.plugin, "Deleted file: " + file.getName());
                             } else {
-                            	Log.Error(Main.plugin, "Failed to delete file: " + file.getName());
+                            	Log.error(Main.plugin, "Failed to delete file: " + file.getName());
                             }
                         }
                     }
                 }
             } else {
-            	Log.Error(Main.plugin, "Failed to list files in the folder.");
+            	Log.error(Main.plugin, "Failed to list files in the folder.");
             }
         } else {
-        	Log.Error(Main.plugin, "Folder does not exist or is not a directory.");
+        	Log.error(Main.plugin, "Folder does not exist or is not a directory.");
         }
     }
 }

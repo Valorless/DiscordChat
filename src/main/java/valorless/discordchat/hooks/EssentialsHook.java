@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
 import valorless.discordchat.Main;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 public class EssentialsHook {
 	
@@ -20,16 +20,16 @@ public class EssentialsHook {
 	public static void Hook() {
 		JavaPlugin plugin = Main.plugin;
 		
-		Log.Debug(plugin, "Attempting to hook Essentials.");
+		Log.debug(plugin, "Attempting to hook Essentials.");
 		if (Bukkit.getPluginManager().getPlugin("Essentials") != null) {
 			Plugin ess = Bukkit.getPluginManager().getPlugin("Essentials");
 	        if (ess instanceof IEssentials) {
 	        	instance = (IEssentials) ess;
 	        }
 			Bukkit.getServer().getPluginManager().registerEvents(new EssentialsAfkStatusChange(), Main.plugin);
-    		Log.Info(plugin, "Essentials integrated!");
+    		Log.info(plugin, "Essentials integrated!");
 		}else {
-			Log.Debug(plugin, "Essentials not detected.");
+			Log.debug(plugin, "Essentials not detected.");
 		}
 	}
 	

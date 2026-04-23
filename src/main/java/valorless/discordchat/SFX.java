@@ -6,7 +6,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import valorless.valorlessutils.ValorlessUtils;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 import valorless.valorlessutils.utils.Utils;
 
 /**
@@ -57,7 +57,7 @@ public interface SFX {
 	    		
 	    		player.playSound(player, Sound.valueOf(sound), SoundCategory.MASTER, volume, pitch);
 	    	} catch (Exception e) {
-	    		Log.Error(ValorlessUtils.GetInstance(), e.getMessage());
+	    		Log.error(ValorlessUtils.GetInstance(), e.getMessage());
 	    	}
 	    }
 	}
@@ -80,7 +80,7 @@ public interface SFX {
 	    	try {
 	    		player.playSound(player, sound, SoundCategory.MASTER, volume, pitch);
 	    	} catch (Exception e) {
-	    		Log.Error(ValorlessUtils.GetInstance(), e.getMessage());
+	    		Log.error(ValorlessUtils.GetInstance(), e.getMessage());
 	    	}
 	    }
 	}
@@ -109,7 +109,7 @@ public interface SFX {
 	    		
     			valorless.valorlessutils.sound.SFX.Play(sound, volume, pitch, location);
 	    	} catch (Exception e) {
-	    		Log.Error(ValorlessUtils.GetInstance(), e.getMessage());
+	    		Log.error(ValorlessUtils.GetInstance(), e.getMessage());
 	    	}
 	    }
 	}
@@ -132,7 +132,7 @@ public interface SFX {
 	    	try {
 	    		location.getWorld().playSound(location, sound, SoundCategory.MASTER, volume, pitch);
 	    	} catch (Exception e) {
-	    		Log.Error(ValorlessUtils.GetInstance(), e.getMessage());
+	    		Log.error(ValorlessUtils.GetInstance(), e.getMessage());
 	    	}
 	    }
 	}

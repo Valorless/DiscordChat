@@ -42,10 +42,10 @@ public class MapToImage {
         UUID id = UUID.randomUUID();
         
         try {
-        	if(Main.config.GetBool("save-locally")) {
+        	if(Main.config.getBool("save-locally")) {
         		File path = Bukkit.getPluginManager().getPlugin("WebServer").getDataFolder();
-        		ImageIO.write(image, "PNG", new File(path, Main.config.GetString("save-location") + id.toString() + ".png"));
-        		FileCleanup.Clean(path.getPath() +  Main.config.GetString("save-location"), Main.config.GetInt("cleanup-age"));
+        		ImageIO.write(image, "PNG", new File(path, Main.config.getString("save-location") + id.toString() + ".png"));
+        		FileCleanup.Clean(path.getPath() +  Main.config.getString("save-location"), Main.config.getInt("cleanup-age"));
         	}else {
         		ImageSender.sendImage(image, id.toString());
         	}

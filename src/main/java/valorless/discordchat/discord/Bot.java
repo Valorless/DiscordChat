@@ -30,7 +30,7 @@ import valorless.discordchat.discord.taskchain.BukkitTaskChainFactory;
 import valorless.discordchat.discord.taskchain.TaskChain;
 import valorless.discordchat.discord.taskchain.TaskChainFactory;
 import valorless.discordchat.hooks.EssentialsHook;
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 import valorless.valorlessutils.config.Config;
 import valorless.valorlessutils.utils.Utils;
 
@@ -53,19 +53,19 @@ public class Bot implements Listener {
 
 	public Bot() {
 		this.bot = this;
-		if (Utils.IsStringNullOrEmpty(config.GetString("token"))) {
-			Log.Error(Main.plugin, "Token Required!");
+		if (Utils.IsStringNullOrEmpty(config.getString("token"))) {
+			Log.error(Main.plugin, "Token Required!");
 			return;
 		} 
 
-		if (!config.GetBool("enabled")) {
+		if (!config.getBool("enabled")) {
 			return;
 		} 
 
 		Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
 			@Override
 			public void run() {
-				Log.Info(Main.plugin, "Initiating Bot");
+				Log.info(Main.plugin, "Initiating Bot");
 				Bukkit.getPluginManager().registerEvents(bot, Main.plugin);
 				taskChainFactory = BukkitTaskChainFactory.create(Main.plugin);
 				
@@ -75,7 +75,7 @@ public class Bot implements Listener {
 		                .readTimeout(8, TimeUnit.SECONDS)    // Read timeout
 		                .build();
 				
-				JDABuilder builder = JDABuilder.createDefault(config.GetString("token"));
+				JDABuilder builder = JDABuilder.createDefault(config.getString("token"));
 				builder.setHttpClient(httpClient);
 				builder.setRequestTimeoutRetry(false);
 				builder.disableCache(CacheFlag.MEMBER_OVERRIDES, new CacheFlag[] { CacheFlag.VOICE_STATE });
@@ -86,15 +86,15 @@ public class Bot implements Listener {
 				builder.enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES);
 				builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 
-				if(!config.GetString("bot-activity.type").equalsIgnoreCase("none")) {
+				if(!config.getString("bot-activity.type").equalsIgnoreCase("none")) {
 					Activity act;
-					if(config.GetString("bot-activity.type").equalsIgnoreCase("streaming")) {
-						act = Activity.streaming(activityMessage(), config.GetString("bot-activity.url"));
-					}else if(config.GetString("bot-activity.type").equalsIgnoreCase("listening")) {
+					if(config.getString("bot-activity.type").equalsIgnoreCase("streaming")) {
+						act = Activity.streaming(activityMessage(), config.getString("bot-activity.url"));
+					}else if(config.getString("bot-activity.type").equalsIgnoreCase("listening")) {
 						act = Activity.listening(activityMessage());
-					}else if(config.GetString("bot-activity.type").equalsIgnoreCase("playing")) {
+					}else if(config.getString("bot-activity.type").equalsIgnoreCase("playing")) {
 						act = Activity.playing(activityMessage());
-					}else if(config.GetString("bot-activity.type").equalsIgnoreCase("watching")) {
+					}else if(config.getString("bot-activity.type").equalsIgnoreCase("watching")) {
 						act = Activity.watching(activityMessage());
 					}else {
 						act = Activity.watching(activityMessage());
@@ -108,9 +108,9 @@ public class Bot implements Listener {
 					client = builder.build();
 					try {
 						client.awaitReady();
-						Log.Info(Main.plugin, "Bot initiated.");
+						Log.info(Main.plugin, "Bot initiated.");
 						ready = true;
-						for(String ch : Bot.config.GetStringList("channels")) {
+						for(String ch : Bot.config.getStringList("channels")) {
 							Long id = Long.valueOf(ch);
 							server = Main.bot.client.getGuildChannelById(id).getGuild();
 							break;
@@ -137,7 +137,7 @@ public class Bot implements Listener {
 					}
 				} catch (Exception excpetion) {
 					client = null;
-					Log.Error(Main.plugin, "FAILED TO LOGIN TO DISCORD USING TOKEN PROVIDED!");
+					Log.error(Main.plugin, "FAILED TO LOGIN TO DISCORD USING TOKEN PROVIDED!");
 					Main.error = true;
 					excpetion.printStackTrace();
 					return;
@@ -171,17 +171,17 @@ public class Bot implements Listener {
 	}
 	
 	public String getInviteLink() {
-		return config.GetString("invite-link");
+		return config.getString("invite-link");
 	}
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if(config.GetString("bot-activity.message").contains("%players%")) resetActivity();
+		if(config.getString("bot-activity.message").contains("%players%")) resetActivity();
 	}
 
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		if(config.GetString("bot-activity.message").contains("%players%")) resetActivity();
+		if(config.getString("bot-activity.message").contains("%players%")) resetActivity();
 	}
 
 	public static <T> TaskChain<T> newChain() {
@@ -198,19 +198,19 @@ public class Bot implements Listener {
 
 	public void Shutdown() {
 		if(this.client == null) return;
-		Log.Info(Main.plugin, "Bot shutting down.");
+		Log.info(Main.plugin, "Bot shutting down.");
 		Bukkit.getScheduler().cancelTask(taskId);
 		this.client.shutdown();
 		try {
 			if (!this.client.awaitShutdown(Duration.ofSeconds(5))) {
-				Log.Warning(Main.plugin, "Bot did not shut down in time, forcing shutdown.");
+				Log.warning(Main.plugin, "Bot did not shut down in time, forcing shutdown.");
 				this.client.shutdownNow(); // Cancel all remaining requests
 				this.client.awaitShutdown(Duration.ofSeconds(3)); // Wait until shutdown is complete (indefinitely)
 			 }
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		Log.Info(Main.plugin, "Bot shut down.");
+		Log.info(Main.plugin, "Bot shut down.");
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class Bot implements Listener {
 	public boolean SendMessage(MessageChannel channel, String text) {
 		if(channel == null) {
 			try {
-				for(String ch : Bot.config.GetStringList("channels")) {
+				for(String ch : Bot.config.getStringList("channels")) {
 					Long id = Long.valueOf(ch);
 					Guild guild = Main.bot.client.getGuildChannelById(id).getGuild();
 					GuildChannel gchannel = guild.getGuildChannelById(id);
@@ -233,7 +233,7 @@ public class Bot implements Listener {
 						guild.getTextChannelById(id).sendMessage(text).queue();
 						return true;
 					}else {
-						Log.Error(Main.plugin, String.format("I don't have permission to write in #%s", gchannel.getName()));
+						Log.error(Main.plugin, String.format("I don't have permission to write in #%s", gchannel.getName()));
 						return false;
 					}
 				}
@@ -249,7 +249,7 @@ public class Bot implements Listener {
 				channel.sendMessage(text).queue();
 				return true;
 			}else {
-				Log.Error(Main.plugin, String.format("I don't have permission to write in #%s", gchannel.getName()));
+				Log.error(Main.plugin, String.format("I don't have permission to write in #%s", gchannel.getName()));
 				return false;
 			}
 		} catch(Exception e) {
@@ -267,15 +267,15 @@ public class Bot implements Listener {
 		if(this.client == null) return;
 		if(this.client.getPresence() == null) return;
 		if(this.client.getPresence().getActivity() == null) return;
-		if(!config.GetString("bot-activity.type").equalsIgnoreCase("none")) {
+		if(!config.getString("bot-activity.type").equalsIgnoreCase("none")) {
 			Activity act;
-			if(config.GetString("bot-activity.type").equalsIgnoreCase("streaming")) {
-				act = Activity.streaming(activityMessage(), config.GetString("bot-activity.url"));
-			}else if(config.GetString("bot-activity.type").equalsIgnoreCase("listening")) {
+			if(config.getString("bot-activity.type").equalsIgnoreCase("streaming")) {
+				act = Activity.streaming(activityMessage(), config.getString("bot-activity.url"));
+			}else if(config.getString("bot-activity.type").equalsIgnoreCase("listening")) {
 				act = Activity.listening(activityMessage());
-			}else if(config.GetString("bot-activity.type").equalsIgnoreCase("playing")) {
+			}else if(config.getString("bot-activity.type").equalsIgnoreCase("playing")) {
 				act = Activity.playing(activityMessage());
-			}else if(config.GetString("bot-activity.type").equalsIgnoreCase("watching")) {
+			}else if(config.getString("bot-activity.type").equalsIgnoreCase("watching")) {
 				act = Activity.watching(activityMessage());
 			}else {
 				act = Activity.watching(activityMessage());
@@ -288,7 +288,7 @@ public class Bot implements Listener {
 
 	public String activityMessage() {
 		int online = (EssentialsHook.isHooked()) ? EssentialsHook.visiblePlayers().size() : Bukkit.getOnlinePlayers().size();
-		return config.GetString("bot-activity.message")
+		return config.getString("bot-activity.message")
 				.replace("%players%", "" + online)
 				.replace("%max-players%", "" + Bukkit.getMaxPlayers());
 	}
@@ -308,13 +308,13 @@ public class Bot implements Listener {
 	public Long getUserIDByUsername(String username) {
 		try {
 			Guild server = null;
-			for(String ch : Bot.config.GetStringList("channels")) {
+			for(String ch : Bot.config.getStringList("channels")) {
 				Long id = Long.valueOf(ch);
 				server = Main.bot.client.getGuildChannelById(id).getGuild();
 				break;
 			}
 			if(server != null) {
-				Log.Info(Main.plugin, server.getName());
+				Log.info(Main.plugin, server.getName());
 				return server.getMembers().stream()
 						.filter(member -> member.getUser().getName().equalsIgnoreCase(username))
 						.map(member -> member.getUser().getIdLong())

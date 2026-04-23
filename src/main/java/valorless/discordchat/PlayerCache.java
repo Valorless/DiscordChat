@@ -9,7 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import valorless.valorlessutils.ValorlessUtils.Log;
+import valorless.valorlessutils.logging.Log;
 
 public class PlayerCache implements Listener {
 
@@ -23,7 +23,7 @@ public class PlayerCache implements Listener {
 				String name = player.getName();
 				cache.put(name, uuid);
 			}
-			Log.Info(Main.plugin, "PlayerCache initialized with " + cache.size() + " entries.");
+			Log.info(Main.plugin, "PlayerCache initialized with " + cache.size() + " entries.");
 		});
 	}
 	
