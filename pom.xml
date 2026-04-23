@@ -143,7 +143,7 @@
        <dependency>
  <groupId>com.github.Valorless</groupId>
  <artifactId>ValorlessUtils</artifactId>
- <version>dev-SNAPSHOT</version>
+ <version>dev-670c66f9ae-1</version>
  <scope>provided</scope>
 </dependency>
     <dependency>

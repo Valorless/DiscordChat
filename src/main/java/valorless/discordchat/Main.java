@@ -177,7 +177,6 @@ public final class Main extends JavaPlugin implements Listener {
 			Eco.init();
 			//getServer().getPluginManager().registerEvents(new CommandListenerOld(), this);
 			Storage.init();
-			PlayerCache.init();
 
 			if(Utils.IsStringNullOrEmpty(config.getString("webhook-url"))) {
 				Log.warning(plugin, "Please change my config.yml before using me." +

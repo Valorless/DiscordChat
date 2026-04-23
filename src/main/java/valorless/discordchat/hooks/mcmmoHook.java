@@ -1,23 +1,17 @@
 package valorless.discordchat.hooks;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.gmail.nossr50.mcMMO;
-import com.gmail.nossr50.api.DatabaseAPI;
 import com.gmail.nossr50.api.ExperienceAPI;
-import com.gmail.nossr50.datatypes.database.PlayerStat;
 import com.gmail.nossr50.datatypes.player.PlayerProfile;
-import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
 
 import valorless.discordchat.Main;
-import valorless.discordchat.PlayerCache;
+import valorless.valorlessutils.cache.PlayerCache;
 import valorless.valorlessutils.logging.Log;
 
 /**

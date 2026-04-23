@@ -1,7 +1,6 @@
 package valorless.discordchat;
 
 import valorless.discordchat.utils.DurationFormatter;
-import valorless.valorlessutils.ValorlessUtils.*;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import me.leoko.advancedban.bukkit.event.PunishmentEvent;
 import me.leoko.advancedban.bukkit.event.RevokePunishmentEvent;
 import me.leoko.advancedban.utils.Punishment;
 import me.leoko.advancedban.utils.PunishmentType;
+import valorless.valorlessutils.logging.Log;
 
 public class BanListener implements Listener { // Primary objective of BanListener is to listen for Ban commands.
 	public enum BanType { ban, unban, tempban, ipban, ipunban }
