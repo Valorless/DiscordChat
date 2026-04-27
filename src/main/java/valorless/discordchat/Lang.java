@@ -37,7 +37,7 @@ public class Lang {
 	}
 
 	public static String Get(String key) {
-		if(lang.Get(key) == null) {
+		if(lang.get(key) == null) {
 			Log.error(Main.plugin, String.format("Lang.yml is missing the key '%s'!", key));
 			return "§4error";
 		}

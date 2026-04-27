@@ -3,6 +3,7 @@ package valorless.discordchat.discord;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import net.dv8tion.jda.internal.JDAImpl;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,23 +35,70 @@ import valorless.valorlessutils.logging.Log;
 import valorless.valorlessutils.config.Config;
 import valorless.valorlessutils.utils.Utils;
 
+/**
+ * Manages the Discord bot lifecycle and acts as the bridge between Bukkit events and Discord.
+ *
+ * <p>This class is responsible for reading Discord configuration, initializing JDA,
+ * registering listeners and slash commands, updating presence state, and exposing helper
+ * methods for channel messaging and user/role lookups.</p>
+ */
 public class Bot implements Listener {
+	/**
+	 * Backing configuration used for Discord bot settings.
+	 */
 	protected static Config config = new Config(Main.plugin, "discord.yml");
-	private Bot bot;
+
+	/**
+	 * Self-reference used when registering this instance in async startup code.
+	 */
+	private final Bot bot;
+
+	/**
+	 * Shared factory for creating synchronous/asynchronous task chains.
+	 */
 	private static TaskChainFactory taskChainFactory;
+
+	/**
+	 * Bukkit scheduler task id for the recurring bot health/activity update task.
+	 */
 	private int taskId;
+
+	/**
+	 * Indicates whether the bridge is currently in an error state.
+	 */
 	protected boolean error = false;
 	public boolean ready = false;
 
+	/**
+	 * Active JDA client instance, set after successful login.
+	 */
 	private JDA client;
+
+	/**
+	 * Primary guild resolved from configured channel ids.
+	 */
 	private Guild server;
 
+	/**
+	 * Listener handling inbound Discord messages and channel monitoring.
+	 */
+	private MessageListener messageListener;
+
+	/**
+	 * Get the primary Discord guild resolved from configured bridge channels.
+	 *
+	 * @return resolved guild instance, or {@code null} if not yet resolved
+	 */
 	public Guild getServer() {
 		return server;
 	}
 
-	private MessageListener messageListener;
-
+	/**
+	 * Construct and initialize the Discord bot service.
+	 *
+	 * <p>If Discord integration is disabled or no token is configured, initialization is skipped.
+	 * Startup of the JDA client is performed asynchronously.</p>
+	 */
 	public Bot() {
 		this.bot = this;
 		if (Utils.IsStringNullOrEmpty(config.getString("token"))) {
@@ -82,25 +130,21 @@ public class Bot implements Listener {
 				builder.setBulkDeleteSplittingEnabled(false);
 				builder.setCompression(Compression.NONE);
 				messageListener = new MessageListener();
-				builder.addEventListeners(new Object[] { messageListener, new DiscordCommands() });
+				builder.addEventListeners(messageListener, new DiscordCommands());
 				builder.enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES);
 				builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 
 				if(!config.getString("bot-activity.type").equalsIgnoreCase("none")) {
-					Activity act;
-					if(config.getString("bot-activity.type").equalsIgnoreCase("streaming")) {
-						act = Activity.streaming(activityMessage(), config.getString("bot-activity.url"));
-					}else if(config.getString("bot-activity.type").equalsIgnoreCase("listening")) {
-						act = Activity.listening(activityMessage());
-					}else if(config.getString("bot-activity.type").equalsIgnoreCase("playing")) {
-						act = Activity.playing(activityMessage());
-					}else if(config.getString("bot-activity.type").equalsIgnoreCase("watching")) {
-						act = Activity.watching(activityMessage());
-					}else {
-						act = Activity.watching(activityMessage());
-					}
+					Activity act = switch (config.getString("bot-activity.type").toLowerCase()) {
+                        case "streaming" -> Activity.streaming(activityMessage(), config.getString("bot-activity.url"));
+                        case "listening" -> Activity.listening(activityMessage());
+                        case "playing" -> Activity.playing(activityMessage());
+						case "watching"  -> Activity.watching(activityMessage());
+						case "competing" -> Activity.competing(activityMessage());
+                        default -> Activity.customStatus(activityMessage());
+                    };
 
-					builder.setActivity(act);
+                    builder.setActivity(act);
 					builder.setAutoReconnect(true);
 				}
 
@@ -111,7 +155,7 @@ public class Bot implements Listener {
 						Log.info(Main.plugin, "Bot initiated.");
 						ready = true;
 						for(String ch : Bot.config.getStringList("channels")) {
-							Long id = Long.valueOf(ch);
+							long id = Long.parseLong(ch);
 							server = Main.bot.client.getGuildChannelById(id).getGuild();
 							break;
 						}
@@ -170,32 +214,66 @@ public class Bot implements Listener {
 
 	}
 	
+	/**
+	 * Get the configured bot invite link.
+	 *
+	 * @return invite URL string from configuration
+	 */
 	public String getInviteLink() {
 		return config.getString("invite-link");
 	}
 
+	/**
+	 * Refresh bot activity when a player joins and the activity message depends on player count.
+	 *
+	 * @param event player join event
+	 */
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		if(config.getString("bot-activity.message").contains("%players%")) resetActivity();
 	}
 
+	/**
+	 * Refresh bot activity when a player leaves and the activity message depends on player count.
+	 *
+	 * @param event player quit event
+	 */
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		if(config.getString("bot-activity.message").contains("%players%")) resetActivity();
 	}
 
+	/**
+	 * Create a new task chain bound to the bot task-chain factory.
+	 *
+	 * @param <T> chain context type
+	 * @return new task chain instance
+	 */
 	public static <T> TaskChain<T> newChain() {
 		return taskChainFactory.newChain();
 	}
 
+	/**
+	 * Create or access a named shared task chain.
+	 *
+	 * @param <T> chain context type
+	 * @param name shared chain name
+	 * @return shared task chain instance
+	 */
 	public static <T> TaskChain<T> newSharedChain(String name) {
 		return taskChainFactory.newSharedChain(name);
 	}
 
+	/**
+	 * Reload the Discord configuration file from disk.
+	 */
 	public static void ReloadConfig() {
-		config.Reload();
+		config.reload();
 	}
 
+	/**
+	 * Shut down the Discord bot and cancel recurring scheduler tasks.
+	 */
 	public void Shutdown() {
 		if(this.client == null) return;
 		Log.info(Main.plugin, "Bot shutting down.");
@@ -226,7 +304,7 @@ public class Bot implements Listener {
 		if(channel == null) {
 			try {
 				for(String ch : Bot.config.getStringList("channels")) {
-					Long id = Long.valueOf(ch);
+					long id = Long.parseLong(ch);
 					Guild guild = Main.bot.client.getGuildChannelById(id).getGuild();
 					GuildChannel gchannel = guild.getGuildChannelById(id);
 					if(guild.getSelfMember().hasPermission(gchannel, Permission.MESSAGE_SEND)) {
@@ -258,11 +336,19 @@ public class Bot implements Listener {
 		}
 	}
 
+	/**
+	 * Set the bot's Discord presence activity.
+	 *
+	 * @param activity activity to display
+	 */
 	public void setActivity(Activity activity) {
 		if(this.client == null) return;
 		this.client.getPresence().setActivity(activity);
 	}
 
+	/**
+	 * Rebuild and apply configured bot activity text/type.
+	 */
 	public void resetActivity() {
 		if(this.client == null) return;
 		if(this.client.getPresence() == null) return;
@@ -286,6 +372,11 @@ public class Bot implements Listener {
 		}
 	}
 
+	/**
+	 * Resolve the configured activity message with runtime placeholders.
+	 *
+	 * @return activity message with current player values substituted
+	 */
 	public String activityMessage() {
 		int online = (EssentialsHook.isHooked()) ? EssentialsHook.visiblePlayers().size() : Bukkit.getOnlinePlayers().size();
 		return config.getString("bot-activity.message")
@@ -293,10 +384,22 @@ public class Bot implements Listener {
 				.replace("%max-players%", "" + Bukkit.getMaxPlayers());
 	}
 
+	/**
+	 * Resolve a text channel by Discord channel ID.
+	 *
+	 * @param channelID Discord channel ID
+	 * @return text channel instance, or {@code null} if not found
+	 */
 	public MessageChannel GetChannelByID(Long channelID) {
 		return client.getTextChannelById(channelID);
 	}
 	
+	/**
+	 * Resolve a Discord username by user ID.
+	 *
+	 * @param userID Discord user ID
+	 * @return fetched username, or a formatted failure string when lookup fails
+	 */
 	public String getUsernameByID(Long userID) {
 		try {
 			return client.retrieveUserById(userID).complete().getName();
@@ -305,11 +408,17 @@ public class Bot implements Listener {
 		}
 	}
 	
+	/**
+	 * Resolve a Discord user ID by username within the configured guild.
+	 *
+	 * @param username Discord username to search for
+	 * @return matching user ID, or {@code null} if not found or lookup fails
+	 */
 	public Long getUserIDByUsername(String username) {
 		try {
 			Guild server = null;
 			for(String ch : Bot.config.getStringList("channels")) {
-				Long id = Long.valueOf(ch);
+				long id = Long.parseLong(ch);
 				server = Main.bot.client.getGuildChannelById(id).getGuild();
 				break;
 			}
@@ -327,6 +436,13 @@ public class Bot implements Listener {
 		}
 	}
 	
+	/**
+	 * Add a role to a guild member.
+	 *
+	 * @param userID Discord user ID
+	 * @param roleID Discord role ID
+	 * @return {@code true} if request was queued successfully, otherwise {@code false}
+	 */
 	public boolean addRole(Long userID, Long roleID) {
 		try {
 			server.addRoleToMember(server.getMemberById(userID), server.getRoleById(roleID)).queue();
@@ -337,6 +453,13 @@ public class Bot implements Listener {
 		}
 	}
 	
+	/**
+	 * Remove a role from a guild member.
+	 *
+	 * @param userID Discord user ID
+	 * @param roleID Discord role ID
+	 * @return {@code true} if request was queued successfully, otherwise {@code false}
+	 */
 	public boolean removeRole(Long userID, Long roleID) {
 		try {
 			server.removeRoleFromMember(server.getMemberById(userID), server.getRoleById(roleID)).queue();

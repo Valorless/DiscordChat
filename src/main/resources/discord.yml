@@ -19,12 +19,12 @@ invite-link: 'https://discord.gg/WnT7zpcdDq'
 # https://discord.com/oauth2/authorize?client_id=CLIENTID&scope=bot
 token: ''
 
-# Whether or not messages from bots are sent in-game.
+# Whether messages from bots are sent in-game.
 bot-messages: false
 
 bot-activity:
- # Types: none, watching, playing, streaming, listening
- type: watching
+ # Types: none, watching, playing, streaming, listening, competing, custom
+ type: custom
  # Placeholders: %players%, %max-players%
  message: 'Cool Server'
  # URL if type is "streaming".
@@ -46,8 +46,7 @@ channels:
 # %role% - The highest role they have.
 # %channel% - The channel the message was sent in.
 # %badge% - Role badge.
-
-message-format: "&7[&9Discord&7]&r %nickname%%badge%: %message%"
+message-format: "&7[&#7289daDiscord&7]&r %nickname%%badge%: %message%"
 
 # Command prefix, this essentially replaces / with another symbol.
 command-prefix: ';'
@@ -76,6 +75,7 @@ blocked-commands:
  - broadcast
  - server
  - kill
- 
+
+# Message sent when a user tries to use a blocked command.
 blocked-commands-message: 'Sorry, but the command "%s" cannot be used.'
 

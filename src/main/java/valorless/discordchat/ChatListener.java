@@ -198,7 +198,6 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 	}
 
 
-	int r = 0;
 	@EventHandler (priority = EventPriority.HIGH)
 	public void onAchievementGet(PlayerAdvancementDoneEvent event) {
 		if(Main.enabled == false) {
@@ -215,9 +214,8 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				rule = (GameRule<Boolean>) Registry.GAME_RULE.get(new NamespacedKey("minecraft", "show_advancement_messages"));
 			}
 		}
-		if(r != 0 && rule == null) {
+		if(rule == null) {
 			Log.error(plugin, "Failed to get the advancements game rule.");
-			r = 1;
 		}
 		if(rule == null || event.getPlayer().getWorld().getGameRuleValue(rule) == false) return;
 		if(event.getAdvancement() == null) return;
@@ -399,6 +397,8 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				leave = leave.replace("%username%", event.getPlayer().getName());
 				for(Player player : Bukkit.getOnlinePlayers()) {
 					if(player.hasPermission("essentials.silentquit")) {
+						String pl = event.getPlayer().getName();
+						leave = leave.replace("%cause%", "Disconnect");
 						player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave + " &8(Vanished)", event.getPlayer())));
 					}
 				}
@@ -512,6 +512,14 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				}
 			}
 
+			if(event.getPlayer().hasPermission("essentials.silentquit")) {
+				for(Player player : Bukkit.getOnlinePlayers()) {
+					if(player.hasPermission("essentials.silentquit")) {
+						player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave + " &8(Vanished)", event.getPlayer())));
+					}
+				}
+				return;
+			}
 			for(Player player : Bukkit.getOnlinePlayers()) {
 				player.sendMessage(Lang.Parse(Lang.ParsePlaceholders(leave, event.getPlayer())));
 			}

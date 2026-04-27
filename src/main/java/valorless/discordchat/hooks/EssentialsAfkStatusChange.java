@@ -14,9 +14,18 @@ import valorless.discordchat.DiscordWebhook;
 import valorless.discordchat.Main;
 import valorless.valorlessutils.logging.Log;
 
+/**
+ * Listens for Essentials AFK status changes and forwards status updates to Discord.
+ */
 public class EssentialsAfkStatusChange implements Listener {
 	
-	@SuppressWarnings("deprecation")
+	/**
+	 * Handle AFK status changes for visible players and send a webhook notification.
+	 *
+	 * <p>Events triggered by quit actions or hidden/vanished players are ignored.</p>
+	 *
+	 * @param event Essentials AFK status change event
+	 */
 	@EventHandler (priority = EventPriority.HIGHEST)
     public void onAfkStatusChange(AfkStatusChangeEvent event) {
 		if(Main.enabled == false) {

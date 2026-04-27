@@ -8,11 +8,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.server.ServerCommandEvent;
 
 import me.leoko.advancedban.bukkit.event.PunishmentEvent;
 import me.leoko.advancedban.bukkit.event.RevokePunishmentEvent;
@@ -20,35 +17,20 @@ import me.leoko.advancedban.utils.Punishment;
 import me.leoko.advancedban.utils.PunishmentType;
 import valorless.valorlessutils.logging.Log;
 
+/**
+ * Listens to AdvancedBan punishment events and forwards formatted notifications to Discord.
+ */
 public class BanListener implements Listener { // Primary objective of BanListener is to listen for Ban commands.
+	/**
+	 * Supported punishment notification types used to choose webhook embed templates.
+	 */
 	public enum BanType { ban, unban, tempban, ipban, ipunban }
-
-	static String Name = "§7[§9Discord§7]§r ";
 	
-	/*
-	@EventHandler
-	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-		String[] args = event.getMessage().split("\\s+");
-		//Player sender = event.getPlayer();
-		CommandSender sender = event.getPlayer();
-		ProcessCommand(args, sender, false);
-	}
-
-	
-	@EventHandler
-	public void onServerCommand(ServerCommandEvent event) {
-		String[] args = event.getCommand().split("\\s+");
-		CommandSender console = event.getSender();
-		args[0] = "/" + args[0];
-		ProcessCommand(args, console, true);
-	}
-
-	public static void DiscordCommand(CustomConsoleSender sender, String message) {
-		String[] args = message.split("\\s+");
-		args[0] = "/" + args[0];
-		ProcessCommand(args, sender, false);
-	}*/
-	
+	/**
+	 * Handle newly issued punishments and dispatch matching Discord webhook messages.
+	 *
+	 * @param event AdvancedBan punishment event
+	 */
 	@EventHandler
 	public void onBanEvent(PunishmentEvent event) {
 		Punishment punishment = event.getPunishment();
@@ -57,7 +39,7 @@ public class BanListener implements Listener { // Primary objective of BanListen
 			String target = punishment.getName();
 			String sender = punishment.getOperator();
 			String reason = punishment.getReason();
-			if(reason == null || reason.equals("")) reason = "No reason given.";
+			if(reason == null || reason.isEmpty()) reason = "No reason given.";
 			if(reason.equalsIgnoreCase("@BBBAuto")) return; // Don't send auto bans to discord, as they can be very spammy and often have no reason.
 			String duration = DurationFormatter.formatDurationBetween(punishment.getStart(), punishment.getEnd());
 			//String duration = FormatDuration(punishment.getDuration(true));
@@ -73,6 +55,11 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		}
 	}
 	
+	/**
+	 * Handle revoked punishments and dispatch matching Discord webhook messages.
+	 *
+	 * @param event AdvancedBan revoke punishment event
+	 */
 	@EventHandler
 	public void onUnbanEvent(RevokePunishmentEvent event) {
 		Punishment punishment = event.getPunishment();
@@ -90,110 +77,13 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		}
 	}
 
-	public static void ProcessCommand(String[] args, CommandSender sender, Boolean console) {
-		if(args[0].equalsIgnoreCase("/ban") && args.length >= 2 && Main.bans.getBool("bans") == true) {
-			if(sender.hasPermission("minecraft.command.ban") || sender.hasPermission("essentials.ban")) {
-				Date now = new Date();
-				String target = args[1];
-				if (target != "") {
-					if(args.length >= 3) {
-						String reason = "";
-						for(int i = 2; i < args.length; i++) { reason = reason + " " + args[i]; }
-						if(console) {
-							SendWebhook(BanType.ban, target, "Console", reason, now, "");
-						} else {
-							SendWebhook(BanType.ban, target, sender.getName(), reason, now, "");
-						}
-					}
-					else {
-						if(console) { 
-							SendWebhook(BanType.ban, target, "Console", "No reason given.", now, "");
-						} else {
-							SendWebhook(BanType.ban, target, sender.getName(), "No reason given.", now, "");
-						}
-					}
-				}
-			}
-		}
-		if(args[0].equalsIgnoreCase("/tempban") && args.length >= 3 && Main.bans.getBool("tempbans") == true) {
-			if(sender.hasPermission("essentials.tempban")) {
-				Date now = new Date();
-				String target = args[1];
-				if (target != "") {
-					if(args.length >= 4) {
-						String reason = "";
-						for(int i = 3; i < args.length; i++) { reason = reason + " " + args[i]; }
-						if(console) { 
-							SendWebhook(BanType.tempban, target, "Console", reason, now, args[2]);
-						} else {
-							SendWebhook(BanType.tempban, target, sender.getName(), reason, now, args[2]);
-						}
-					}
-					else {
-						if(console) { 
-							SendWebhook(BanType.tempban, target, "Console", "No reason given.", now, args[2]);
-						} else {
-							SendWebhook(BanType.tempban, target, sender.getName(), "No reason given.", now, args[2]);
-						}
-					}
-				}
-
-			}
-		}
-		if(args[0].equalsIgnoreCase("/unban") && args.length >= 2 && Main.bans.getBool("unbans") == true || 
-				args[0].equalsIgnoreCase("/pardon") && args.length >= 2 && Main.bans.getBool("unbans") == true) {
-			if(sender.hasPermission("minecraft.command.pardon") || sender.hasPermission("essentials.unban")) {
-				Date now = new Date();
-				String target = args[1];
-				if (target != "") {
-					if(console) { 
-						SendWebhook(BanType.unban, target, "Console", "", now, "");
-					} else {
-						SendWebhook(BanType.unban, target, sender.getName(), "", now, "");
-					}
-				}
-			}
-		}
-		if(args[0].equalsIgnoreCase("/banip") && args.length >= 2 && Main.bans.getBool("banips") == true) {
-			if(sender.hasPermission("essentials.banip")) {
-				Date now = new Date();
-				String target = args[1];
-				if (target != "") {
-					if(args.length >= 3) {
-						String reason = "";
-						for(int i = 2; i < args.length; i++) { reason = reason + " " + args[i]; }
-						if(console) { 
-							SendWebhook(BanType.ipban, target, "Console", reason, now, "");
-						} else {
-							SendWebhook(BanType.ipban, target, sender.getName(), reason, now, "");
-						}
-					}
-					else {
-						if(console) { 
-							SendWebhook(BanType.ipban, target, "Console", "No reason given.", now, "");
-						} else {
-							SendWebhook(BanType.ipban, target, sender.getName(), "No reason given.", now, "");
-						}
-					}
-				}
-			}
-		}
-		if(args[0].equalsIgnoreCase("/unbanip") && args.length >= 2 && Main.bans.getBool("unbanips") == true ||
-				args[0].equalsIgnoreCase("/pardon-ip") && args.length >= 2 && Main.bans.getBool("unbanips") == true) {
-			if(sender.hasPermission("minecraft.command.pardon-ip") || sender.hasPermission("essentials.unbanip")) {
-				Date now = new Date();
-				String target = args[1];
-				if (target != "") {
-					if(console) { 
-						SendWebhook(BanType.ipunban, target, "Console", "", now, "");
-					} else {
-						SendWebhook(BanType.ipunban, target, sender.getName(), "", now, "");
-					}
-				}
-			}
-		}
-	}
-
+	/**
+	 * Replace placeholder keys in a message template with resolved values.
+	 *
+	 * @param message message template
+	 * @param placeholders map of placeholder key to value
+	 * @return message with placeholders replaced
+	 */
 	public static String parsePlaceholders(String message, HashMap<String, String> placeholders) {
 		for(String key : placeholders.keySet()) {
 			message = message.replace(key, placeholders.get(key));
@@ -201,6 +91,16 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		return message;
 	}
 
+	/**
+	 * Build and send a ban-related Discord webhook asynchronously.
+	 *
+	 * @param type ban notification type
+	 * @param target punished player name or identifier
+	 * @param sender actor that applied or revoked the punishment
+	 * @param reason punishment reason
+	 * @param date timestamp associated with the event
+	 * @param duration formatted duration for temporary punishments
+	 */
 	public static void SendWebhook(BanType type, String target, String sender, String reason, Date date, String duration) {
 		Log.info(Main.plugin, "Attempting to send ban to discord!");
 		Log.info(Main.plugin, "Type: " + type.name());
@@ -217,7 +117,7 @@ public class BanListener implements Listener { // Primary objective of BanListen
 			ph.put("%reason%", reason);
 			ph.put("%duration%", duration);
 			ph.put("%date%", date.toString());
-			ph.put("%plugin%", Name);
+			ph.put("%plugin%", Lang.Parse(Lang.Get("prefix")));
 
 			DiscordWebhook webhook = new DiscordWebhook(Main.bans.getString("webhook-url"));
 			webhook.setContent(parsePlaceholders(Main.bans.getString("bot-message"), ph));
@@ -292,11 +192,23 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		});
 	}
 
+	/**
+	 * Parse language placeholders and encode the final message as unicode escape sequences.
+	 *
+	 * @param message raw message to format
+	 * @return formatted and unicode-escaped message
+	 */
 	public static String FormatMessage(String message) {
 		message = Lang.Parse(message);
 		return encodeStringToUnicodeSequence(message);
 	}
 
+	/**
+	 * Encode each code point in a string as a unicode escape sequence.
+	 *
+	 * @param txt input text
+	 * @return unicode-escaped text
+	 */
 	public static String encodeStringToUnicodeSequence(String txt) {
 		StringBuilder result = new StringBuilder();
 		if (txt != null && !txt.isEmpty()) {
@@ -310,7 +222,15 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		return result.toString();
 	}
 
+	/** Prefix used when building unicode escape sequences. */
 	private final static String UNICODE_PREFIX = "\\u";
+
+	/**
+	 * Convert a single unicode code point to its escaped string representation.
+	 *
+	 * @param codePoint unicode code point
+	 * @return escaped unicode string
+	 */
 	private static String convertCodePointToUnicodeString(int codePoint) {
 		StringBuilder result = new StringBuilder(UNICODE_PREFIX);
 		String codePointHexStr = Integer.toHexString(codePoint);
@@ -322,6 +242,12 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		return result.toString();
 	}
 
+	/**
+	 * Create the leading zero padding needed for a 4-character unicode escape payload.
+	 *
+	 * @param codePointStrLength current hex string length
+	 * @return zero padding string
+	 */
 	private static String getPrecedingZerosStr(int codePointStrLength) {
 		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < 4 - codePointStrLength; i++) {
@@ -330,6 +256,12 @@ public class BanListener implements Listener { // Primary objective of BanListen
 		return result.toString();
 	}
 
+	/**
+	 * Legacy duration formatter kept for compatibility and fallback troubleshooting.
+	 *
+	 * @param duration compact duration token string
+	 * @return human-readable duration label
+	 */
 	//Legacy method for formatting durations, may be used in the future if DurationFormatter does not work as intended.
 	static String FormatDuration(String duration) {
 		if(duration.contains("mo")) return duration.replace("mo", " Months");

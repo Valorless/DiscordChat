@@ -8,8 +8,16 @@ import org.bukkit.Bukkit;
 import valorless.discordchat.Main;
 import valorless.discordchat.hooks.EssentialsHook;
 
+/**
+ * Utility methods for retrieving server runtime metrics used by chat and slash commands.
+ */
 public class ServerStats {
 	
+	/**
+	 * Build a formatted stats summary with TPS, visible online player count, and memory usage.
+	 *
+	 * @return formatted one-message server performance summary
+	 */
 	public static String slashMem() {
 		int online = (EssentialsHook.isHooked()) ? EssentialsHook.visiblePlayers().size() : Bukkit.getOnlinePlayers().size();
 		String mem = String.format("Server is running %s TPS with %s players.\n", getTps(), online);
@@ -17,6 +25,11 @@ public class ServerStats {
 		return mem;
 	}
 
+	/**
+	 * Get formatted JVM memory usage information.
+	 *
+	 * @return memory usage string containing used, allocated, and max memory values
+	 */
 	public static String getMemory() {
 	    Runtime runtime = Runtime.getRuntime();
 	    
@@ -30,6 +43,11 @@ public class ServerStats {
 	    		);
 	}
 
+	/**
+	 * Get current 1-minute TPS using server internals via reflection.
+	 *
+	 * @return formatted TPS value, or {@code "N/A"} if it cannot be resolved
+	 */
 	public static String getTps() {
 		try {
 			Object minecraftServer = Bukkit.getServer().getClass().getMethod("getServer").invoke(Bukkit.getServer());
@@ -43,6 +61,11 @@ public class ServerStats {
 		}
 	}
 	
+	/**
+	 * Get server process uptime as hours, minutes, and seconds.
+	 *
+	 * @return formatted uptime string in "X hours, Y minutes, Z seconds" format
+	 */
 	public static String getUptime() {
 		long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
         long uptimeSeconds = uptimeMillis / 1000;

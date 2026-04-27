@@ -26,9 +26,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.ess3.api.IUser;
-import valorless.discordchat.DiscordWebhook;
 import valorless.discordchat.Main;
-//import valorless.discordchat.PlayerCache;
 import valorless.valorlessutils.cache.PlayerCache;
 import valorless.discordchat.hooks.Eco;
 import valorless.discordchat.hooks.EssentialsHook;
@@ -38,8 +36,18 @@ import valorless.discordchat.utils.Extra;
 import valorless.discordchat.utils.ServerStats;
 import valorless.valorlessutils.logging.Log;
 
+/**
+ * Handles Discord slash commands, modal submissions, and button interactions.
+ *
+ * <p>This listener routes command flows between Discord users and in-game systems,
+ * including account linking, economy actions, inventory/enderchest lookups, and
+ * mcMMO stat queries.</p>
+ */
 public class DiscordCommands extends ListenerAdapter {
 	
+	/**
+	 * Commands available to all users, regardless of link state.
+	 */
 	private final static HashMap<String, String> defaultCommands = new HashMap<>() {
 		private static final long serialVersionUID = 1L;
 		{
@@ -53,6 +61,9 @@ public class DiscordCommands extends ListenerAdapter {
 		}
 	};
 	
+	/**
+	 * Commands available only when a Discord user is linked to a Minecraft account.
+	 */
 	private final static HashMap<String, String> linkedCommands = new HashMap<>() {
 		// Auto-sorted
 		private static final long serialVersionUID = 1L;
@@ -74,14 +85,13 @@ public class DiscordCommands extends ListenerAdapter {
 	 *
 	 * @param event the slash command interaction event from JDA
 	 */
-	@SuppressWarnings("deprecation")
 	@Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 		Log.info(Main.plugin, "User: " + event.getUser().getName());
 		Log.info(Main.plugin, "Command: " + event.getName());
 		User user = event.getUser();
 		
-		/** Help command
+		/* Help command
 		 * Replies with a list of available commands.
 		 * Includes additional commands if the user is linked.
 		 */
@@ -99,7 +109,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
 		
-		/** Online command
+		/* Online command
 		 * Replies with a list of currently online players.
 		 * If Essentials is hooked, it filters out vanished players and marks AFK players.
 		 */
@@ -121,7 +131,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
 
-		/** Uptime command
+		/* Uptime command
 		 * Replies with the server's uptime.
 		 * Uses the ServerStats utility to retrieve uptime information.
 		 */
@@ -130,7 +140,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
 
-		/** Memory command
+		/* Memory command
 		 * Replies with the server's current memory usage statistics.
 		 * Uses the ServerStats utility to retrieve memory information.
 		 */
@@ -139,7 +149,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
 		
-		/** Unlink command
+		/* Unlink command
 		 * Unlinks the user's Discord account from their linked Minecraft account.
 		 * Uses the Linking hook to perform the unlinking operation.
 		 */
@@ -160,7 +170,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
 		
-		/** Link command
+		/* Link command
 		 * Opens a modal to input the Minecraft username to link with the Discord account.
 		 * Uses the Linking hook to handle the linking upon modal submission.
 		 */
@@ -189,7 +199,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
         }
 		
-        /** Ensure the user is linked for the following commands **/
+        /* Ensure the user is linked for the following commands */
 		if(!Linking.isLinked(user.getIdLong())) {
 			//event.reply("You must link your Discord account to a Minecraft account first using `/link`.")
 			event.reply(Storage.Accounts.dataFile.getString("lang.not-linked.discord"))
@@ -197,9 +207,9 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
 		
-		/** Pay command
-		 * Opens a modal to input the recipient's username and the amount to pay.
-		 * Uses the Eco hook to handle the transaction upon modal submission.
+		/* Pay command
+		  Opens a modal to input the recipient's username and the amount to pay.
+		  Uses the Eco hook to handle the transaction upon modal submission.
 		 */
         if(event.getName().equals("pay")) {
             TextInput username = TextInput.create("username", "Player", TextInputStyle.SHORT)
@@ -221,7 +231,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
         }
         
-        /** Balance command
+        /* Balance command
          * Replies with the user's current in-game balance.
          * Uses the Eco hook to retrieve the balance based on the linked Minecraft UUID.
          */
@@ -326,6 +336,11 @@ public class DiscordCommands extends ListenerAdapter {
         event.reply("An error occurred while processing your command. Please try again later.").setEphemeral(true).queue();
     }
 	
+	/**
+	 * Handle button interactions for sharing inventory, enderchest, and balance output.
+	 *
+	 * @param event the button interaction event from JDA
+	 */
 	@Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
 		User user = event.getUser();
@@ -408,7 +423,7 @@ public class DiscordCommands extends ListenerAdapter {
 		User user = event.getUser();
 		//Guild server = event.getGuild();
 		
-		/** Link modal
+		/* Link modal
 		 * Processes the linking of a Discord account to a Minecraft account.
 		 * Validates if the user is already linked and if the Minecraft player exists.
 		 */
@@ -454,7 +469,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
 		
-		/** Ensure the user is linked for the following modals **/
+		/* Ensure the user is linked for the following modals */
 		if(!Linking.isLinked(user.getIdLong())) {
 			//event.reply("You must link your Discord account to a Minecraft account first using `/link`.")
 			event.reply(Storage.Accounts.dataFile.getString("lang.not-linked.discord"))
@@ -462,7 +477,7 @@ public class DiscordCommands extends ListenerAdapter {
 			return;
 		}
 		
-		/** Pay modal
+		/* Pay modal
 		 * Processes the payment of in-game currency from one player to another.
 		 * Validates if the payer can afford the amount and if the recipient exists.
 		 */
@@ -507,27 +522,23 @@ public class DiscordCommands extends ListenerAdapter {
 			String username = event.getValue("username").getAsString();
 			UUID playerUUID = PlayerCache.getUUID(username);
 			PlayerProfile profile = mcMMO.getDatabaseManager().loadPlayerProfile(playerUUID);
-			
-			if(profile != null) {
-				String msg = String.format("## mcMMO Stats for %s:\n", username);
-				int totalLevel = 0;
-				for(PrimarySkillType pst : PrimarySkillType.values()) {
-					int level = profile.getSkillLevel(pst);
-					double xp = profile.getSkillXpLevel(pst);
-					double max = profile.getXpToLevel(pst);
-					msg += String.format(" - **%s** - Level: **%d** - XP: %.2f/%.2f\n", 
-							Extra.UppercaseFirstLetter(pst.name()), level, xp, max);
-					totalLevel += level;
-				}
-				msg += String.format("**Total Level:** %d", totalLevel);
-				
-				event.reply(msg).setEphemeral(true).queue();
-				return;
-			}
 
-			event.reply("Failed to retrieve stats for " + username + ".").setEphemeral(true).queue();
-			return;
-		}
+            String msg = String.format("## mcMMO Stats for %s:\n", username);
+            int totalLevel = 0;
+            for(PrimarySkillType pst : PrimarySkillType.values()) {
+                int level = profile.getSkillLevel(pst);
+                double xp = profile.getSkillXpLevel(pst);
+                double max = profile.getXpToLevel(pst);
+                msg += String.format(" - **%s** - Level: **%d** - XP: %.2f/%.2f\n",
+                        Extra.UppercaseFirstLetter(pst.name()), level, xp, max);
+                totalLevel += level;
+            }
+            msg += String.format("**Total Level:** %d", totalLevel);
+
+            event.reply(msg).setEphemeral(true).queue();
+            return;
+
+        }
     }
 	
 }

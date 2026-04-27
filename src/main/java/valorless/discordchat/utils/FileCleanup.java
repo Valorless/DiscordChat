@@ -7,13 +7,21 @@ import java.time.temporal.ChronoUnit;
 import valorless.discordchat.Main;
 import valorless.valorlessutils.logging.Log;
 
+/**
+ * Utility for cleaning up old files from a directory.
+ *
+ * <p>Used to prune locally saved files that have exceeded a configured age limit.</p>
+ */
 public class FileCleanup {
 
-	/***
-	 * Clean folder by removing files older than a specific time.
-	 * *Only used if saving locally.
-	 * @param path Path of the folder to clean.
-	 * @param maxAge Max allowed file age, in days.
+	/**
+	 * Delete all files in the specified folder that are older than the given age.
+	 *
+	 * <p>Only regular files are evaluated; subdirectories are left untouched.
+	 * Only used if saving locally.</p>
+	 *
+	 * @param path   path of the folder to clean
+	 * @param maxAge maximum allowed file age in days; files older than this are deleted
 	 */
     public static void Clean(String path, int maxAge) {
         File folder = new File(path);

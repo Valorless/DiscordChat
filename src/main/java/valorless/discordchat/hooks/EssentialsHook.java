@@ -45,11 +45,11 @@ public class EssentialsHook {
 		return instance;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public static List<Player> visiblePlayers(){
 		List<Player> players = new ArrayList<>();
+		if(getInstance() == null) return players;
 		for(Player player : Bukkit.getOnlinePlayers()) {
-        	IUser pl = EssentialsHook.getInstance().getUser(player);
+        	IUser pl = getInstance().getUser(player);
         	if(pl.isVanished()) continue;
         	else players.add(pl.getBase());
         }
@@ -62,7 +62,7 @@ public class EssentialsHook {
 	
 	@SuppressWarnings("deprecation")
 	public static boolean isAfk(Player player) {
-		IUser pl = EssentialsHook.getInstance().getUser(player);
+		IUser pl = getInstance().getUser(player);
 		return pl.isAfk();
 	}
 

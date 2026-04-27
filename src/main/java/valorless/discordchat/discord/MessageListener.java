@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.ess3.api.IUser;
-import valorless.discordchat.BanListener;
 import valorless.discordchat.CustomConsoleSender;
 import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
@@ -36,7 +35,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MessageListener extends ListenerAdapter { 
+public class MessageListener extends ListenerAdapter {
 	public List<String> monitoredChannels;
 
 	public MessageListener() {
@@ -46,13 +45,14 @@ public class MessageListener extends ListenerAdapter {
 	@SuppressWarnings("deprecation")
 	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 		Member member = event.getMember();
-		if (!monitoredChannels.contains(event.getChannel().getId())) return; 
-		if (event.getAuthor().isBot() && !Bot.config.getBool("bot-messages")) return; 
+		if (!monitoredChannels.contains(event.getChannel().getId())) return;
+		if (event.getAuthor().isBot() && !Bot.config.getBool("bot-messages")) return;
 		boolean reply = (event.getMessage() != null) ?
 				event.getMessage().getType() == MessageType.INLINE_REPLY : false;
 		boolean forward = (event.getMessage().getMessageReference() != null) ?
 				event.getMessage().getMessageReference().getType() ==  MessageReferenceType.FORWARD : false;
-		boolean attachments =  (event.getMessage().getAttachments() != null) ? !event.getMessage().getAttachments().isEmpty() : false;
+		boolean attachments =  (event.getMessage().getAttachments() != null) ?
+				!event.getMessage().getAttachments().isEmpty() : false;
 
 		Log.debug(Main.plugin, "reply: " + reply);
 		Log.debug(Main.plugin, "forward: " + forward);
@@ -60,7 +60,7 @@ public class MessageListener extends ListenerAdapter {
 
 		Bot.newChain().async(() -> {
 			String message = event.getMessage().getContentDisplay();
-			if (member == null) return; 
+			if (member == null) return;
 			String username = event.getAuthor().getName();
 			String guildName = event.getGuild().getName();
 			String channel = event.getMessage().getChannel().getName();
@@ -71,7 +71,7 @@ public class MessageListener extends ListenerAdapter {
 			String role = (mainRole != null) ? mainRole.getName() : "";
 			String chatMessage = Bot.config.getString("message-format");
 
-			if(containsUrl(message)) {
+			if(containsUrl(message) && !isStaff(member)) {
 				event.getMessage().delete();
 				Main.bot.SendMessage(event.getChannel(), String.format("<@%s> Links and media links do not work in this channel." , event.getAuthor().getId()));
 				return;
@@ -89,7 +89,7 @@ public class MessageListener extends ListenerAdapter {
 						if(message == null) {
 							return;
 						}
-					}else if(c == '!') {
+					}else if(c == '!') { // Kept purely to notify players of the new slash commands.
 						Log.info(Main.plugin, "D-Command");
 						ProccessDiscordCommand(event.getChannel(), member, event.getAuthor(), message);
 						return;
@@ -98,12 +98,12 @@ public class MessageListener extends ListenerAdapter {
 					Main.bot.SendMessage(event.getChannel(), e.getMessage());
 					if(Main.config.getBool("error-message")) {
 						String msg = String.format(
-								"§7[§9Discord§7]§r Error proccessing message from %s, might be a forward or contain an image."
+								Lang.Parse(Lang.Get("prefix")) + "Error processing message from %s, might be a forward or contain an image."
 								, nickname);
 						for(Player player : Bukkit.getOnlinePlayers()) {
 							player.sendMessage(msg);
 						}
-						Log.info(Main.plugin, msg.replace("§7[§9Discord§7]§r ", ""));
+						Log.info(Main.plugin, msg);
 					}
 					e.printStackTrace();
 					return;
@@ -127,27 +127,27 @@ public class MessageListener extends ListenerAdapter {
 					}
 				}
 				chatMessage = chatMessage.replace("%username%", name)
-					.replace("%displayname%", name)
-					.replace("%nickname%", reply ? name + " (Reply)" : name)
-					.replace("%server%", guildName)
-					.replace("%channel%", channel)
-					.replace("%role%", role)
-					.replace("%badge%", badge);
+						.replace("%displayname%", name)
+						.replace("%nickname%", reply ? name + " (Reply)" : name)
+						.replace("%server%", guildName)
+						.replace("%channel%", channel)
+						.replace("%role%", role)
+						.replace("%badge%", badge);
 			}else {
 				chatMessage = chatMessage.replace("%username%", username)
-					.replace("%displayname%", displayname)
-					.replace("%nickname%", reply ? nickname + " (Reply)" : nickname)
-					.replace("%server%", guildName)
-					.replace("%channel%", channel)
-					.replace("%role%", role)
-					.replace("%badge%", badge);
+						.replace("%displayname%", displayname)
+						.replace("%nickname%", reply ? nickname + " (Reply)" : nickname)
+						.replace("%server%", guildName)
+						.replace("%channel%", channel)
+						.replace("%role%", role)
+						.replace("%badge%", badge);
 			}
 
 			if(Utils.IsStringNullOrEmpty(event.getMessage().getContentDisplay())) {
 				if(attachments) {
 					List<String> files = event.getMessage().getAttachments().stream().map(attachment -> attachment.getFileName()).toList();
 					chatMessage = chatMessage.replace("%message%", "[File/Image] " + String.join(", ", files) + "\n" +
-					message);
+							message);
 				}else {
 					chatMessage = chatMessage.replace("%message%", "null");
 				}
@@ -156,17 +156,17 @@ public class MessageListener extends ListenerAdapter {
 			}
 
 
-			if(blockedWord(chatMessage) == null) { 
+			if(blockedWord(chatMessage) == null) {
 				if(reply) {
-					String name = event.getMessage().getReferencedMessage().getAuthor().getGlobalName() != null ? 
-							event.getMessage().getReferencedMessage().getAuthor().getGlobalName() : 
-								event.getMessage().getReferencedMessage().getAuthor().getName();
+					String name = event.getMessage().getReferencedMessage().getAuthor().getGlobalName() != null ?
+							event.getMessage().getReferencedMessage().getAuthor().getGlobalName() :
+							event.getMessage().getReferencedMessage().getAuthor().getName();
 					if(name.equalsIgnoreCase("No global name set")) name = event.getMessage().getReferencedMessage().getAuthor().getName();
 					if(name.equalsIgnoreCase("Error retrieving global name")) name = event.getMessage().getReferencedMessage().getAuthor().getName();
-					String replyMessage = "┌─── " + String.format("%s: %s", 
+					String replyMessage = "┌─── " + String.format("%s: %s",
 							removeFirstBracketedText(name),
 							removeFirstBracketedText(event.getMessage().getReferencedMessage().getContentStripped())
-							);
+					);
 					//Bukkit.broadcastMessage(replyMessage + "\n" + chatMessage);
 					for(Player player : Bukkit.getOnlinePlayers()) {
 						if(Main.muted.HasKey(player.getName()))
@@ -179,32 +179,32 @@ public class MessageListener extends ListenerAdapter {
 				else if(forward){
 					String forwarder = displayname.equalsIgnoreCase("No global name set") ? displayname : username;
 					String forwardMessage = "┌─── " + String.format("(Forward) %s", forwarder);
-					
+
 					Message receivedMessage = event.getMessage();
 					MessageReference ref = receivedMessage.getMessageReference();
 
 					if (ref != null) {
-					    // A referenced message exists
-					    ref.resolve().queue(originalMessage -> {
-					    	String name = originalMessage.getAuthor().getGlobalName() != null ? 
-					    			originalMessage.getAuthor().getGlobalName() : originalMessage.getAuthor().getName();
-					    	String msg = "";
+						// A referenced message exists
+						ref.resolve().queue(originalMessage -> {
+							String name = originalMessage.getAuthor().getGlobalName() != null ?
+									originalMessage.getAuthor().getGlobalName() : originalMessage.getAuthor().getName();
+							String msg = "";
 							if(name.equalsIgnoreCase("No global name set")) name = originalMessage.getAuthor().getName();
-					    	
-					    	boolean att =  (originalMessage.getAttachments() != null) ? !originalMessage.getAttachments().isEmpty() : false;
-					    	
-					    	if(att) {
+
+							boolean att =  (originalMessage.getAttachments() != null) ? !originalMessage.getAttachments().isEmpty() : false;
+
+							if(att) {
 								List<String> files = originalMessage.getAttachments().stream().map(attachment -> attachment.getFileName()).toList();
 								msg = forwardMessage + String.format("\n%s: [File/Image] %s\n%s", removeFirstBracketedText(name),
 										String.join(", ", files),
 										removeFirstBracketedText(originalMessage.getContentStripped())
-										);
+								);
 							}else {
 								msg = forwardMessage + String.format("\n%s: %s", removeFirstBracketedText(name),
 										removeFirstBracketedText(originalMessage.getContentStripped())
-										);
+								);
 							}
-					        
+
 							for(Player player : Bukkit.getOnlinePlayers()) {
 								if(Main.muted.HasKey(player.getName()))
 									if(Main.muted.getBool(player.getName())) continue;
@@ -212,13 +212,13 @@ public class MessageListener extends ListenerAdapter {
 							}
 							ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 							console.sendMessage(msg);
-					    }, failure -> {
-					        Log.debug(Main.plugin, "Failed to resolve the referenced message");
-					        return;
-					    });
+						}, failure -> {
+							Log.debug(Main.plugin, "Failed to resolve the referenced message");
+							return;
+						});
 					}
-					
-					
+
+
 				}
 				else {
 					//Bukkit.broadcastMessage(chatMessage); 
@@ -247,11 +247,11 @@ public class MessageListener extends ListenerAdapter {
 			return null;
 		}
 
-		if(blockedCommand(command.substring(1)) == null) { 
+		if(blockedCommand(command.substring(1)) == null) {
 			//Log.info(Main.plugin, "Sending command");
 			Bukkit.getScheduler().runTask(Main.plugin, () -> {
 				CustomConsoleSender sender = new CustomConsoleSender(user.getName(), msg -> {
-					Main.bot.SendMessage(channel, String.format("<@%s> %s", user.getId(), 
+					Main.bot.SendMessage(channel, String.format("<@%s> %s", user.getId(),
 							Lang.RemoveColorCodesAndFormatting(msg)));
 					Log.info(Main.plugin, Lang.RemoveColorCodesAndFormatting(msg));
 				});
@@ -261,7 +261,7 @@ public class MessageListener extends ListenerAdapter {
 				}catch(Exception e) {
 					// If a vanilla command, run through the default command sender,
 					// but no feedback messages.
-					if(e.getCause() != null 
+					if(e.getCause() != null
 							&& e.getCause().getMessage().contains("Cannot make valorless.discordchat.CustomConsoleSender")
 							&& e.getCause().getMessage().contains("a vanilla command listener")) {
 						try {
@@ -292,7 +292,7 @@ public class MessageListener extends ListenerAdapter {
 
 	void SendException(Exception e, MessageChannel channel, User user) {
 		String error = String.format("<@%s> Unknown command.\n", user.getId());
-		error += e.getMessage();
+		error += e.getMessage() + "\n";
 		error += String.join("\n", Arrays.stream(e.getStackTrace())
 				.map(StackTraceElement::toString)
 				.toList());
@@ -311,15 +311,6 @@ public class MessageListener extends ListenerAdapter {
 				}
 			}
 		}
-		return false;
-	}
-
-	boolean guildMaster(Member user) {
-		for(Role role : user.getRoles()) {
-			//Log.info(Main.plugin, role.getName() + " - " + role.getId());
-			if(role.getId().equalsIgnoreCase("1222980440416190696")) return true;
-		}
-
 		return false;
 	}
 
@@ -354,10 +345,10 @@ public class MessageListener extends ListenerAdapter {
 	@Nullable
 	public Role getHighestFrom(Member member) {
 		if (member == null)
-			return null; 
+			return null;
 		List<Role> roles = member.getRoles();
 		if (roles.isEmpty())
-			return null; 
+			return null;
 		return roles.stream().min((first, second) -> (first.getPosition() == second.getPosition()) ? 0 : ((first.getPosition() > second.getPosition()) ? -1 : 1)).get();
 	}
 

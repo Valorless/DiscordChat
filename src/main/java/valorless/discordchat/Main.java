@@ -22,7 +22,7 @@ import valorless.valorlessutils.translate.Translator;
 
 public final class Main extends JavaPlugin implements Listener {
 	public static JavaPlugin plugin;
-	String Name = "§7[§4DiscordChat§7]§r";
+	String name = "§7[§4DiscordChat§7]§r";
 	public static Boolean enabled = true;
 	public static Config config;
 	public static Config filter;
@@ -54,7 +54,8 @@ public final class Main extends JavaPlugin implements Listener {
 	}
 
 	@Override
-	public void onEnable() {	
+	public void onEnable() {
+		name = Lang.Parse(Lang.Get("prefix"));
 		Bukkit.getScheduler().runTaskLater(plugin, () -> {
 			// All you have to do is adding the following two lines in your onEnable method.
 			// You can find the plugin ids of your plugins on the page https://bstats.org/what-is-my-plugin-id
@@ -66,8 +67,9 @@ public final class Main extends JavaPlugin implements Listener {
 			new PlaceholderAPI().register();
 			ReconnectChecker();
 
+
 			for(Player player : Bukkit.getOnlinePlayers()) {
-				player.sendMessage(Lang.Get("prefix") + "§aChat Connected!");
+				player.sendMessage(name + "§aChat Connected!");
 			}
 
 			ChatListener.url = config.getString("webserver.url") + config.getString("webserver.media-location");
@@ -75,7 +77,7 @@ public final class Main extends JavaPlugin implements Listener {
 			Main.plugin.saveResource("MinecraftFont.ttf", true);
 
 			//Config
-			config.addValidationEntry("debug", false);
+			//config.addValidationEntry("debug", false);
 			config.addValidationEntry("webhook-url", "");
 			config.addValidationEntry("webserver.url", "https://domain.net/");
 			config.addValidationEntry("webserver.upload-url", "https://domain.net/media/upload.php");
@@ -126,7 +128,7 @@ public final class Main extends JavaPlugin implements Listener {
 			filter.validate();
 
 			//Lang
-			Lang.lang.addValidationEntry("prefix", "&7[&9DiscordChat&7]&r ");
+			Lang.lang.addValidationEntry("prefix", "&7[&#7289daDiscord&7]&r ");
 			Lang.lang.addValidationEntry("console-prefix", "[&4Console&r]");
 			Lang.lang.addValidationEntry("console-message", "%timestamp% %message%");
 			Lang.lang.addValidationEntry("message", "%timestamp% %message%");
@@ -192,7 +194,7 @@ public final class Main extends JavaPlugin implements Listener {
 				for(Player player:Bukkit.getServer().getOnlinePlayers()) //Message OPs on reload or start.
 				{
 					if(player.isOp()){
-						player.sendMessage(Name + " Please set me up before use, I have disabled myself.");
+						player.sendMessage(name + " Please set me up before use, I have disabled myself.");
 					}
 				}
 			}
@@ -247,7 +249,7 @@ public final class Main extends JavaPlugin implements Listener {
 	public void onDisable() {    
 		//InventoryImageGenerator.cche.cancel();
 		for(Player player : Bukkit.getOnlinePlayers()) {
-			player.sendMessage(Lang.Get("prefix") + "§cChat Disconnected!");
+			player.sendMessage(name + " §cChat Disconnected!");
 		}
 		if(config.getBool("server-stop") && enabled) {
 			DiscordWebhook webhook = new DiscordWebhook(config.getString("webhook-url"));
@@ -309,7 +311,7 @@ public final class Main extends JavaPlugin implements Listener {
 					}
 
 					for(Player player : Bukkit.getOnlinePlayers()) {
-						player.sendMessage("§7[§9Discord§7]§r §aChat Reconnected!");
+						player.sendMessage(name + " §aChat Reconnected!");
 					}
 				}
 			}

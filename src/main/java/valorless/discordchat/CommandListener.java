@@ -129,7 +129,7 @@ public class CommandListener implements CommandExecutor {
 						Main.username = Main.config.getString("server-username");
 						if(Main.config.getString("webhook-url") == "") {
 							Log.info(plugin, "Disabled!");
-							Log.warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
+							Log.warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /discord reload.");
 							Main.enabled = false;
 						}
 						return true;
@@ -169,7 +169,7 @@ public class CommandListener implements CommandExecutor {
 				Main.username = Main.config.getString("server-username");
 				if(Main.config.getString("webhook-url") == "") {
 					Log.info(plugin, "Disabled!");
-					Log.warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
+					Log.warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /discord reload.");
 					Main.enabled = false;
 				}
 
@@ -230,7 +230,7 @@ public class CommandListener implements CommandExecutor {
                 message = message + " " + arg;
             }
 			if(Main.enabled == false) {
-				Log.warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
+				Log.warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /discord reload.");
 			}
 			DiscordWebhook webhook = new DiscordWebhook(Main.config.getString("webhook-url"));
 

@@ -1,13 +1,9 @@
 package valorless.discordchat.linking;
 
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,7 +13,6 @@ import valorless.discordchat.Lang;
 import valorless.discordchat.Main;
 import valorless.discordchat.storage.Storage;
 import valorless.valorlessutils.logging.Log;
-import valorless.valorlessutils.config.Config;
 
 /**
  * Manages linking between Minecraft player UUIDs and Discord user IDs.
@@ -82,11 +77,7 @@ public class Linking implements Listener{
 		if(!Storage.Accounts.pending.containsKey("" + discordID) && !isPending(uuid.toString())) {
 			Storage.Accounts.pending.put("" + discordID, uuid.toString());
 		}
-		if(check(uuid, discordID, channelID)) {
-			return true;
-		}else {
-			return false;
-		}
+        return check(uuid, discordID, channelID);
 	}
 	
 	/**
