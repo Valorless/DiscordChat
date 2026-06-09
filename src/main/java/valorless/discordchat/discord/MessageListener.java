@@ -302,7 +302,7 @@ public class MessageListener extends ListenerAdapter {
 		Main.bot.SendMessage(channel, error);
 	}
 
-	boolean isStaff(Member user) {
+	public static boolean isStaff(Member user) {
 		List<String> staff = Bot.config.getStringList("staff");
 		for(String id : staff) {
 			for(Role role : user.getRoles()) {

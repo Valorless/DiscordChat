@@ -24,8 +24,8 @@ webserver:
 save-locally: false
 
 # Location for saving images, if save-locally is true.
-# Will always be saved in the plugin folder of "WebServer".
-save-location: '/public_html/media/generated/'
+# plugins/...
+save-location: 'WebServer/public_html/media/generated/'
 
 # How many days old should the stored files be, before being removed? (In days)
 # This only works when 'save-locally' is enabled.

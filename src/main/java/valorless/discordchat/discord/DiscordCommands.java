@@ -119,8 +119,12 @@ public class DiscordCommands extends ListenerAdapter {
 			for(Player player : Bukkit.getOnlinePlayers()) {
 				if(EssentialsHook.isHooked()) {
 					IUser pl = EssentialsHook.getInstance().getUser(player);
-					if(pl.isVanished()) continue;
-					if(pl.isHidden()) continue;
+					if((pl.isVanished() || pl.isHidden()) && MessageListener.isStaff(event.getMember())){
+						if(pl.isAfk()) message += "\n`" + player.getName() + "` *AFK* *Vanished*";
+						else message += "\n`" + player.getName() + "` *Vanished*";
+						continue;
+					}
+					//if(pl.isHidden()) continue;
 					if(pl.isAfk()) message += "\n`" + player.getName() + "` *AFK*";
 					else message += "\n`" + player.getName() + "`";
 				}else {

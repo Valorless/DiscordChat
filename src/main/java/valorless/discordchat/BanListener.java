@@ -35,6 +35,11 @@ public class BanListener implements Listener { // Primary objective of BanListen
 	public void onBanEvent(PunishmentEvent event) {
 		Punishment punishment = event.getPunishment();
 		if(punishment != null) {
+			Log.error(Main.plugin, String.format("Admin '%s' has issued a %s to player '%s' for reason: '%s'",
+					punishment.getOperator(),
+					punishment.getType().name(),
+					punishment.getName(),
+					punishment.getReason()));
 			Date now = new Date();
 			String target = punishment.getName();
 			String sender = punishment.getOperator();
@@ -44,13 +49,13 @@ public class BanListener implements Listener { // Primary objective of BanListen
 			String duration = DurationFormatter.formatDurationBetween(punishment.getStart(), punishment.getEnd());
 			//String duration = FormatDuration(punishment.getDuration(true));
 			if(punishment.getType() == PunishmentType.BAN && Main.bans.getBool("bans")) {
-				SendWebhook(BanType.ban, target, sender, reason, now, "");
+				SendWebhook(BanType.ban, target, sender, reason, now, "Forever");
 			}
 			if(punishment.getType() == PunishmentType.TEMP_BAN && Main.bans.getBool("tempbans") ) {
 				SendWebhook(BanType.tempban, target, sender, reason, now, duration);
 			}
 			if(punishment.getType() == PunishmentType.IP_BAN && Main.bans.getBool("banips")) {
-				SendWebhook(BanType.ipban, target, sender, reason, now, "");
+				SendWebhook(BanType.ipban, target, sender, reason, now, "Forever");
 			}
 		}
 	}
@@ -64,6 +69,9 @@ public class BanListener implements Listener { // Primary objective of BanListen
 	public void onUnbanEvent(RevokePunishmentEvent event) {
 		Punishment punishment = event.getPunishment();
 		if(punishment != null) {
+			Log.error(Main.plugin, String.format("Admin '%s' has issued a unban to player '%s'.",
+					punishment.getOperator(),
+					punishment.getName()));
 			Date now = new Date();
 			String target = punishment.getName();
 			String sender = punishment.getOperator();
