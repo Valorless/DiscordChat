@@ -43,7 +43,8 @@ public class MapToImage {
         
         try {
         	if(Main.config.getBool("save-locally")) {
-        		File path = Bukkit.getPluginManager().getPlugin("WebServer").getDataFolder();
+        		//File path = Bukkit.getPluginManager().getPlugin("WebServer").getDataFolder();
+                File path = Main.plugin.getDataFolder().getParentFile();
         		ImageIO.write(image, "PNG", new File(path, Main.config.getString("save-location") + id.toString() + ".png"));
         		FileCleanup.Clean(path.getPath() +  Main.config.getString("save-location"), Main.config.getInt("cleanup-age"));
         	}else {

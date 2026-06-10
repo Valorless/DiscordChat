@@ -58,7 +58,8 @@ public class FileCleanup {
             	Log.error(Main.plugin, "Failed to list files in the folder.");
             }
         } else {
-        	Log.error(Main.plugin, "Folder does not exist or is not a directory.");
+        	Log.error(Main.plugin, "Failed to clean: Folder does not exist or is not a directory.");
+            Log.error(Main.plugin, path);
         }
     }
 }
