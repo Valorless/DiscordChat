@@ -6,6 +6,8 @@ import valorless.discordchat.hooks.EssentialsHook;
 import valorless.discordchat.utils.Extra;
 import valorless.discordchat.utils.ItemStackToPng;
 import valorless.discordchat.utils.MapToImage;
+import valorless.discordchat.utils.TextComponentUtil;
+import valorless.valorlessutils.json.JsonUtils;
 import valorless.valorlessutils.logging.Log;
 import valorless.valorlessutils.config.Config;
 import valorless.valorlessutils.items.ItemUtils;
@@ -206,10 +208,10 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		if(!config.getBool("achievement")) return;
 		GameRule<Boolean> rule = null;
 		try{
-			rule = (GameRule<Boolean>) GameRule.getByName("announceAdvancements");
+			rule = getGameRule("announceAdvancements");
 		}catch(IncompatibleClassChangeError e){
 			try {
-				rule = (GameRule<Boolean>) GameRule.getByName("show_advancement_messages");
+				rule = getGameRule("show_advancement_messages");
 			}catch(IncompatibleClassChangeError ex){
 				rule = (GameRule<Boolean>) Registry.GAME_RULE.get(new NamespacedKey("minecraft", "show_advancement_messages"));
 			}
@@ -220,15 +222,15 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		if(rule == null || event.getPlayer().getWorld().getGameRuleValue(rule) == false) return;
 		if(event.getAdvancement() == null) return;
 		if(event.getAdvancement().getDisplay() == null) return;
-		if(event.getAdvancement().getDisplay().getTitle() == null) return;
-		if(event.getAdvancement().getDisplay().getDescription() == null) return;
-		if(IsAchievementIgnored(event.getAdvancement().getDisplay().getTitle())) return;
+		if(event.getAdvancement().getDisplay().title().toString() == null) return;
+		if(event.getAdvancement().getDisplay().description().toString() == null) return;
+		if(IsAchievementIgnored(TextComponentUtil.toPlainText(event.getAdvancement().getDisplay().title()))) return;
 
 		Bot.newChain().async(() -> {
 			Player player = event.getPlayer();
 			String title = "**%player%** has unlocked **%message%**."
 					.replace("%player%", event.getPlayer().getName())
-					.replace("%message%", event.getAdvancement().getDisplay().getTitle());
+					.replace("%message%", TextComponentUtil.toPlainText(event.getAdvancement().getDisplay().title()));
 
 			DiscordWebhook webhook = new DiscordWebhook(config.getString("webhook-url"));
 			webhook.setUsername(FormatUsername(player, config.getString("player-username")));
@@ -241,11 +243,12 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 				Log.debug(plugin, "Cannot set the bot's picture.");
 			}
 
-			webhook.addEmbed(new DiscordWebhook.EmbedObject()
+			DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject()
 					.setTitle(FormatMessage(player, title))
-					.setDescription(FormatMessage(player, event.getAdvancement().getDisplay().getDescription() + "."))
-					.setColor(Color.decode("#2afa4d"))
-			);
+					.setDescription(FormatMessage(player,
+							TextComponentUtil.toPlainText(event.getAdvancement().getDisplay().description())))
+					.setColor(Color.decode("#2afa4d"));
+			webhook.addEmbed(embed);
 
 			try {
 				//Log.info(plugin, "Executing webhook.");
@@ -794,5 +797,13 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 
 		Main.bot.SendMessage(null, "Chat Disconnected");
 
+	}
+
+	public <T> GameRule<T> getGameRule(String rule){
+		for(GameRule gr : Registry.GAME_RULE){
+			gr.getKey().getKey().equals(rule);
+			return (GameRule<T>) gr;
+		}
+		return null;
 	}
 }

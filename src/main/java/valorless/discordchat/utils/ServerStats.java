@@ -50,14 +50,27 @@ public class ServerStats {
 	 */
 	public static String getTps() {
 		try {
-			Object minecraftServer = Bukkit.getServer().getClass().getMethod("getServer").invoke(Bukkit.getServer());
-			Field tpsField = minecraftServer.getClass().getField("recentTps");
-			double[] tps = (double[]) tpsField.get(minecraftServer);
+			double[] tps = Bukkit.getServer().getTPS(); // PaperAPI
+
+			//[12:11:40 WARN]: java.lang.NoSuchFieldException: recentTps
+			//[12:11:40 WARN]: 	at java.base/java.lang.Class.getField(Class.java:2068)
+			//[12:11:40 WARN]: 	at io.papermc.reflectionrewriter.runtime.AbstractDefaultRulesReflectionProxy.getField(AbstractDefaultRulesReflectionProxy.java:85)
+			//[12:11:40 WARN]: 	at io.papermc.paper.pluginremap.reflect.PaperReflectionHolder.getField(Unknown Source)
+			//[12:11:40 WARN]: 	at DiscordChat-2.4.1.803.jar//valorless.discordchat.utils.ServerStats.getTps(ServerStats.java:54)
+			//[12:11:40 WARN]: 	at DiscordChat-2.4.1.803.jar//valorless.discordchat.utils.ServerStats.slashMem(ServerStats.java:23)
 
 			return String.format("%.2f", tps[0]);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return "N/A";
+			try{
+				Object minecraftServer = Bukkit.getServer().getClass().getMethod("getServer").invoke(Bukkit.getServer());
+				Field tpsField = minecraftServer.getClass().getDeclaredField("recentTps");
+				tpsField.setAccessible(true);
+				double[] tps = (double[]) tpsField.get(minecraftServer);
+				return String.format("%.2f", tps[0]);
+			}catch(Exception ex){
+				ex.printStackTrace();
+				return "N/A";
+			}
 		}
 	}
 	

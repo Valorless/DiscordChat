@@ -1,5 +1,6 @@
 package valorless.discordchat;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
@@ -7,6 +8,7 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -112,6 +114,11 @@ public class CustomConsoleSender implements CommandSender {
     @Override
     public Spigot spigot() {
         return Bukkit.getConsoleSender().spigot();
+    }
+
+    @Override
+    public @NotNull Component name() {
+        return null;
     }
 
     @Override
