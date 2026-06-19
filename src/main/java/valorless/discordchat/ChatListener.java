@@ -206,6 +206,12 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			Log.warning(plugin, "Please change my config.yml before using me.\nYou can reload me when needed with /dcm reload.");
 		}
 		if(!config.getBool("achievement")) return;
+
+
+		if(EssentialsHook.isHooked()) {
+			if(EssentialsHook.getUser(event.getPlayer()).isVanished()) return;
+		}
+
 		GameRule<Boolean> rule = null;
 		try{
 			rule = getGameRule("announceAdvancements");
