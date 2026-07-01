@@ -52,7 +52,7 @@ public class TabCompletion implements TabCompleter {
 				subCommands.add("link");
 				subCommands.add("unlink");
 			}
-			if (sender.hasPermission("rarespawns.mute")) {
+			if (sender.hasPermission("discordchat.mute")) {
 				subCommands.add("mute");
 			}
 

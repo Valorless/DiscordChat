@@ -523,23 +523,25 @@ public class DiscordCommands extends ListenerAdapter {
         }
         
 		if(event.getModalId().equals("stats")) {
-			String username = event.getValue("username").getAsString();
-			UUID playerUUID = PlayerCache.getUUID(username);
-			PlayerProfile profile = mcMMO.getDatabaseManager().loadPlayerProfile(playerUUID);
+			try {
+				String username = event.getValue("username").getAsString();
+				UUID playerUUID = PlayerCache.getUUID(username);
+				PlayerProfile profile = mcMMO.getDatabaseManager().loadPlayerProfile(playerUUID);
 
-            String msg = String.format("## mcMMO Stats for %s:\n", username);
-            int totalLevel = 0;
-            for(PrimarySkillType pst : PrimarySkillType.values()) {
-                int level = profile.getSkillLevel(pst);
-                double xp = profile.getSkillXpLevel(pst);
-                double max = profile.getXpToLevel(pst);
-                msg += String.format(" - **%s** - Level: **%d** - XP: %.2f/%.2f\n",
-                        Extra.UppercaseFirstLetter(pst.name()), level, xp, max);
-                totalLevel += level;
-            }
-            msg += String.format("**Total Level:** %d", totalLevel);
+				String msg = String.format("## mcMMO Stats for %s:\n", username);
+				int totalLevel = 0;
+				for (PrimarySkillType pst : PrimarySkillType.values()) {
+					int level = profile.getSkillLevel(pst);
+					double xp = profile.getSkillXpLevel(pst);
+					double max = profile.getXpToLevel(pst);
+					msg += String.format(" - **%s** - Level: **%d** - XP: %.2f/%.2f\n",
+							Extra.UppercaseFirstLetter(pst.name()), level, xp, max);
+					totalLevel += level;
+				}
+				msg += String.format("**Total Level:** %d", totalLevel);
 
-            event.reply(msg).setEphemeral(true).queue();
+				event.reply(msg).setEphemeral(true).queue();
+			}catch(Exception e) {}
             return;
 
         }
