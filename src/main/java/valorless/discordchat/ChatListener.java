@@ -1,5 +1,7 @@
 package valorless.discordchat;
 
+import io.papermc.paper.connection.PlayerLoginConnection;
+import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import org.bukkit.*;
 import valorless.discordchat.discord.Bot;
 import valorless.discordchat.hooks.EssentialsHook;
@@ -19,7 +21,9 @@ import net.ess3.api.IUser;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
@@ -310,9 +314,25 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 		}).execute();
 	}
 
+	List<UUID> tranfers = new ArrayList<>();
+
+	boolean isTransfer(UUID uuid) {
+		return tranfers.contains(uuid);
+	}
+
+	@EventHandler
+	public void onPlayerConnect(PlayerConnectionValidateLoginEvent event) {
+		if(event.getConnection() instanceof PlayerLoginConnection login) {
+			if(login.isTransferred()) {
+				Log.info(plugin, "Player " + login.getAuthenticatedProfile().getName() + " is transferring from another server.");
+				tranfers.add(login.getAuthenticatedProfile().getId());
+			}
+		}
+	}
+
 	@EventHandler (priority = EventPriority.HIGHEST)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if(event.getPlayer().hasPermission("essentials.silentjoin")) {
+		if(event.getPlayer().hasPermission("essentials.silentjoin") && !isTransfer(event.getPlayer().getUniqueId())) {
 			if(!Utils.IsStringNullOrEmpty(Main.config.getString("custom-join"))) {
 				String join = Main.config.getString("custom-join");
 				join = join.replace("%username%", event.getPlayer().getName());
@@ -330,6 +350,15 @@ public class ChatListener implements Listener { // Primary objective of BanListe
 			}
 			return;
 			//Let players with silentjoin see others with silentjoin join, but say vanished. same for quit
+		}
+
+		if(isTransfer(event.getPlayer().getUniqueId())) {
+			tranfers.remove(event.getPlayer().getUniqueId());
+			IUser user = EssentialsHook.getUser(event.getPlayer());
+			if(user.isVanished()) {
+				user.setVanished(false);
+				Log.info(plugin, "Player " + event.getPlayer().getName() + " was vanished on transfer, unvanishing.");
+			}
 		}
 
 		if(!Utils.IsStringNullOrEmpty(Main.config.getString("custom-join"))) {
